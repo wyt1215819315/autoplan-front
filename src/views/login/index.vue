@@ -3,7 +3,6 @@ import {
   ref,
   toRaw,
   reactive,
-  watch,
   computed,
   onMounted,
   onBeforeUnmount
@@ -26,7 +25,6 @@ import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
-import { ReImageVerify } from "@/components/ReImageVerify";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
@@ -37,6 +35,8 @@ import globalization from "@/assets/svg/globalization.svg?component";
 import Lock from "@iconify-icons/ri/lock-fill";
 import Check from "@iconify-icons/ep/check";
 import User from "@iconify-icons/ri/user-3-fill";
+import { md5 } from "@/utils/crypto";
+import { baseUrlApi } from "@/api/utils";
 
 defineOptions({
   name: "Login"
@@ -60,8 +60,8 @@ const { title, getDropdownItemStyle, getDropdownItemClass } = useNav();
 const { locale, translationCh, translationEn } = useTranslationLang();
 
 const ruleForm = reactive({
-  username: "admin",
-  password: "admin123",
+  username: "",
+  password: "",
   verifyCode: ""
 });
 
@@ -71,7 +71,11 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       useUserStoreHook()
-        .loginByUsername({ username: ruleForm.username, password: "admin123" })
+        .loginByUsername({
+          username: ruleForm.username,
+          password: md5(ruleForm.password),
+          code: ruleForm.verifyCode
+        })
         .then(res => {
           if (res.success) {
             // 获取后端路由
@@ -96,16 +100,17 @@ function onkeypress({ code }: KeyboardEvent) {
   }
 }
 
+function refreshCaptchaCode() {
+  imgCode.value = baseUrlApi("/auth/getImageCaptcha") + "?r=" + Math.random();
+}
+
 onMounted(() => {
   window.document.addEventListener("keypress", onkeypress);
+  refreshCaptchaCode();
 });
 
 onBeforeUnmount(() => {
   window.document.removeEventListener("keypress", onkeypress);
-});
-
-watch(imgCode, value => {
-  useUserStoreHook().SET_VERIFYCODE(value);
 });
 </script>
 
@@ -215,7 +220,11 @@ watch(imgCode, value => {
                   :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
                 >
                   <template v-slot:append>
-                    <ReImageVerify v-model:code="imgCode" />
+                    <img
+                      @click="refreshCaptchaCode"
+                      :src="imgCode"
+                      alt="验证码"
+                    />
                   </template>
                 </el-input>
               </el-form-item>
