@@ -3,6 +3,7 @@ import {
   ref,
   toRaw,
   reactive,
+  watch,
   computed,
   onMounted,
   onBeforeUnmount
@@ -37,12 +38,14 @@ import Check from "@iconify-icons/ep/check";
 import User from "@iconify-icons/ri/user-3-fill";
 import { md5 } from "@/utils/crypto";
 import { baseUrlApi } from "@/api/utils";
+import Info from "@iconify-icons/ri/information-line";
 
 defineOptions({
   name: "Login"
 });
 
 const imgCode = ref("");
+const loginDay = ref(7);
 const router = useRouter();
 const loading = ref(false);
 const checked = ref(false);
@@ -111,6 +114,13 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.document.removeEventListener("keypress", onkeypress);
+});
+
+watch(checked, bool => {
+  useUserStoreHook().SET_ISREMEMBERED(bool);
+});
+watch(loginDay, value => {
+  useUserStoreHook().SET_LOGINDAY(value);
 });
 </script>
 
@@ -234,7 +244,29 @@ onBeforeUnmount(() => {
               <el-form-item>
                 <div class="w-full h-[20px] flex justify-between items-center">
                   <el-checkbox v-model="checked">
-                    {{ t("login.remember") }}
+                    <span class="flex">
+                      <select
+                        v-model="loginDay"
+                        :style="{
+                          width: loginDay < 10 ? '10px' : '16px',
+                          outline: 'none',
+                          background: 'none',
+                          appearance: 'none'
+                        }"
+                      >
+                        <option value="1">1</option>
+                        <option value="7">7</option>
+                        <option value="30">30</option>
+                      </select>
+                      {{ t("login.remember") }}
+                      <el-tooltip
+                        effect="dark"
+                        placement="top"
+                        :content="t('login.rememberInfo')"
+                      >
+                        <IconifyIconOffline :icon="Info" class="ml-1" />
+                      </el-tooltip>
+                    </span>
                   </el-checkbox>
                   <el-button
                     link

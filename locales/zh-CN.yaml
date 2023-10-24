@@ -46,6 +46,7 @@ menus:
   hssplitPane: 切割面板
   hsbutton: 按钮组件
   hscropping: 图片裁剪
+  hsanimatecss: AnimateCss选择器组件
   hscountTo: 数字动画
   hsselector: 选择器组件
   hsflowChart: 流程图
@@ -116,7 +117,8 @@ login:
   username: 账号
   password: 密码
   verifyCode: 验证码
-  remember: 记住密码
+  remember: 天内免登录
+  rememberInfo: 勾选并登录后，规定天数内无需输入用户名和密码会自动登入系统
   sure: 确认密码
   forget: 忘记密码?
   login: 登录
