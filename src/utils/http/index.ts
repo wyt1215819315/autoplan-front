@@ -13,6 +13,8 @@ import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
+import { Result } from "@/api/utils";
+import { message } from "@/utils/message";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -150,7 +152,8 @@ class PureHttp {
     method: RequestMethods,
     url: string,
     param?: AxiosRequestConfig,
-    axiosConfig?: PureHttpRequestConfig
+    axiosConfig?: PureHttpRequestConfig,
+    showMsg?: boolean
   ): Promise<T> {
     const config = {
       method,
@@ -164,12 +167,38 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
+          if (showMsg && this.isAjaxResult(response)) {
+            const msg = typeof (response as Result).msg;
+            const success = typeof (response as Result).success;
+            if (success) {
+              if (msg !== undefined && msg.length > 0) {
+                message(msg, { type: "success" });
+              } else {
+                message("操作成功！", { type: "success" });
+              }
+            } else {
+              if (msg !== undefined && msg.length > 0) {
+                message(msg, { type: "error" });
+              } else {
+                message("操作失败！", { type: "error" });
+              }
+            }
+          }
           resolve(response);
         })
         .catch(error => {
           reject(error);
         });
     });
+  }
+
+  private isAjaxResult(response: unknown): response is Result {
+    return (
+      typeof response === "object" &&
+      response !== null &&
+      "success" in response &&
+      typeof (response as Result).success === "boolean"
+    );
   }
 
   /** 单独抽离的post工具函数 */

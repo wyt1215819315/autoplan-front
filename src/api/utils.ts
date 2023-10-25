@@ -1,3 +1,16 @@
+export type Result = {
+  success: boolean;
+  msg?: string;
+  data?: any;
+};
+
+export type PageBean = {
+  current: number;
+  size: number;
+  total: number;
+  records: Array<any>;
+};
+
 export const baseUrlApi = (url: string) => {
   if (!url.startsWith("/")) {
     url = "/" + url;
