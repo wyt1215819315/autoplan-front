@@ -141,14 +141,6 @@ export default {
       }
     },
     {
-      path: "/able/pdf",
-      name: "Pdf",
-      component: () => import("@/views/able/pdf.vue"),
-      meta: {
-        title: $t("menus.hsPdf")
-      }
-    },
-    {
       path: "/able/excel",
       name: "Excel",
       component: () => import("@/views/able/excel.vue"),

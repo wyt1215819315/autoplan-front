@@ -11,6 +11,7 @@ import removeConsole from "vite-plugin-remove-console";
 import { themePreprocessorPlugin } from "@pureadmin/theme";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import { genScssMultipleScopeVars } from "../src/layout/theme";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export function getPluginsList(
   command: string,
@@ -56,6 +57,12 @@ export function getPluginsList(
     // 打包分析
     lifecycle === "report"
       ? visualizer({ open: true, brotliSize: true, filename: "report.html" })
-      : null
+      : null,
+    topLevelAwait({
+      // The export name of top-level await promise for each chunk module
+      promiseExportName: "__tla",
+      // The function to generate import names of top-level await promise in each chunk module
+      promiseImportName: i => `__tla_${i}`
+    })
   ];
 }

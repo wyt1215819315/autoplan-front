@@ -1,4 +1,4 @@
-name: Lint Code
+name: 代码检查
 on:
   push:
     branches:
