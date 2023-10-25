@@ -7,8 +7,8 @@ async function buildChild() {
   for (const obj of result.data) {
     const res = {
       path: "/auto/task",
-      name: obj.name,
-      component: () => import("@/views/auto/index/index.vue"),
+      name: "TaskInfoPage",
+      component: () => import("@/views/auto/task/index.vue"),
       query: {
         id: obj.id
       },
