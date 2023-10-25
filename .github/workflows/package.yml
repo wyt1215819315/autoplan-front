@@ -1,4 +1,4 @@
-name: 代码检查
+name: 打包
 on:
   push:
     branches:
@@ -44,8 +44,6 @@ jobs:
       - name: Start Lint Code
         run: |
           pnpm install --no-frozen-lockfile
-          pnpm lint
-          pnpm typecheck
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
