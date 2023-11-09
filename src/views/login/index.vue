@@ -86,6 +86,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });
             });
+          } else if (res.code === -1) {
+            // 验证码超时刷新验证码
+            refreshCaptchaCode();
           }
         })
         .finally(() => (loading.value = false));
@@ -104,6 +107,7 @@ function onkeypress({ code }: KeyboardEvent) {
 }
 
 function refreshCaptchaCode() {
+  ruleForm.verifyCode = "";
   imgCode.value = baseUrlApi("/auth/getImageCaptcha") + "?r=" + Math.random();
 }
 
@@ -137,37 +141,37 @@ watch(loginDay, value => {
         @change="dataThemeChange"
       />
       <!-- 国际化 -->
-      <el-dropdown trigger="click">
-        <globalization
-          class="hover:text-primary hover:!bg-[transparent] w-[20px] h-[20px] ml-1.5 cursor-pointer outline-none duration-300"
-        />
-        <template #dropdown>
-          <el-dropdown-menu class="translation">
-            <el-dropdown-item
-              :style="getDropdownItemStyle(locale, 'zh')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
-              @click="translationCh"
-            >
-              <IconifyIconOffline
-                class="check-zh"
-                v-show="locale === 'zh'"
-                :icon="Check"
-              />
-              简体中文
-            </el-dropdown-item>
-            <el-dropdown-item
-              :style="getDropdownItemStyle(locale, 'en')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
-              @click="translationEn"
-            >
-              <span class="check-en" v-show="locale === 'en'">
-                <IconifyIconOffline :icon="Check" />
-              </span>
-              English
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <!--      <el-dropdown trigger="click">-->
+      <!--        <globalization-->
+      <!--          class="hover:text-primary hover:!bg-[transparent] w-[20px] h-[20px] ml-1.5 cursor-pointer outline-none duration-300"-->
+      <!--        />-->
+      <!--        <template #dropdown>-->
+      <!--          <el-dropdown-menu class="translation">-->
+      <!--            <el-dropdown-item-->
+      <!--              :style="getDropdownItemStyle(locale, 'zh')"-->
+      <!--              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"-->
+      <!--              @click="translationCh"-->
+      <!--            >-->
+      <!--              <IconifyIconOffline-->
+      <!--                class="check-zh"-->
+      <!--                v-show="locale === 'zh'"-->
+      <!--                :icon="Check"-->
+      <!--              />-->
+      <!--              简体中文-->
+      <!--            </el-dropdown-item>-->
+      <!--            <el-dropdown-item-->
+      <!--              :style="getDropdownItemStyle(locale, 'en')"-->
+      <!--              :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"-->
+      <!--              @click="translationEn"-->
+      <!--            >-->
+      <!--              <span class="check-en" v-show="locale === 'en'">-->
+      <!--                <IconifyIconOffline :icon="Check" />-->
+      <!--              </span>-->
+      <!--              English-->
+      <!--            </el-dropdown-item>-->
+      <!--          </el-dropdown-menu>-->
+      <!--        </template>-->
+      <!--      </el-dropdown>-->
     </div>
     <div class="login-container">
       <div class="img">
@@ -242,40 +246,40 @@ watch(loginDay, value => {
 
             <Motion :delay="250">
               <el-form-item>
-                <div class="w-full h-[20px] flex justify-between items-center">
-                  <el-checkbox v-model="checked">
-                    <span class="flex">
-                      <select
-                        v-model="loginDay"
-                        :style="{
-                          width: loginDay < 10 ? '10px' : '16px',
-                          outline: 'none',
-                          background: 'none',
-                          appearance: 'none'
-                        }"
-                      >
-                        <option value="1">1</option>
-                        <option value="7">7</option>
-                        <option value="30">30</option>
-                      </select>
-                      {{ t("login.remember") }}
-                      <el-tooltip
-                        effect="dark"
-                        placement="top"
-                        :content="t('login.rememberInfo')"
-                      >
-                        <IconifyIconOffline :icon="Info" class="ml-1" />
-                      </el-tooltip>
-                    </span>
-                  </el-checkbox>
-                  <el-button
-                    link
-                    type="primary"
-                    @click="useUserStoreHook().SET_CURRENTPAGE(4)"
-                  >
-                    {{ t("login.forget") }}
-                  </el-button>
-                </div>
+                <!--                <div class="w-full h-[20px] flex justify-between items-center">-->
+                <!--                  <el-checkbox v-model="checked">-->
+                <!--                    <span class="flex">-->
+                <!--                      <select-->
+                <!--                        v-model="loginDay"-->
+                <!--                        :style="{-->
+                <!--                          width: loginDay < 10 ? '10px' : '16px',-->
+                <!--                          outline: 'none',-->
+                <!--                          background: 'none',-->
+                <!--                          appearance: 'none'-->
+                <!--                        }"-->
+                <!--                      >-->
+                <!--                        <option value="1">1</option>-->
+                <!--                        <option value="7">7</option>-->
+                <!--                        <option value="30">30</option>-->
+                <!--                      </select>-->
+                <!--                      {{ t("login.remember") }}-->
+                <!--                      <el-tooltip-->
+                <!--                        effect="dark"-->
+                <!--                        placement="top"-->
+                <!--                        :content="t('login.rememberInfo')"-->
+                <!--                      >-->
+                <!--                        <IconifyIconOffline :icon="Info" class="ml-1" />-->
+                <!--                      </el-tooltip>-->
+                <!--                    </span>-->
+                <!--                  </el-checkbox>-->
+                <!--                  <el-button-->
+                <!--                    link-->
+                <!--                    type="primary"-->
+                <!--                    @click="useUserStoreHook().SET_CURRENTPAGE(4)"-->
+                <!--                  >-->
+                <!--                    {{ t("login.forget") }}-->
+                <!--                  </el-button>-->
+                <!--                </div>-->
                 <el-button
                   class="w-full mt-4"
                   size="default"
@@ -305,32 +309,32 @@ watch(loginDay, value => {
             </Motion>
           </el-form>
 
-          <Motion v-if="currentPage === 0" :delay="350">
-            <el-form-item>
-              <el-divider>
-                <p class="text-gray-500 text-xs">{{ t("login.thirdLogin") }}</p>
-              </el-divider>
-              <div class="w-full flex justify-evenly">
-                <span
-                  v-for="(item, index) in thirdParty"
-                  :key="index"
-                  :title="t(item.title)"
-                >
-                  <IconifyIconOnline
-                    :icon="`ri:${item.icon}-fill`"
-                    width="20"
-                    class="cursor-pointer text-gray-500 hover:text-blue-400"
-                  />
-                </span>
-              </div>
-            </el-form-item>
-          </Motion>
+          <!--          <Motion v-if="currentPage === 0" :delay="350">-->
+          <!--            <el-form-item>-->
+          <!--              <el-divider>-->
+          <!--                <p class="text-gray-500 text-xs">{{ t("login.thirdLogin") }}</p>-->
+          <!--              </el-divider>-->
+          <!--              <div class="w-full flex justify-evenly">-->
+          <!--                <span-->
+          <!--                  v-for="(item, index) in thirdParty"-->
+          <!--                  :key="index"-->
+          <!--                  :title="t(item.title)"-->
+          <!--                >-->
+          <!--                  <IconifyIconOnline-->
+          <!--                    :icon="`ri:${item.icon}-fill`"-->
+          <!--                    width="20"-->
+          <!--                    class="cursor-pointer text-gray-500 hover:text-blue-400"-->
+          <!--                  />-->
+          <!--                </span>-->
+          <!--              </div>-->
+          <!--            </el-form-item>-->
+          <!--          </Motion>-->
           <!-- 手机号登录 -->
           <!--          <phone v-if="currentPage === 1" />-->
           <!-- 二维码登录 -->
           <!--          <qrCode v-if="currentPage === 2" />-->
           <!-- 注册 -->
-          <regist v-if="currentPage === 3" />
+          <regist v-if="currentPage === 1" />
           <!-- 忘记密码 -->
           <!--          <update v-if="currentPage === 4" />-->
         </div>

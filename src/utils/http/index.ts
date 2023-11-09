@@ -153,7 +153,7 @@ class PureHttp {
     url: string,
     param?: AxiosRequestConfig,
     axiosConfig?: PureHttpRequestConfig,
-    showMsg?: boolean
+    showMsg: boolean = false
   ): Promise<T> {
     const config = {
       method,
@@ -167,16 +167,17 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
-          if (showMsg && this.isAjaxResult(response)) {
-            const msg = typeof (response as Result).msg;
-            const success = typeof (response as Result).success;
-            if (success) {
+          if (this.isAjaxResult(response)) {
+            const msg = (response as Result).msg;
+            const success = (response as Result).success;
+            if (success && showMsg) {
               if (msg !== undefined && msg.length > 0) {
                 message(msg, { type: "success" });
               } else {
                 message("操作成功！", { type: "success" });
               }
             } else {
+              // 错误信息无论如何要展示
               if (msg !== undefined && msg.length > 0) {
                 message(msg, { type: "error" });
               } else {
@@ -187,6 +188,7 @@ class PureHttp {
           resolve(response);
         })
         .catch(error => {
+          message("网络请求出现异常:" + error, { type: "error" });
           reject(error);
         });
     });

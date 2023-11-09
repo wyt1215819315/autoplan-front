@@ -50,37 +50,37 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
       <!-- 通知 -->
       <Notice id="header-notice" />
       <!-- 国际化 -->
-      <el-dropdown id="header-translation" trigger="click">
-        <globalization
-          class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none"
-        />
-        <template #dropdown>
-          <el-dropdown-menu class="translation">
-            <el-dropdown-item
-              :style="getDropdownItemStyle(locale, 'zh')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
-              @click="translationCh"
-            >
-              <IconifyIconOffline
-                class="check-zh"
-                v-show="locale === 'zh'"
-                :icon="Check"
-              />
-              简体中文
-            </el-dropdown-item>
-            <el-dropdown-item
-              :style="getDropdownItemStyle(locale, 'en')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
-              @click="translationEn"
-            >
-              <span class="check-en" v-show="locale === 'en'">
-                <IconifyIconOffline :icon="Check" />
-              </span>
-              English
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <!--      <el-dropdown id="header-translation" trigger="click">-->
+      <!--        <globalization-->
+      <!--          class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none"-->
+      <!--        />-->
+      <!--        <template #dropdown>-->
+      <!--          <el-dropdown-menu class="translation">-->
+      <!--            <el-dropdown-item-->
+      <!--              :style="getDropdownItemStyle(locale, 'zh')"-->
+      <!--              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"-->
+      <!--              @click="translationCh"-->
+      <!--            >-->
+      <!--              <IconifyIconOffline-->
+      <!--                class="check-zh"-->
+      <!--                v-show="locale === 'zh'"-->
+      <!--                :icon="Check"-->
+      <!--              />-->
+      <!--              简体中文-->
+      <!--            </el-dropdown-item>-->
+      <!--            <el-dropdown-item-->
+      <!--              :style="getDropdownItemStyle(locale, 'en')"-->
+      <!--              :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"-->
+      <!--              @click="translationEn"-->
+      <!--            >-->
+      <!--              <span class="check-en" v-show="locale === 'en'">-->
+      <!--                <IconifyIconOffline :icon="Check" />-->
+      <!--              </span>-->
+      <!--              English-->
+      <!--            </el-dropdown-item>-->
+      <!--          </el-dropdown-menu>-->
+      <!--        </template>-->
+      <!--      </el-dropdown>-->
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">

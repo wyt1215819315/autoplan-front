@@ -1,7 +1,9 @@
 import { http } from "@/utils/http";
+import { baseUrlApi } from "@/api/utils";
 
 export type UserResult = {
   success: boolean;
+  code: number;
   data: {
     /** 用户名 */
     username: string;
@@ -30,7 +32,33 @@ export type RefreshTokenResult = {
 
 /** 登录 */
 export const getLogin = (data?: object) => {
-  return http.request<UserResult>("post", "/login", { data });
+  return http.request<UserResult>("post", baseUrlApi("/auth/formLogin"), {
+    data
+  });
+};
+
+/** 注册 */
+export const doReg = (data?: object) => {
+  return http.request<UserResult>(
+    "post",
+    baseUrlApi("/reg/doReg"),
+    {
+      data
+    },
+    null,
+    true
+  );
+};
+
+/** 登出 */
+export const logout = () => {
+  return http.request<UserResult>(
+    "get",
+    baseUrlApi("/auth/logout"),
+    null,
+    null,
+    true
+  );
 };
 
 /** 刷新token */
