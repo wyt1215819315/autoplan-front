@@ -1,35 +1,10 @@
-import { list } from "@/router/enums";
-import { getIndexList } from "@/api/auto";
-
-async function buildChild() {
-  const result = await getIndexList();
-  const children = [];
-  for (const obj of result.data) {
-    const res = {
-      path: "/auto/task",
-      name: "TaskInfoPage",
-      component: () => import("@/views/auto/task/index.vue"),
-      query: {
-        id: obj.id
-      },
-      meta: {
-        icon: "card",
-        title: obj.name,
-        showParent: true
-      }
-    };
-    children.push(res);
-  }
-  return children;
-}
-
 export default {
-  path: "/auto",
-  redirect: "/auto/index",
+  path: "/auto/task",
+  name: "TaskInfoPage",
+  component: () => import("@/views/auto/task/index.vue"),
   meta: {
-    icon: "listCheck",
-    title: "自动任务列表",
-    rank: list
-  },
-  children: await buildChild()
+    icon: "card",
+    title: "",
+    showLink: false
+  }
 } as RouteConfigsTable;

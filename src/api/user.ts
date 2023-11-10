@@ -52,13 +52,7 @@ export const doReg = (data?: object) => {
 
 /** 登出 */
 export const logout = () => {
-  return http.request<UserResult>(
-    "get",
-    baseUrlApi("/auth/logout"),
-    null,
-    null,
-    true
-  );
+  return http.request<UserResult>("get", baseUrlApi("/auth/logout"));
 };
 
 /** 刷新token */
