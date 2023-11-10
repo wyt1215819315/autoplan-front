@@ -170,13 +170,21 @@ class PureHttp {
           if (this.isAjaxResult(response)) {
             const msg = (response as Result).msg;
             const success = (response as Result).success;
+            const code = (response as Result).code;
+            // 登录失效判断
+            if (code !== undefined && code === 7) {
+              message("登录会话已过期，请重新登录！", { type: "error" });
+              useUserStoreHook().logOut();
+              return;
+            }
+            // 消息提醒
             if (success && showMsg) {
               if (msg !== undefined && msg.length > 0) {
                 message(msg, { type: "success" });
               } else {
                 message("操作成功！", { type: "success" });
               }
-            } else {
+            } else if (!success) {
               // 错误信息无论如何要展示
               if (msg !== undefined && msg.length > 0) {
                 message(msg, { type: "error" });
