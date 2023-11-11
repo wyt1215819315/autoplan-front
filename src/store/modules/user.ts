@@ -22,6 +22,9 @@ export const useUserStore = defineStore({
     currentPage: 0
   }),
   actions: {
+    isAdmin() {
+      return !!this.roles.includes("ADMIN");
+    },
     /** 存储用户名 */
     SET_USERNAME(username: string) {
       this.username = username;

@@ -12,6 +12,13 @@ export type PageBean = {
   records: Array<any>;
 };
 
+export type PageResult = {
+  success: boolean;
+  code: number;
+  msg?: string;
+  data?: PageBean;
+};
+
 export const baseUrlApi = (url: string) => {
   if (!url.startsWith("/")) {
     url = "/" + url;

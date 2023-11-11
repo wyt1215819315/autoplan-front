@@ -6,10 +6,10 @@ const TITLE = getConfig("Title");
 
 <template>
   <footer class="layout-footer">
-    MIT © 2020-PRESENT
+    Apache-2.0 © 2021-PRESENT
     <a
       class="ml-1 hover:text-primary"
-      href="https://github.com/pure-admin"
+      href="https://github.com/wyt1215819315/autoplan"
       target="_blank"
     >
       {{ TITLE }}
