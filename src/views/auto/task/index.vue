@@ -53,10 +53,8 @@ const {
       @page-current-change="onCurrentChange"
     >
       <template #operation="{ row }">
-        <el-button link type="primary" size="small" @click="console.log(111)">
-          Detail
-        </el-button>
-        <el-button link type="primary" size="small">Edit</el-button>
+        <el-button type="primary" size="small"> Detail </el-button>
+        <el-button type="primary" size="small">Edit</el-button>
       </template>
     </pure-table>
   </div>
