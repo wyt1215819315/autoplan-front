@@ -1,14 +1,83 @@
-import { clone, delay } from "@pureadmin/utils";
-import { ref, onMounted, reactive, watchEffect } from "vue";
+import { delay } from "@pureadmin/utils";
+import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import { getTaskPage, getUserInfoColumn } from "@/api/auto";
+import {
+  getIndexInfo,
+  getSettingColumn,
+  getTaskPage,
+  getUserInfoColumn
+} from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
+
+class AutoIndex {
+  id: number;
+  name: string;
+  code: string;
+  icon: string;
+}
 
 export function useColumns(parameter) {
   const dataList = ref([]);
   const loading = ref(true);
   const select = ref(true);
   const hideVal = ref("nohide");
+
+  const indexInfo = ref<AutoIndex>();
+  const tableTitle = ref("自动任务列表");
+  const indexId = parameter.id;
+
+  const dialog = reactive({
+    visible: false,
+    title: ""
+  });
+  const dialogForm = ref({});
+  const dialogColumn = ref([]);
+  const dialogRules = ref({
+    userName: [
+      { required: true, message: "用户名称不能为空", trigger: "blur" },
+      {
+        min: 2,
+        max: 20,
+        message: "用户名称长度必须介于 2 和 20 之间",
+        trigger: "blur"
+      }
+    ],
+    nickName: [
+      { required: true, message: "用户昵称不能为空", trigger: "blur" }
+    ],
+    password: [
+      { required: true, message: "用户密码不能为空", trigger: "blur" },
+      {
+        min: 5,
+        max: 20,
+        message: "用户密码长度必须介于 5 和 20 之间",
+        trigger: "blur"
+      }
+    ],
+    email: [
+      {
+        type: "email",
+        message: "请输入正确的邮箱地址",
+        trigger: ["blur", "change"]
+      }
+    ],
+    phonenumber: [
+      {
+        pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+        message: "请输入正确的手机号码",
+        trigger: "blur"
+      }
+    ]
+  });
+
+  loadIndexInfo();
+
+  function loadIndexInfo() {
+    getIndexInfo(indexId).then(data => {
+      indexInfo.value = data.data;
+      tableTitle.value = indexInfo.value.name;
+    });
+  }
 
   const columns: TableColumnList = [
     {
@@ -31,7 +100,21 @@ export function useColumns(parameter) {
     {
       label: "任务状态",
       width: 120,
-      prop: "lastEndStatus"
+      prop: "lastEndStatus",
+      cellRenderer: scope => (
+        <el-switch
+          size={scope.props.size === "small" ? "small" : "default"}
+          // loading={switchLoadMap.value[scope.index]?.loading}
+          v-model={scope.row.lastEndStatus}
+          active-value={1}
+          inactive-value={0}
+          active-text="已启用"
+          inactive-text="已停用"
+          inline-prompt
+          disabled={!useUserStoreHook().isAdmin()}
+          // onChange={() => onChange(scope as any)}
+        />
+      )
     },
     {
       label: "任务完成时间",
@@ -89,7 +172,6 @@ export function useColumns(parameter) {
   function onSizeChange(val) {
     loadingConfig.text = `正在加载...`;
     pagination.pageSize = val;
-    loading.value = true;
     delay(600).then(() => {
       requestData();
     });
@@ -97,7 +179,6 @@ export function useColumns(parameter) {
 
   function onCurrentChange(val) {
     loadingConfig.text = `正在加载第${val}页...`;
-    loading.value = true;
     delay(600).then(() => {
       requestData();
     });
@@ -110,6 +191,7 @@ export function useColumns(parameter) {
   });
 
   function requestData() {
+    loading.value = true;
     getTaskPage(parameter.id, {
       size: pagination.pageSize,
       current: pagination.currentPage
@@ -119,15 +201,52 @@ export function useColumns(parameter) {
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
           const record = data.data.records[i];
-          record.table_no =
-            pagination.currentPage * pagination.pageSize + i + 1;
+          record.tableNo = pagination.currentPage * pagination.pageSize + i + 1;
           // 解析settings json字符串到列表中去
           dataList.value.push(record);
         }
+        dataList.value.push({
+          tableNo: 111,
+          enable: 1
+        });
       })
       .finally(() => {
         loading.value = false;
       });
+  }
+
+  function addTask() {
+    dialog.title = "新增" + indexInfo.value.name + "任务";
+    getSettingColumn(indexId).then(data => {
+      if (data.success) {
+        dialog.visible = true;
+        for (const item of data.data) {
+          dialogColumn.value.push({
+            ...item
+          });
+          // 填充默认值
+          if (item.defaultValue !== undefined) {
+            if (
+              item.fieldType === "Integer" ||
+              item.fieldType === "Long" ||
+              item.fieldType === "Double"
+            ) {
+              dialogForm.value[item.field] = Number(item.defaultValue);
+            } else {
+              dialogForm.value[item.field] = item.defaultValue;
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function closeDialog() {
+    dialog.visible = false;
+    dialog.title = "";
+    dialogForm.value = {};
+    dialogRules.value = {};
+    dialogColumn.value = [];
   }
 
   return {
@@ -138,6 +257,15 @@ export function useColumns(parameter) {
     pagination,
     loadingConfig,
     onSizeChange,
-    onCurrentChange
+    onCurrentChange,
+    requestData,
+    dialog,
+    dialogForm,
+    dialogRules,
+    dialogColumn,
+    indexInfo,
+    tableTitle,
+    addTask,
+    closeDialog
   };
 }

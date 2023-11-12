@@ -215,18 +215,21 @@ function onCloseCallBackClick() {
 function onNestingClick() {
   addDialog({
     title: "嵌套的弹框",
+    draggable: true,
     contentRenderer: ({ index }) => (
       <el-button
         onClick={() =>
           addDialog({
             title: `第${index + 1}个子弹框`,
             width: "40%",
+            draggable: true,
             contentRenderer: ({ index }) => (
               <el-button
                 onClick={() =>
                   addDialog({
                     title: `第${index + 1}个子弹框`,
                     width: "30%",
+                    draggable: true,
                     contentRenderer: () => (
                       <>
                         <el-button round onClick={() => closeAllDialog()}>

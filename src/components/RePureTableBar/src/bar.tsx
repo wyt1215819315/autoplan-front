@@ -21,6 +21,11 @@ const props = {
     type: String,
     default: "列表"
   },
+  /** 是否简单模式 */
+  simpleMode: {
+    type: Boolean,
+    default: false
+  },
   /** 对于树形表格，如果想启用展开和折叠功能，传入当前表格的ref即可 */
   tableRef: {
     type: Object as PropType<any>
@@ -203,6 +208,7 @@ export default defineComponent({
     const reference = {
       reference: () => (
         <SettingIcon
+          v-show={!props.simpleMode}
           class={["w-[16px]", iconClass.value]}
           onMouseover={e => (buttonRef.value = e.currentTarget)}
         />
@@ -237,7 +243,7 @@ export default defineComponent({
                       onClick={() => onExpand()}
                     />
                   </el-tooltip>
-                  <el-divider direction="vertical" />
+                  <el-divider direction="vertical" v-show={!props.simpleMode} />
                 </>
               ) : null}
               <el-tooltip effect="dark" content="刷新" placement="top">
@@ -250,13 +256,17 @@ export default defineComponent({
                   onClick={() => onReFresh()}
                 />
               </el-tooltip>
-              <el-divider direction="vertical" />
+              <el-divider direction="vertical" v-show={!props.simpleMode} />
               <el-tooltip effect="dark" content="密度" placement="top">
-                <el-dropdown v-slots={dropdown} trigger="click">
+                <el-dropdown
+                  v-slots={dropdown}
+                  trigger="click"
+                  v-show={!props.simpleMode}
+                >
                   <CollapseIcon class={["w-[16px]", iconClass.value]} />
                 </el-dropdown>
               </el-tooltip>
-              <el-divider direction="vertical" />
+              <el-divider direction="vertical" v-show={!props.simpleMode} />
 
               <el-popover
                 v-slots={reference}

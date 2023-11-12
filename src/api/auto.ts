@@ -6,11 +6,24 @@ export const getIndexList = () => {
   return http.request<Result>("post", baseUrlApi("/auto/index/list"));
 };
 
+/** 根据id获取这个自动任务的详情 */
+export const getIndexInfo = indexId => {
+  return http.request<Result>("get", baseUrlApi("/auto/index/view/" + indexId));
+};
+
 /** 获取这个自动任务的表单项 */
 export const getUserInfoColumn = indexId => {
   return http.request<Result>(
-    "post",
+    "get",
     baseUrlApi("/auto/index/getUserInfoColumn/" + indexId)
+  );
+};
+
+/** 获取这个自动任务的配置表单项 */
+export const getSettingColumn = indexId => {
+  return http.request<Result>(
+    "get",
+    baseUrlApi("/auto/index/getSettingColumn/" + indexId)
   );
 };
 
