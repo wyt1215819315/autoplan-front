@@ -2,12 +2,16 @@ import { delay } from "@pureadmin/utils";
 import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import {
+  checkAndSaveTask,
+  checkTask,
   getIndexInfo,
   getSettingColumn,
   getTaskPage,
   getUserInfoColumn
 } from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "@/utils/message";
+import { FormInstance } from "element-plus";
 
 class AutoIndex {
   id: number;
@@ -18,7 +22,10 @@ class AutoIndex {
 
 export function useColumns(parameter) {
   const dataList = ref([]);
-  const loading = ref(true);
+  const loading = ref({
+    main: true,
+    addTaskButton: false
+  });
   const select = ref(true);
   const hideVal = ref("nohide");
 
@@ -30,45 +37,19 @@ export function useColumns(parameter) {
     visible: false,
     title: ""
   });
-  const dialogForm = ref({});
-  const dialogColumn = ref([]);
-  const dialogRules = ref({
-    userName: [
-      { required: true, message: "用户名称不能为空", trigger: "blur" },
-      {
-        min: 2,
-        max: 20,
-        message: "用户名称长度必须介于 2 和 20 之间",
-        trigger: "blur"
-      }
-    ],
-    nickName: [
-      { required: true, message: "用户昵称不能为空", trigger: "blur" }
-    ],
-    password: [
-      { required: true, message: "用户密码不能为空", trigger: "blur" },
-      {
-        min: 5,
-        max: 20,
-        message: "用户密码长度必须介于 5 和 20 之间",
-        trigger: "blur"
-      }
-    ],
-    email: [
-      {
-        type: "email",
-        message: "请输入正确的邮箱地址",
-        trigger: ["blur", "change"]
-      }
-    ],
-    phonenumber: [
-      {
-        pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-        message: "请输入正确的手机号码",
-        trigger: "blur"
-      }
-    ]
+  // 表单数据
+  const dialogForm = ref({
+    _sys: {
+      name: "",
+      enable: 1,
+      code: ""
+    },
+    data: {}
   });
+  // 表单渲染字段
+  const dialogColumn = ref([]);
+  // 表单校验规则
+  const dialogRules = ref({});
 
   loadIndexInfo();
 
@@ -94,22 +75,17 @@ export function useColumns(parameter) {
     },
     {
       label: "开关",
-      width: 60,
-      prop: "enable"
-    },
-    {
-      label: "任务状态",
-      width: 120,
-      prop: "lastEndStatus",
+      width: 100,
+      prop: "enable",
       cellRenderer: scope => (
         <el-switch
-          size={scope.props.size === "small" ? "small" : "default"}
+          size="small"
           // loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.lastEndStatus}
+          v-model={scope.row.enable}
           active-value={1}
           inactive-value={0}
-          active-text="已启用"
-          inactive-text="已停用"
+          active-text="启用"
+          inactive-text="停用"
           inline-prompt
           disabled={!useUserStoreHook().isAdmin()}
           // onChange={() => onChange(scope as any)}
@@ -117,8 +93,13 @@ export function useColumns(parameter) {
       )
     },
     {
+      label: "任务状态",
+      width: 120,
+      prop: "lastEndStatus"
+    },
+    {
       label: "任务完成时间",
-      width: 200,
+      width: 160,
       prop: "lastEndTime"
     },
     {
@@ -136,7 +117,7 @@ export function useColumns(parameter) {
       for (const col of data.data) {
         columns.push({
           label: col.name,
-          prop: col.field
+          prop: "userInfo." + col.field
         });
       }
     }
@@ -191,7 +172,7 @@ export function useColumns(parameter) {
   });
 
   function requestData() {
-    loading.value = true;
+    loading.value.main = true;
     getTaskPage(parameter.id, {
       size: pagination.pageSize,
       current: pagination.currentPage
@@ -205,17 +186,14 @@ export function useColumns(parameter) {
           // 解析settings json字符串到列表中去
           dataList.value.push(record);
         }
-        dataList.value.push({
-          tableNo: 111,
-          enable: 1
-        });
       })
       .finally(() => {
-        loading.value = false;
+        loading.value.main = false;
       });
   }
 
   function addTask() {
+    initForm();
     dialog.title = "新增" + indexInfo.value.name + "任务";
     getSettingColumn(indexId).then(data => {
       if (data.success) {
@@ -231,9 +209,9 @@ export function useColumns(parameter) {
               item.fieldType === "Long" ||
               item.fieldType === "Double"
             ) {
-              dialogForm.value[item.field] = Number(item.defaultValue);
+              dialogForm.value.data[item.field] = Number(item.defaultValue);
             } else {
-              dialogForm.value[item.field] = item.defaultValue;
+              dialogForm.value.data[item.field] = item.defaultValue;
             }
           }
         }
@@ -241,11 +219,82 @@ export function useColumns(parameter) {
     });
   }
 
+  async function doCheckTask(formEl: FormInstance | undefined) {
+    if (!formEl) return;
+    await formEl.validate(valid => {
+      if (valid) {
+        loading.value.addTaskButton = true;
+        checkTask(indexId, dialogForm.value)
+          .then(data => {
+            if (data.data.success) {
+              message(data.data.msg, {
+                type: "success"
+              });
+            } else {
+              message(data.data.msg, {
+                type: "error",
+                dangerouslyUseHTMLString: true,
+                duration: 10 * 1000
+              });
+            }
+          })
+          .finally(() => {
+            loading.value.addTaskButton = false;
+          });
+      }
+    });
+  }
+
+  async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
+    if (!formEl) return;
+    await formEl.validate(valid => {
+      if (valid) {
+        loading.value.addTaskButton = true;
+        checkAndSaveTask(indexId, dialogForm.value)
+          .then(data => {
+            if (data.data.success) {
+              message(data.data.msg, {
+                type: "success"
+              });
+              closeDialog();
+              requestData();
+            } else {
+              message(data.data.msg, {
+                type: "error",
+                dangerouslyUseHTMLString: true,
+                duration: 10 * 1000
+              });
+            }
+          })
+          .finally(() => {
+            loading.value.addTaskButton = false;
+          });
+      }
+    });
+  }
+
   function closeDialog() {
     dialog.visible = false;
+  }
+
+  function initForm() {
     dialog.title = "";
-    dialogForm.value = {};
-    dialogRules.value = {};
+    dialogForm.value = {
+      _sys: {
+        enable: 1,
+        name: indexInfo.value.name,
+        code: indexInfo.value.code
+      },
+      data: {}
+    };
+    dialogRules.value = {
+      _sys: {
+        name: [
+          { required: true, message: "任务名称必填", trigger: "blur" },
+          { max: 30, message: "任务名称不能超过30字", trigger: "blur" }
+        ]
+      }
+    };
     dialogColumn.value = [];
   }
 
@@ -266,6 +315,8 @@ export function useColumns(parameter) {
     indexInfo,
     tableTitle,
     addTask,
+    doCheckTask,
+    doCheckAndSaveTask,
     closeDialog
   };
 }

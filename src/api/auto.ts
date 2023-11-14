@@ -36,6 +36,24 @@ export const getTaskPage = (indexId: string, data?: object) => {
   );
 };
 
+/** 仅校验任务 */
+export const checkTask = (indexId: string, data?: object) => {
+  return http.request<Result>(
+    "post",
+    baseUrlApi("/auto/task/" + indexId + "/check"),
+    { data }
+  );
+};
+
+/** 校验任务并保存 */
+export const checkAndSaveTask = (indexId: string, data?: object) => {
+  return http.request<Result>(
+    "post",
+    baseUrlApi("/auto/task/" + indexId + "/checkAndSave"),
+    { data }
+  );
+};
+
 /** 获取我的任务列表 */
 export const mineTaskList = () => {
   return http.request<Result>("post", baseUrlApi("/auto/task/mine/list"));

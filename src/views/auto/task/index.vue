@@ -8,11 +8,14 @@ import AddFill from "@iconify-icons/ri/add-circle-line";
 import { isEmpty } from "@pureadmin/utils";
 import { useRoute } from "vue-router";
 import More from "@iconify-icons/ep/more-filled";
+import { ref } from "vue";
+import { FormInstance } from "element-plus";
 
 defineOptions({
   name: "TaskInfoPage"
 });
 const route = useRoute();
+const formDialogRef = ref<FormInstance>();
 const parameter = isEmpty(route.params) ? route.query : route.params;
 const {
   loading,
@@ -30,6 +33,8 @@ const {
   tableTitle,
   indexInfo,
   addTask,
+  doCheckTask,
+  doCheckAndSaveTask,
   closeDialog
 } = useColumns(parameter);
 </script>
@@ -56,7 +61,7 @@ const {
         row-key="id"
         alignWhole="center"
         :size="`default`"
-        :loading="loading"
+        :loading="loading.main"
         :loading-config="loadingConfig"
         :data="dataList"
         :columns="columns"
@@ -111,7 +116,6 @@ const {
       </pure-table>
     </PureTableBar>
     <el-dialog
-      ref="formDialogRef"
       :title="dialog.title"
       v-model="dialog.visible"
       fullscreen
@@ -119,40 +123,58 @@ const {
       @close="closeDialog"
     >
       <el-form
+        ref="formDialogRef"
         :model="dialogForm"
         :rules="dialogRules"
-        ref="userFormRef"
         label-width="15vw"
       >
         <el-row>
           <el-col :span="24">
-            <el-form-item
-              v-if="dialogForm.userId == undefined"
-              label="任务名称"
-              prop="userName"
-            >
+            <el-form-item label="任务名称:" prop="_sys.name">
               <el-input
-                v-model="dialogForm.userName"
+                v-model="dialogForm._sys.name"
                 placeholder="请输入任务名称"
                 maxlength="30"
               />
             </el-form-item>
           </el-col>
         </el-row>
-        <!-- 动态表单渲染-->
-        <el-row v-for="(item, index) in dialogColumn" :key="index">
+        <el-row>
           <el-col :span="24">
-            <el-form-item :label="item.name" :prop="item.field">
+            <el-form-item label="任务状态:" prop="_sys.enable">
+              <el-switch
+                size="default"
+                v-model="dialogForm._sys.enable"
+                :active-value="1"
+                :inactive-value="0"
+                active-text="启用"
+                inactive-text="停用"
+                inline-prompt
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!-- 动态表单渲染-->
+        <el-row
+          v-for="(item, index) in dialogColumn"
+          :key="index"
+          v-show="
+            item.ref === undefined ||
+            item.refValue.includes(dialogForm.data[item.ref])
+          "
+        >
+          <el-col :span="24">
+            <el-form-item :label="`${item.name}:`" :prop="item.field">
               <!-- 普通文本输入框-->
               <el-input
                 v-if="item.fieldType === 'String'"
-                v-model="dialogForm[item.field]"
+                v-model="dialogForm.data[item.field]"
                 :placeholder="`请输入${item.name}`"
               />
               <!-- 长文本输入框-->
               <el-input
                 v-if="item.fieldType === 'TextArea'"
-                v-model="dialogForm[item.field]"
+                v-model="dialogForm.data[item.field]"
                 type="textarea"
                 :placeholder="`请输入${item.name}`"
               />
@@ -165,13 +187,13 @@ const {
                   item.options === undefined
                 "
                 type="number"
-                v-model="dialogForm[item.field]"
+                v-model="dialogForm.data[item.field]"
                 :placeholder="`请输入${item.name}`"
               />
               <!-- 选择框-->
               <el-select
                 v-if="item.options !== undefined"
-                v-model="dialogForm[item.field]"
+                v-model="dialogForm.data[item.field]"
                 :placeholder="`请选择${item.name}`"
                 style="width: 100%"
               >
@@ -188,9 +210,27 @@ const {
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="success" @click=""> 校验 </el-button>
-          <el-button type="primary" @click=""> 校验并提交 </el-button>
-          <el-button type="danger" @click="closeDialog"> 关闭 </el-button>
+          <el-button
+            type="success"
+            @click="doCheckTask(formDialogRef)"
+            :loading="loading.addTaskButton"
+          >
+            校验
+          </el-button>
+          <el-button
+            type="primary"
+            @click="doCheckAndSaveTask(formDialogRef)"
+            :loading="loading.addTaskButton"
+          >
+            校验并提交
+          </el-button>
+          <el-button
+            type="danger"
+            @click="closeDialog"
+            :loading="loading.addTaskButton"
+          >
+            关闭
+          </el-button>
         </div>
       </template>
     </el-dialog>
