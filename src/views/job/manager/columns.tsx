@@ -1,0 +1,330 @@
+import { delay } from "@pureadmin/utils";
+import { ref, onMounted, reactive } from "vue";
+import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
+import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "@/utils/message";
+import { FormInstance } from "element-plus";
+import {
+  changeJobStatus,
+  deleteJob,
+  getJobPage,
+  runJob,
+  saveJob,
+  updateJob,
+  viewJob
+} from "@/api/job";
+import { isValidCron } from "cron-validator";
+import { FormItemProps } from "@/views/system/dept/utils/types";
+
+class SysQuartzJob {
+  id: number;
+  jobName: string;
+  invokeTarget: string;
+  cronExpression: string;
+  concurrent: number;
+  timeout: number;
+  status: number;
+}
+
+export function useColumns() {
+  const dataList = ref([]);
+  const loading = ref({
+    main: true,
+    addDialogButton: false,
+    delete: false
+  });
+  const select = ref(true);
+  const hideVal = ref("nohide");
+
+  const dialog = reactive({
+    visible: false,
+    title: ""
+  });
+  // 表单数据
+  const dialogForm = ref<SysQuartzJob>();
+  // 表单校验规则
+  const dialogRules = ref({
+    cronExpression: [
+      { required: true, message: "请输入Cron表达式", trigger: "blur" },
+      {
+        validator: (rule, value, callback) => {
+          // seconds可以通过seconds在选项中将标志传递为 true来启用对秒的支持(例:* * * * * *);
+          // alias启用alias对月份和工作日的支持(例:* * * * mon);
+          // allowBlankDay可以启用该标志以使用?符号将天或工作日标记为空白(例:* * * * ?);
+          // allowSevenAsSunday可以启用该标志以支持数字 7 作为星期日(例:* * * * 7);
+          const isOk = isValidCron(value, {
+            seconds: true,
+            alias: true,
+            allowBlankDay: true,
+            allowSevenAsSunday: true
+          });
+          if (!isOk) {
+            callback(new Error("请输入可用的Cron表达式"));
+          } else {
+            callback();
+          }
+        },
+        trigger: "blur"
+      }
+    ]
+  });
+
+  const columns: TableColumnList = [
+    {
+      type: "selection",
+      align: "left",
+      reserveSelection: true,
+      width: 40,
+      hide: () => select.value
+    },
+    {
+      label: "序号",
+      width: 60,
+      prop: "tableNo"
+    },
+    {
+      label: "任务名称",
+      minWidth: 100,
+      prop: "jobName"
+    },
+    {
+      label: "cron执行表达式",
+      width: 120,
+      prop: "cronExpression"
+    },
+    {
+      label: "任务执行超时",
+      width: 80,
+      prop: "cronExpression"
+    },
+    {
+      label: "并发策略",
+      width: 80,
+      prop: "concurrent",
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          size={props.size}
+          type={row.concurrent === 1 ? "danger" : ""}
+          effect="plain"
+        >
+          {row.concurrent === 1 ? "并发执行" : "非并发执行"}
+        </el-tag>
+      )
+    },
+    {
+      label: "任务开关",
+      width: 100,
+      prop: "status",
+      cellRenderer: scope => (
+        <el-switch
+          size="small"
+          // loading={switchLoadMap.value[scope.index]?.loading}
+          v-model={scope.row.status}
+          active-value={1}
+          inactive-value={0}
+          active-text="启用"
+          inactive-text="停用"
+          inline-prompt
+          disabled={!useUserStoreHook().isAdmin()}
+          loading={scope.row.loading}
+          onChange={() => doChangeJobStatus(scope.row)}
+        />
+      )
+    },
+    {
+      label: "操作",
+      width: 120,
+      fixed: "right",
+      slot: "operation"
+    }
+  ];
+
+  /** 分页配置 */
+  const pagination = reactive<PaginationProps>({
+    pageSize: 10,
+    currentPage: 1,
+    pageSizes: [10, 15, 20],
+    total: 0,
+    align: "center",
+    background: true,
+    small: false
+  });
+
+  /** 加载动画配置 */
+  const loadingConfig = reactive<LoadingConfig>({
+    text: "正在加载...",
+    viewBox: "-10, -10, 50, 50",
+    spinner: `
+        <path class="path" d="
+          M 30 15
+          L 28 17
+          M 25.61 25.61
+          A 15 15, 0, 0, 1, 15 30
+          A 15 15, 0, 1, 1, 27.99 7.5
+          L 15 15
+        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+      `
+  });
+
+  function onSizeChange(val) {
+    loadingConfig.text = `正在加载...`;
+    pagination.pageSize = val;
+    delay(100).then(() => {
+      requestData();
+    });
+  }
+
+  function onCurrentChange(val) {
+    loadingConfig.text = `正在加载第${val}页...`;
+    delay(100).then(() => {
+      requestData();
+    });
+  }
+
+  onMounted(() => {
+    delay(100).then(() => {
+      requestData();
+    });
+  });
+
+  function requestData() {
+    loading.value.main = true;
+    getJobPage({
+      size: pagination.pageSize,
+      current: pagination.currentPage
+    })
+      .then(data => {
+        pagination.total = data.data.total;
+        dataList.value = [];
+        for (let i = 0; i < data.data.records.length; i++) {
+          const record = data.data.records[i];
+          record.tableNo = pagination.currentPage * pagination.pageSize + i + 1;
+          dataList.value.push(record);
+        }
+      })
+      .finally(() => {
+        loading.value.main = false;
+      });
+  }
+
+  function add() {
+    initForm();
+    dialog.title = "新增定时任务";
+    dialogForm.value = {
+      concurrent: 0,
+      cronExpression: "",
+      id: undefined,
+      invokeTarget: "",
+      jobName: "",
+      status: 1,
+      timeout: 3600
+    };
+  }
+
+  /**
+   * 打开编辑页面
+   */
+  function edit(row?: FormItemProps) {
+    initForm();
+    viewJob(row.id).then(data => {
+      if (data.success) {
+        dialog.title = "编辑定时任务";
+        dialogForm.value = data.data;
+      }
+    });
+  }
+
+  /**
+   * 请求后台api进行修改或保存
+   */
+  async function doSaveOrUpdate(formEl: FormInstance | undefined) {
+    if (!formEl) return;
+    await formEl.validate(async valid => {
+      if (valid) {
+        loading.value.addDialogButton = true;
+        let data;
+        try {
+          if (dialogForm.value.id !== undefined) {
+            // update
+            data = await updateJob(dialogForm.value);
+          } else {
+            // insert
+            data = await saveJob(dialogForm.value);
+          }
+          if (data.success) {
+            message("操作成功！", { type: "success" });
+          }
+        } finally {
+          loading.value.addDialogButton = false;
+        }
+      }
+    });
+  }
+
+  function doDelete(row?: FormItemProps) {
+    loading.value.delete = true;
+    deleteJob({ ids: [row.id] })
+      .then(data => {
+        if (data.success) {
+          requestData();
+        }
+      })
+      .finally(() => {
+        loading.value.delete = false;
+      });
+  }
+
+  function doChangeJobStatus(row: any) {
+    row.loading = true;
+    changeJobStatus({
+      id: row.id,
+      status: row.status
+    })
+      .then(data => {
+        if (data.success) {
+          message("修改状态成功！");
+        }
+      })
+      .finally(() => {
+        row.loading = false;
+      });
+  }
+
+  function doRunJob(row?: FormItemProps) {
+    runJob(row.id).then(data => {
+      if (data.success) {
+        message("运行成功");
+      }
+    });
+  }
+
+  function closeDialog() {
+    dialog.visible = false;
+  }
+
+  function initForm() {
+    dialog.title = "";
+    dialogForm.value = new SysQuartzJob();
+  }
+
+  return {
+    loading,
+    columns,
+    dataList,
+    hideVal,
+    pagination,
+    loadingConfig,
+    onSizeChange,
+    onCurrentChange,
+    requestData,
+    dialog,
+    dialogForm,
+    dialogRules,
+    add,
+    edit,
+    doSaveOrUpdate,
+    doDelete,
+    doRunJob,
+    closeDialog
+  };
+}
