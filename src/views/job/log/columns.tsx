@@ -1,71 +1,38 @@
 import { delay, getKeyList } from "@pureadmin/utils";
 import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
-import { FormInstance } from "element-plus";
 import {
-  changeJobStatus,
-  deleteJob,
-  getJobPage,
-  runJob,
-  saveJob,
-  updateJob,
-  viewJob
+  deleteJobLog,
+  deleteAllJobLog,
+  getJobLogPage,
+  viewJobLog
 } from "@/api/job";
-import { isValidCron } from "cron-validator";
 import { FormItemProps } from "@/views/system/dept/utils/types";
+import { ElMessageBox } from "element-plus";
 
-class SysQuartzJob {
+class SysQuartzJobLog {
   id: number;
   jobName: string;
   invokeTarget: string;
-  cronExpression: string;
-  concurrent: number;
-  timeout: number;
+  jobMessage: string;
   status: number;
+  exceptionInfo: string;
+  startTime: string;
+  endTime: string;
 }
 
 export function useColumns(tableRef: Ref) {
   const dataList = ref([]);
   const loading = ref({
     main: true,
-    addDialogButton: false,
     delete: false
   });
   const hideVal = ref("nohide");
+  const form = ref<SysQuartzJobLog>();
 
   const dialog = reactive({
-    visible: false,
-    title: ""
-  });
-  // 表单数据
-  const dialogForm = ref<SysQuartzJob>();
-  // 表单校验规则
-  const dialogRules = ref({
-    cronExpression: [
-      { required: true, message: "请输入Cron表达式", trigger: "blur" },
-      {
-        validator: (rule, value, callback) => {
-          // seconds可以通过seconds在选项中将标志传递为 true来启用对秒的支持(例:* * * * * *);
-          // alias启用alias对月份和工作日的支持(例:* * * * mon);
-          // allowBlankDay可以启用该标志以使用?符号将天或工作日标记为空白(例:* * * * ?);
-          // allowSevenAsSunday可以启用该标志以支持数字 7 作为星期日(例:* * * * 7);
-          const isOk = isValidCron(value, {
-            seconds: true,
-            alias: true,
-            allowBlankDay: true,
-            allowSevenAsSunday: true
-          });
-          if (!isOk) {
-            callback(new Error("请输入可用的Cron表达式"));
-          } else {
-            callback();
-          }
-        },
-        trigger: "blur"
-      }
-    ]
+    visible: false
   });
 
   const columns: TableColumnList = [
@@ -107,26 +74,6 @@ export function useColumns(tableRef: Ref) {
         >
           {row.concurrent === 1 ? "并发执行" : "非并发执行"}
         </el-tag>
-      )
-    },
-    {
-      label: "任务开关",
-      width: 100,
-      prop: "status",
-      cellRenderer: scope => (
-        <el-switch
-          size="small"
-          // loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.status}
-          active-value={1}
-          inactive-value={0}
-          active-text="启用"
-          inactive-text="停用"
-          inline-prompt
-          // disabled={!useUserStoreHook().isAdmin()}
-          loading={scope.row.loading}
-          onChange={() => doChangeJobStatus(scope.row)}
-        />
       )
     },
     {
@@ -187,7 +134,7 @@ export function useColumns(tableRef: Ref) {
 
   function requestData() {
     loading.value.main = true;
-    getJobPage({
+    getJobLogPage({
       size: pagination.pageSize,
       current: pagination.currentPage
     })
@@ -205,64 +152,22 @@ export function useColumns(tableRef: Ref) {
       });
   }
 
-  function add() {
-    initForm();
-    dialog.title = "新增定时任务";
-    dialogForm.value = {
-      concurrent: 0,
-      cronExpression: "",
-      id: undefined,
-      invokeTarget: "",
-      jobName: "",
-      status: 1,
-      timeout: 3600
-    };
-  }
-
   /**
    * 打开编辑页面
    */
   function edit(row?: FormItemProps) {
     initForm();
-    viewJob(row.id).then(data => {
+    viewJobLog(row.id).then(data => {
       if (data.success) {
-        dialog.title = "编辑定时任务";
-        dialogForm.value = data.data;
         dialog.visible = true;
-      }
-    });
-  }
-
-  /**
-   * 请求后台api进行修改或保存
-   */
-  async function doSaveOrUpdate(formEl: FormInstance | undefined) {
-    if (!formEl) return;
-    await formEl.validate(async valid => {
-      if (valid) {
-        loading.value.addDialogButton = true;
-        let data;
-        try {
-          if (dialogForm.value.id !== undefined) {
-            // update
-            data = await updateJob(dialogForm.value);
-          } else {
-            // insert
-            data = await saveJob(dialogForm.value);
-          }
-          if (data.success) {
-            message("操作成功！", { type: "success" });
-          }
-        } finally {
-          loading.value.addDialogButton = false;
-        }
+        form.value = data.data;
       }
     });
   }
 
   function doDelete(row?: FormItemProps) {
     loading.value.delete = true;
-    deleteJob({ ids: [row.id] })
+    deleteJobLog({ ids: [row.id] })
       .then(data => {
         if (data.success) {
           message("删除成功！", { type: "success" });
@@ -278,7 +183,7 @@ export function useColumns(tableRef: Ref) {
   function doBatchDel() {
     // 返回当前选中的行
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    deleteJob({ ids: getKeyList(curSelected, "id") })
+    deleteJobLog({ ids: getKeyList(curSelected, "id") })
       .then(data => {
         if (data.success) {
           message("删除成功！", { type: "success" });
@@ -291,28 +196,23 @@ export function useColumns(tableRef: Ref) {
       });
   }
 
-  function doChangeJobStatus(row: any) {
-    row.loading = true;
-    changeJobStatus({
-      id: row.id,
-      status: row.status
-    })
-      .then(data => {
-        if (data.success) {
-          message("修改状态成功！", { type: "success" });
-        }
-      })
-      .finally(() => {
-        row.loading = false;
-      });
-  }
-
-  function doRunJob(row?: FormItemProps) {
-    runJob(row.id).then(data => {
-      if (data.success) {
-        message("运行成功", { type: "success" });
+  function doDeleteAll() {
+    ElMessageBox.confirm(
+      "确认删除后定时任务日志表将会被清空且无法恢复，确定要执行操作吗？",
+      "提示",
+      {
+        type: "warning"
       }
-    });
+    )
+      .then(() => {
+        deleteAllJobLog().then(data => {
+          if (data.success) {
+            message("删除成功", { type: "success" });
+            requestData();
+          }
+        });
+      })
+      .catch(() => {});
   }
 
   function closeDialog() {
@@ -320,8 +220,7 @@ export function useColumns(tableRef: Ref) {
   }
 
   function initForm() {
-    dialog.title = "";
-    dialogForm.value = new SysQuartzJob();
+    form.value = new SysQuartzJobLog();
   }
 
   return {
@@ -335,13 +234,10 @@ export function useColumns(tableRef: Ref) {
     onCurrentChange,
     requestData,
     dialog,
-    dialogForm,
-    dialogRules,
-    add,
+    form,
     edit,
-    doSaveOrUpdate,
     doDelete,
-    doRunJob,
+    doDeleteAll,
     closeDialog
   };
 }
