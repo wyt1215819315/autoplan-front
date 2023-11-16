@@ -1,5 +1,5 @@
-import { delay } from "@pureadmin/utils";
-import { ref, onMounted, reactive } from "vue";
+import { delay, getKeyList } from "@pureadmin/utils";
+import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
@@ -26,14 +26,13 @@ class SysQuartzJob {
   status: number;
 }
 
-export function useColumns() {
+export function useColumns(tableRef: Ref) {
   const dataList = ref([]);
   const loading = ref({
     main: true,
     addDialogButton: false,
     delete: false
   });
-  const select = ref(true);
   const hideVal = ref("nohide");
 
   const dialog = reactive({
@@ -74,8 +73,7 @@ export function useColumns() {
       type: "selection",
       align: "left",
       reserveSelection: true,
-      width: 40,
-      hide: () => select.value
+      width: 40
     },
     {
       label: "序号",
@@ -266,6 +264,24 @@ export function useColumns() {
     deleteJob({ ids: [row.id] })
       .then(data => {
         if (data.success) {
+          message("删除成功！", { type: "success" });
+          requestData();
+        }
+      })
+      .finally(() => {
+        loading.value.delete = false;
+      });
+  }
+
+  /** 批量删除 */
+  function doBatchDel() {
+    // 返回当前选中的行
+    const curSelected = tableRef.value.getTableRef().getSelectionRows();
+    deleteJob({ ids: getKeyList(curSelected, "id") })
+      .then(data => {
+        if (data.success) {
+          message("删除成功！", { type: "success" });
+          tableRef.value.getTableRef().clearSelection();
           requestData();
         }
       })
@@ -282,7 +298,7 @@ export function useColumns() {
     })
       .then(data => {
         if (data.success) {
-          message("修改状态成功！");
+          message("修改状态成功！", { type: "success" });
         }
       })
       .finally(() => {
@@ -293,7 +309,7 @@ export function useColumns() {
   function doRunJob(row?: FormItemProps) {
     runJob(row.id).then(data => {
       if (data.success) {
-        message("运行成功");
+        message("运行成功", { type: "success" });
       }
     });
   }

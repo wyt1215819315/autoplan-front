@@ -13,6 +13,7 @@ defineOptions({
   name: "QuartzManager"
 });
 const formDialogRef = ref<FormInstance>();
+const tableRef = ref();
 const {
   loading,
   columns,
@@ -31,7 +32,7 @@ const {
   doDelete,
   doRunJob,
   closeDialog
-} = useColumns();
+} = useColumns(tableRef);
 </script>
 
 <template>
@@ -51,6 +52,7 @@ const {
         adaptive
         row-key="id"
         alignWhole="center"
+        ref="tableRef"
         :size="`default`"
         :loading="loading.main"
         :loading-config="loadingConfig"
