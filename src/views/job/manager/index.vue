@@ -37,16 +37,9 @@ const {
 
 <template>
   <div>
-    <PureTableBar
-      title="定时任务管理"
-      :columns="columns"
-      :simple-mode="true"
-      @refresh="requestData"
-    >
+    <PureTableBar title="定时任务管理" :columns="columns" :simple-mode="true" @refresh="requestData">
       <template #buttons>
-        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="add">
-          新增任务
-        </el-button>
+        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="add"> 新增任务 </el-button>
       </template>
       <pure-table
         adaptive
@@ -67,95 +60,43 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-button
-            class="reset-margin"
-            link
-            type="primary"
-            :icon="useRenderIcon(VideoPlay)"
-            @click="doRunJob(row)"
-          >
-            运行
-          </el-button>
-          <el-button
-            class="reset-margin"
-            link
-            type="primary"
-            :icon="useRenderIcon(EditPen)"
-            @click="edit(row)"
-          >
-            修改
-          </el-button>
-          <el-popconfirm
-            :title="`是否确认删除编号为${row.tableNo}的这条数据`"
-            @confirm="doDelete(row)"
-          >
+          <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(VideoPlay)" @click="doRunJob(row)"> 运行 </el-button>
+          <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(EditPen)" @click="edit(row)"> 修改 </el-button>
+          <el-popconfirm :title="`是否确认删除编号为${row.tableNo}的这条数据`" @confirm="doDelete(row)">
             <template #reference>
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :loading="loading.delete"
-                :icon="useRenderIcon(Delete)"
-              >
-                删除
-              </el-button>
+              <el-button class="reset-margin" link type="primary" :loading="loading.delete" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>
           </el-popconfirm>
         </template>
       </pure-table>
     </PureTableBar>
-    <el-dialog
-      :title="dialog.title"
-      v-model="dialog.visible"
-      fullscreen
-      append-to-body
-      @close="closeDialog"
-    >
-      <el-form
-        ref="formDialogRef"
-        :model="dialogForm"
-        :rules="dialogRules"
-        label-width="15vw"
-      >
+    <el-dialog :title="dialog.title" v-model="dialog.visible" fullscreen append-to-body @close="closeDialog">
+      <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw">
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务名称:" prop="jobName">
-              <el-input
-                v-model="dialogForm.jobName"
-                placeholder="请输入任务名称"
-                maxlength="30"
-              />
+              <el-input v-model="dialogForm.jobName" placeholder="请输入任务名称" maxlength="30" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="调用目标字符串:" prop="invokeTarget">
-              <el-input
-                v-model="dialogForm.invokeTarget"
-                placeholder="请输入调用目标字符串"
-              />
+              <el-input v-model="dialogForm.invokeTarget" placeholder="请输入调用目标字符串" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="cron执行表达式:" prop="cronExpression">
-              <el-input
-                v-model="dialogForm.cronExpression"
-                placeholder="请输入cron执行表达式"
-              />
+              <el-input v-model="dialogForm.cronExpression" placeholder="请输入cron执行表达式" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务执行超时:" prop="timeout">
-              <el-input
-                type="number"
-                v-model="dialogForm.timeout"
-                placeholder="请输入任务执行超时"
-              />
+              <el-input type="number" v-model="dialogForm.timeout" placeholder="请输入任务执行超时" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -190,20 +131,8 @@ const {
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="doSaveOrUpdate(formDialogRef)"
-            :loading="loading.addDialogButton"
-          >
-            保存
-          </el-button>
-          <el-button
-            type="danger"
-            @click="closeDialog"
-            :loading="loading.addDialogButton"
-          >
-            取消
-          </el-button>
+          <el-button type="primary" @click="doSaveOrUpdate(formDialogRef)" :loading="loading.addDialogButton"> 保存 </el-button>
+          <el-button type="danger" @click="closeDialog" :loading="loading.addDialogButton"> 取消 </el-button>
         </div>
       </template>
     </el-dialog>

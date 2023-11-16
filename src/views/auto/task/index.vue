@@ -41,20 +41,9 @@ const {
 
 <template>
   <div>
-    <PureTableBar
-      :title="`${tableTitle}任务列表`"
-      :columns="columns"
-      :simple-mode="true"
-      @refresh="requestData"
-    >
+    <PureTableBar :title="`${tableTitle}任务列表`" :columns="columns" :simple-mode="true" @refresh="requestData">
       <template #buttons>
-        <el-button
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="addTask"
-        >
-          新增自动任务
-        </el-button>
+        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="addTask"> 新增自动任务 </el-button>
       </template>
       <pure-table
         adaptive
@@ -74,40 +63,17 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-popconfirm
-            :title="`是否确认删除用户编号为${row.id}的这条数据`"
-            @confirm=""
-          >
+          <el-popconfirm :title="`是否确认删除用户编号为${row.id}的这条数据`" @confirm="">
             <template #reference>
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :icon="useRenderIcon(Delete)"
-              >
-                删除
-              </el-button>
+              <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>
           </el-popconfirm>
           <el-dropdown>
-            <el-button
-              class="ml-3 mt-[2px]"
-              link
-              type="primary"
-              :icon="useRenderIcon(More)"
-            />
+            <el-button class="ml-3 mt-[2px]" link type="primary" :icon="useRenderIcon(More)" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>
-                  <el-button
-                    class="reset-margin"
-                    link
-                    type="primary"
-                    :icon="useRenderIcon(EditPen)"
-                    @click=""
-                  >
-                    修改
-                  </el-button>
+                  <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(EditPen)" @click=""> 修改 </el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -115,27 +81,12 @@ const {
         </template>
       </pure-table>
     </PureTableBar>
-    <el-dialog
-      :title="dialog.title"
-      v-model="dialog.visible"
-      fullscreen
-      append-to-body
-      @close="closeDialog"
-    >
-      <el-form
-        ref="formDialogRef"
-        :model="dialogForm"
-        :rules="dialogRules"
-        label-width="15vw"
-      >
+    <el-dialog :title="dialog.title" v-model="dialog.visible" fullscreen append-to-body @close="closeDialog">
+      <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw">
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务名称:" prop="_sys.name">
-              <el-input
-                v-model="dialogForm._sys.name"
-                placeholder="请输入任务名称"
-                maxlength="30"
-              />
+              <el-input v-model="dialogForm._sys.name" placeholder="请输入任务名称" maxlength="30" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -158,19 +109,12 @@ const {
         <el-row
           v-for="(item, index) in dialogColumn"
           :key="index"
-          v-show="
-            item.ref === undefined ||
-            item.refValue.includes(dialogForm.data[item.ref])
-          "
+          v-show="item.ref === undefined || item.refValue.includes(dialogForm.data[item.ref])"
         >
           <el-col :span="24">
             <el-form-item :label="`${item.name}:`" :prop="item.field">
               <!-- 普通文本输入框-->
-              <el-input
-                v-if="item.fieldType === 'String'"
-                v-model="dialogForm.data[item.field]"
-                :placeholder="`请输入${item.name}`"
-              />
+              <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
               <!-- 长文本输入框-->
               <el-input
                 v-if="item.fieldType === 'TextArea'"
@@ -180,12 +124,7 @@ const {
               />
               <!-- 数字输入框-->
               <el-input
-                v-if="
-                  (item.fieldType === 'Integer' ||
-                    item.fieldType === 'Long' ||
-                    item.fieldType === 'Double') &&
-                  item.options === undefined
-                "
+                v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
                 type="number"
                 v-model="dialogForm.data[item.field]"
                 :placeholder="`请输入${item.name}`"
@@ -197,12 +136,7 @@ const {
                 :placeholder="`请选择${item.name}`"
                 style="width: 100%"
               >
-                <el-option
-                  v-for="option in item.options"
-                  :key="option.value"
-                  :label="option.name"
-                  :value="option.value"
-                />
+                <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -210,27 +144,9 @@ const {
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="success"
-            @click="doCheckTask(formDialogRef)"
-            :loading="loading.addTaskButton"
-          >
-            校验
-          </el-button>
-          <el-button
-            type="primary"
-            @click="doCheckAndSaveTask(formDialogRef)"
-            :loading="loading.addTaskButton"
-          >
-            校验并提交
-          </el-button>
-          <el-button
-            type="danger"
-            @click="closeDialog"
-            :loading="loading.addTaskButton"
-          >
-            关闭
-          </el-button>
+          <el-button type="success" @click="doCheckTask(formDialogRef)" :loading="loading.addTaskButton"> 校验 </el-button>
+          <el-button type="primary" @click="doCheckAndSaveTask(formDialogRef)" :loading="loading.addTaskButton"> 校验并提交 </el-button>
+          <el-button type="danger" @click="closeDialog" :loading="loading.addTaskButton"> 关闭 </el-button>
         </div>
       </template>
     </el-dialog>

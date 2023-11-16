@@ -30,20 +30,9 @@ const {
 
 <template>
   <div>
-    <PureTableBar
-      title="定时任务日志管理"
-      :columns="columns"
-      :simple-mode="true"
-      @refresh="requestData"
-    >
+    <PureTableBar title="定时任务日志管理" :columns="columns" :simple-mode="true" @refresh="requestData">
       <template #buttons>
-        <el-button
-          type="danger"
-          :icon="useRenderIcon(Delete)"
-          @click="doDeleteAll"
-        >
-          删除全部日志
-        </el-button>
+        <el-button type="danger" :icon="useRenderIcon(Delete)" @click="doDeleteAll"> 删除全部日志 </el-button>
       </template>
       <pure-table
         adaptive
@@ -64,32 +53,15 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-popconfirm
-            :title="`是否确认删除编号为${row.tableNo}的这条数据`"
-            @confirm="doDelete(row)"
-          >
+          <el-popconfirm :title="`是否确认删除编号为${row.tableNo}的这条数据`" @confirm="doDelete(row)">
             <template #reference>
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :loading="loading.delete"
-                :icon="useRenderIcon(Delete)"
-              >
-                删除
-              </el-button>
+              <el-button class="reset-margin" link type="primary" :loading="loading.delete" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>
           </el-popconfirm>
         </template>
       </pure-table>
     </PureTableBar>
-    <el-dialog
-      title="日志详情"
-      v-model="dialog.visible"
-      fullscreen
-      append-to-body
-      @close="closeDialog"
-    >
+    <el-dialog title="日志详情" v-model="dialog.visible" fullscreen append-to-body @close="closeDialog">
       <el-form ref="formDialogRef" :model="form" label-width="15vw">
         <el-row>
           <el-col :span="24">

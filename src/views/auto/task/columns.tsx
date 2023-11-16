@@ -1,14 +1,7 @@
 import { delay } from "@pureadmin/utils";
 import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import {
-  checkAndSaveTask,
-  checkTask,
-  getIndexInfo,
-  getSettingColumn,
-  getTaskPage,
-  getUserInfoColumn
-} from "@/api/auto";
+import { checkAndSaveTask, checkTask, getIndexInfo, getSettingColumn, getTaskPage, getUserInfoColumn } from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
@@ -54,7 +47,7 @@ export function useColumns(parameter) {
   loadIndexInfo();
 
   function loadIndexInfo() {
-    getIndexInfo(indexId).then(data => {
+    getIndexInfo(indexId).then((data) => {
       indexInfo.value = data.data;
       tableTitle.value = indexInfo.value.name;
     });
@@ -77,7 +70,7 @@ export function useColumns(parameter) {
       label: "开关",
       width: 100,
       prop: "enable",
-      cellRenderer: scope => (
+      cellRenderer: (scope) => (
         <el-switch
           size="small"
           // loading={switchLoadMap.value[scope.index]?.loading}
@@ -112,7 +105,7 @@ export function useColumns(parameter) {
   ];
 
   // 动态获取表单列
-  getUserInfoColumn(parameter.id).then(data => {
+  getUserInfoColumn(parameter.id).then((data) => {
     if (data.success) {
       for (const col of data.data) {
         columns.push({
@@ -150,7 +143,7 @@ export function useColumns(parameter) {
       `
   });
 
-  function onSizeChange(val) {
+  function onSizeChange(val: any) {
     loadingConfig.text = `正在加载...`;
     pagination.pageSize = val;
     delay(600).then(() => {
@@ -158,7 +151,7 @@ export function useColumns(parameter) {
     });
   }
 
-  function onCurrentChange(val) {
+  function onCurrentChange(val: any) {
     loadingConfig.text = `正在加载第${val}页...`;
     delay(600).then(() => {
       requestData();
@@ -177,7 +170,7 @@ export function useColumns(parameter) {
       size: pagination.pageSize,
       current: pagination.currentPage
     })
-      .then(data => {
+      .then((data) => {
         pagination.total = data.data.total;
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
@@ -195,7 +188,7 @@ export function useColumns(parameter) {
   function addTask() {
     initForm();
     dialog.title = "新增" + indexInfo.value.name + "任务";
-    getSettingColumn(indexId).then(data => {
+    getSettingColumn(indexId).then((data) => {
       if (data.success) {
         dialog.visible = true;
         for (const item of data.data) {
@@ -204,11 +197,7 @@ export function useColumns(parameter) {
           });
           // 填充默认值
           if (item.defaultValue !== undefined) {
-            if (
-              item.fieldType === "Integer" ||
-              item.fieldType === "Long" ||
-              item.fieldType === "Double"
-            ) {
+            if (item.fieldType === "Integer" || item.fieldType === "Long" || item.fieldType === "Double") {
               dialogForm.value.data[item.field] = Number(item.defaultValue);
             } else {
               dialogForm.value.data[item.field] = item.defaultValue;
@@ -221,11 +210,11 @@ export function useColumns(parameter) {
 
   async function doCheckTask(formEl: FormInstance | undefined) {
     if (!formEl) return;
-    await formEl.validate(valid => {
+    await formEl.validate((valid) => {
       if (valid) {
         loading.value.addTaskButton = true;
         checkTask(indexId, dialogForm.value)
-          .then(data => {
+          .then((data) => {
             if (data.data.success) {
               message(data.data.msg, {
                 type: "success"
@@ -247,11 +236,11 @@ export function useColumns(parameter) {
 
   async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
     if (!formEl) return;
-    await formEl.validate(valid => {
+    await formEl.validate((valid) => {
       if (valid) {
         loading.value.addTaskButton = true;
         checkAndSaveTask(indexId, dialogForm.value)
-          .then(data => {
+          .then((data) => {
             if (data.data.success) {
               message(data.data.msg, {
                 type: "success"

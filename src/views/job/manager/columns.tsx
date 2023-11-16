@@ -1,20 +1,10 @@
 import { delay, getKeyList } from "@pureadmin/utils";
 import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
-import {
-  changeJobStatus,
-  deleteJob,
-  getJobPage,
-  runJob,
-  saveJob,
-  updateJob,
-  viewJob
-} from "@/api/job";
+import { changeJobStatus, deleteJob, getJobPage, runJob, saveJob, updateJob, viewJob } from "@/api/job";
 import { isValidCron } from "cron-validator";
-import { FormItemProps } from "@/views/system/dept/utils/types";
 
 class SysQuartzJob {
   id: number;
@@ -100,11 +90,7 @@ export function useColumns(tableRef: Ref) {
       width: 80,
       prop: "concurrent",
       cellRenderer: ({ row, props }) => (
-        <el-tag
-          size={props.size}
-          type={row.concurrent === 1 ? "danger" : ""}
-          effect="plain"
-        >
+        <el-tag size={props.size} type={row.concurrent === 1 ? "danger" : ""} effect="plain">
           {row.concurrent === 1 ? "并发执行" : "非并发执行"}
         </el-tag>
       )
@@ -113,7 +99,7 @@ export function useColumns(tableRef: Ref) {
       label: "任务开关",
       width: 100,
       prop: "status",
-      cellRenderer: scope => (
+      cellRenderer: (scope) => (
         <el-switch
           size="small"
           // loading={switchLoadMap.value[scope.index]?.loading}
@@ -191,7 +177,7 @@ export function useColumns(tableRef: Ref) {
       size: pagination.pageSize,
       current: pagination.currentPage
     })
-      .then(data => {
+      .then((data) => {
         pagination.total = data.data.total;
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
@@ -222,9 +208,9 @@ export function useColumns(tableRef: Ref) {
   /**
    * 打开编辑页面
    */
-  function edit(row?: FormItemProps) {
+  function edit(row?: any) {
     initForm();
-    viewJob(row.id).then(data => {
+    viewJob(row.id).then((data) => {
       if (data.success) {
         dialog.title = "编辑定时任务";
         dialogForm.value = data.data;
@@ -238,7 +224,7 @@ export function useColumns(tableRef: Ref) {
    */
   async function doSaveOrUpdate(formEl: FormInstance | undefined) {
     if (!formEl) return;
-    await formEl.validate(async valid => {
+    await formEl.validate(async (valid) => {
       if (valid) {
         loading.value.addDialogButton = true;
         let data;
@@ -260,10 +246,10 @@ export function useColumns(tableRef: Ref) {
     });
   }
 
-  function doDelete(row?: FormItemProps) {
+  function doDelete(row?: any) {
     loading.value.delete = true;
     deleteJob({ ids: [row.id] })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           message("删除成功！", { type: "success" });
           requestData();
@@ -279,7 +265,7 @@ export function useColumns(tableRef: Ref) {
     // 返回当前选中的行
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
     deleteJob({ ids: getKeyList(curSelected, "id") })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           message("删除成功！", { type: "success" });
           tableRef.value.getTableRef().clearSelection();
@@ -297,7 +283,7 @@ export function useColumns(tableRef: Ref) {
       id: row.id,
       status: row.status
     })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           message("修改状态成功！", { type: "success" });
         }
@@ -307,8 +293,8 @@ export function useColumns(tableRef: Ref) {
       });
   }
 
-  function doRunJob(row?: FormItemProps) {
-    runJob(row.id).then(data => {
+  function doRunJob(row?: any) {
+    runJob(row.id).then((data) => {
       if (data.success) {
         message("运行成功", { type: "success" });
       }

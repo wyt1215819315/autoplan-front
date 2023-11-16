@@ -2,12 +2,7 @@ import { delay, getKeyList } from "@pureadmin/utils";
 import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { message } from "@/utils/message";
-import {
-  deleteJobLog,
-  deleteAllJobLog,
-  getJobLogPage,
-  viewJobLog
-} from "@/api/job";
+import { deleteJobLog, deleteAllJobLog, getJobLogPage, viewJobLog } from "@/api/job";
 import { FormItemProps } from "@/views/system/dept/utils/types";
 import { ElMessageBox } from "element-plus";
 
@@ -67,11 +62,7 @@ export function useColumns(tableRef: Ref) {
       width: 80,
       prop: "concurrent",
       cellRenderer: ({ row, props }) => (
-        <el-tag
-          size={props.size}
-          type={row.concurrent === 1 ? "danger" : ""}
-          effect="plain"
-        >
+        <el-tag size={props.size} type={row.concurrent === 1 ? "danger" : ""} effect="plain">
           {row.concurrent === 1 ? "并发执行" : "非并发执行"}
         </el-tag>
       )
@@ -138,7 +129,7 @@ export function useColumns(tableRef: Ref) {
       size: pagination.pageSize,
       current: pagination.currentPage
     })
-      .then(data => {
+      .then((data) => {
         pagination.total = data.data.total;
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
@@ -155,9 +146,9 @@ export function useColumns(tableRef: Ref) {
   /**
    * 打开编辑页面
    */
-  function edit(row?: FormItemProps) {
+  function edit(row?: any) {
     initForm();
-    viewJobLog(row.id).then(data => {
+    viewJobLog(row.id).then((data) => {
       if (data.success) {
         dialog.visible = true;
         form.value = data.data;
@@ -165,10 +156,10 @@ export function useColumns(tableRef: Ref) {
     });
   }
 
-  function doDelete(row?: FormItemProps) {
+  function doDelete(row?: any) {
     loading.value.delete = true;
     deleteJobLog({ ids: [row.id] })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           message("删除成功！", { type: "success" });
           requestData();
@@ -184,7 +175,7 @@ export function useColumns(tableRef: Ref) {
     // 返回当前选中的行
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
     deleteJobLog({ ids: getKeyList(curSelected, "id") })
-      .then(data => {
+      .then((data) => {
         if (data.success) {
           message("删除成功！", { type: "success" });
           tableRef.value.getTableRef().clearSelection();
@@ -197,15 +188,11 @@ export function useColumns(tableRef: Ref) {
   }
 
   function doDeleteAll() {
-    ElMessageBox.confirm(
-      "确认删除后定时任务日志表将会被清空且无法恢复，确定要执行操作吗？",
-      "提示",
-      {
-        type: "warning"
-      }
-    )
+    ElMessageBox.confirm("确认删除后定时任务日志表将会被清空且无法恢复，确定要执行操作吗？", "提示", {
+      type: "warning"
+    })
       .then(() => {
-        deleteAllJobLog().then(data => {
+        deleteAllJobLog().then((data) => {
           if (data.success) {
             message("删除成功", { type: "success" });
             requestData();
