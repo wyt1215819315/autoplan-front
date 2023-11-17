@@ -96,10 +96,7 @@
     "vue-types": "^5.1.1",
     "vue-virtual-scroller": "2.0.0-beta.8",
     "vue-waterfall-plugin-next": "^2.2.4",
-    "vue3-danmaku": "^1.6.0",
     "vuedraggable": "^4.1.0",
-    "wavesurfer.js": "^7.3.4",
-    "xgplayer": "^3.0.9",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

@@ -50,14 +50,6 @@ export default {
       }
     },
     {
-      path: "/components/video",
-      name: "VideoPage",
-      component: () => import("@/views/components/video/index.vue"),
-      meta: {
-        title: $t("menus.hsvideo")
-      }
-    },
-    {
       path: "/components/map",
       name: "MapPage",
       component: () => import("@/views/components/map/index.vue"),
@@ -160,14 +152,6 @@ export default {
       component: () => import("@/views/components/json-editor/index.vue"),
       meta: {
         title: $t("menus.hsjsoneditor")
-      }
-    },
-    {
-      path: "/components/danmaku",
-      name: "Danmaku",
-      component: () => import("@/views/components/danmaku/index.vue"),
-      meta: {
-        title: $t("menus.hsdanmaku")
       }
     }
   ]

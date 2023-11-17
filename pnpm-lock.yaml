@@ -154,18 +154,9 @@ dependencies:
   vue-waterfall-plugin-next:
     specifier: ^2.2.4
     version: 2.2.4(vue@3.3.4)
-  vue3-danmaku:
-    specifier: ^1.6.0
-    version: 1.6.0(vue@3.3.4)
   vuedraggable:
     specifier: ^4.1.0
     version: 4.1.0(vue@3.3.4)
-  wavesurfer.js:
-    specifier: ^7.3.4
-    version: 7.3.4
-  xgplayer:
-    specifier: ^3.0.9
-    version: 3.0.9
   xlsx:
     specifier: ^0.18.5
     version: 0.18.5
@@ -3206,12 +3197,6 @@ packages:
       type: 1.2.0
     dev: false
 
-  /danmu.js@1.1.13:
-    resolution: {integrity: sha512-knFd0/cB2HA4FFWiA7eB2suc5vCvoHdqio33FyyCSfP7C+1A+zQcTvnvwfxaZhrxsGj4qaQI2I8XiTqedRaVmg==}
-    dependencies:
-      event-emitter: 0.3.5
-    dev: false
-
   /data-urls@2.0.0:
     resolution: {integrity: sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ==}
     engines: {node: '>=10'}
@@ -3316,10 +3301,6 @@ packages:
   /delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
-    dev: false
-
-  /delegate@3.2.0:
-    resolution: {integrity: sha512-IofjkYBZaZivn0V8nnsMJGBr4jVLxHDheKSW88PyxS5QC4Vo9ZbZVvhzlSxY87fVq3STR6r+4cGepyHkcWOQSw==}
     dev: false
 
   /destr@2.0.1:
@@ -3437,10 +3418,6 @@ packages:
     engines: {node: '>=12'}
     dev: false
     optional: true
-
-  /downloadjs@1.4.7:
-    resolution: {integrity: sha512-LN1gO7+u9xjU5oEScGFKvXhYf7Y/empUIIEAGBs1LzUq/rg5duiDrkuH5A2lQGd5jfMOb9X9usDa2oVXwJ0U/Q==}
-    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -3808,10 +3785,6 @@ packages:
     dependencies:
       d: 1.0.1
       es5-ext: 0.10.62
-    dev: false
-
-  /eventemitter3@4.0.7:
-    resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
 
   /eventemitter3@5.0.1:
@@ -8259,14 +8232,6 @@ packages:
       - vue
     dev: false
 
-  /vue3-danmaku@1.6.0(vue@3.3.4):
-    resolution: {integrity: sha512-XjwVKIelupDD3PWn6k22l5qS8y+SCdFUYq4sSpcPInqk7CyzXWSAfz2BL6WWx9HU9CRWS3x2oDMkepLkJoWvNQ==}
-    peerDependencies:
-      vue: ^3.0.0
-    dependencies:
-      vue: 3.3.4
-    dev: false
-
   /vue@3.3.4:
     resolution: {integrity: sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw==}
     dependencies:
@@ -8303,10 +8268,6 @@ packages:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
     dependencies:
       makeerror: 1.0.12
-    dev: false
-
-  /wavesurfer.js@7.3.4:
-    resolution: {integrity: sha512-x2Ue4Dh+4RoaWay3LOLHhXgkdxPAIoC/BcbXh0yk8WNhQH2NboPoa52XXoCo4jEfjSe1bc7nxuM5vBIxUMZyBA==}
     dev: false
 
   /webidl-conversions@5.0.0:
@@ -8434,32 +8395,6 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
-    dev: false
-
-  /xgplayer-subtitles@3.0.9:
-    resolution: {integrity: sha512-FPD9lQ4BKixm3AKRFWpUAlEpEcHpz1tG2Y+k/CtfzwMEDGKK9fjRlxZ+ZRB2A4f2IXkT+OInbZbrDvgjdproSQ==}
-    peerDependencies:
-      core-js: '>=3.12.1'
-    peerDependenciesMeta:
-      core-js:
-        optional: true
-    dependencies:
-      eventemitter3: 4.0.7
-    dev: false
-
-  /xgplayer@3.0.9:
-    resolution: {integrity: sha512-0Wz8B6NOQT+vSo+at64hHtR+fCtYwv44kMt5EM4w1O1Ok3KTBpL5Z6e/JTnkSkiC3MNsmbd4ZHayFdlaEGbxyg==}
-    peerDependencies:
-      core-js: '>=3.12.1'
-    peerDependenciesMeta:
-      core-js:
-        optional: true
-    dependencies:
-      danmu.js: 1.1.13
-      delegate: 3.2.0
-      downloadjs: 1.4.7
-      eventemitter3: 4.0.7
-      xgplayer-subtitles: 3.0.9
     dev: false
 
   /xlsx@0.18.5:
