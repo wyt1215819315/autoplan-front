@@ -4,7 +4,7 @@ import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
 import { changeJobStatus, deleteJob, getJobPage, runJob, saveJob, updateJob, viewJob } from "@/api/job";
-import { isValidCron } from "cron-validator";
+// import { isValidCron } from "cron-validator";
 
 class SysQuartzJob {
   id: number;
@@ -29,32 +29,36 @@ export function useColumns(tableRef: Ref) {
     visible: false,
     title: ""
   });
+  const cronGenerator = reactive({
+    visible: false,
+    cron: ""
+  });
   // 表单数据
   const dialogForm = ref<SysQuartzJob>();
   // 表单校验规则
   const dialogRules = ref({
     cronExpression: [
-      { required: true, message: "请输入Cron表达式", trigger: "blur" },
-      {
-        validator: (rule, value, callback) => {
-          // seconds可以通过seconds在选项中将标志传递为 true来启用对秒的支持(例:* * * * * *);
-          // alias启用alias对月份和工作日的支持(例:* * * * mon);
-          // allowBlankDay可以启用该标志以使用?符号将天或工作日标记为空白(例:* * * * ?);
-          // allowSevenAsSunday可以启用该标志以支持数字 7 作为星期日(例:* * * * 7);
-          const isOk = isValidCron(value, {
-            seconds: true,
-            alias: true,
-            allowBlankDay: true,
-            allowSevenAsSunday: true
-          });
-          if (!isOk) {
-            callback(new Error("请输入可用的Cron表达式"));
-          } else {
-            callback();
-          }
-        },
-        trigger: "blur"
-      }
+      { required: true, message: "请输入Cron表达式", trigger: "blur" }
+      // {
+      //   validator: (rule, value, callback) => {
+      //     // seconds可以通过seconds在选项中将标志传递为 true来启用对秒的支持(例:* * * * * *);
+      //     // alias启用alias对月份和工作日的支持(例:* * * * mon);
+      //     // allowBlankDay可以启用该标志以使用?符号将天或工作日标记为空白(例:* * * * ?);
+      //     // allowSevenAsSunday可以启用该标志以支持数字 7 作为星期日(例:* * * * 7);
+      //     const isOk = isValidCron(value, {
+      //       seconds: true,
+      //       alias: true,
+      //       allowBlankDay: true,
+      //       allowSevenAsSunday: true
+      //     });
+      //     if (!isOk) {
+      //       callback(new Error("请输入可用的Cron表达式"));
+      //     } else {
+      //       callback();
+      //     }
+      //   },
+      //   trigger: "blur"
+      // }
     ]
   });
 
@@ -71,23 +75,26 @@ export function useColumns(tableRef: Ref) {
       prop: "tableNo"
     },
     {
-      label: "任务名称",
+      label: "名称",
+      minWidth: 120,
+      prop: "jobName",
+      showOverflowTooltip: true
+    },
+    {
+      label: "cron表达式",
       minWidth: 100,
-      prop: "jobName"
+      prop: "cronExpression",
+      showOverflowTooltip: true
     },
     {
-      label: "cron执行表达式",
-      width: 120,
-      prop: "cronExpression"
-    },
-    {
-      label: "任务执行超时",
-      width: 80,
-      prop: "cronExpression"
+      label: "执行超时",
+      minWidth: 80,
+      prop: "timeout",
+      cellRenderer: ({ row }) => <span>{row.timeout + "秒"}</span>
     },
     {
       label: "并发策略",
-      width: 80,
+      minWidth: 80,
       prop: "concurrent",
       cellRenderer: ({ row, props }) => (
         <el-tag size={props.size} type={row.concurrent === 1 ? "danger" : ""} effect="plain">
@@ -96,8 +103,8 @@ export function useColumns(tableRef: Ref) {
       )
     },
     {
-      label: "任务开关",
-      width: 100,
+      label: "开关",
+      width: 70,
       prop: "status",
       cellRenderer: (scope) => (
         <el-switch
@@ -117,7 +124,7 @@ export function useColumns(tableRef: Ref) {
     },
     {
       label: "操作",
-      width: 120,
+      width: 200,
       fixed: "right",
       slot: "operation"
     }
@@ -182,7 +189,7 @@ export function useColumns(tableRef: Ref) {
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
           const record = data.data.records[i];
-          record.tableNo = pagination.currentPage * pagination.pageSize + i + 1;
+          record.tableNo = (pagination.currentPage - 1) * pagination.pageSize + i + 1;
           dataList.value.push(record);
         }
       })
@@ -238,6 +245,7 @@ export function useColumns(tableRef: Ref) {
           }
           if (data.success) {
             message("操作成功！", { type: "success" });
+            closeDialog();
           }
         } finally {
           loading.value.addDialogButton = false;
@@ -310,6 +318,15 @@ export function useColumns(tableRef: Ref) {
     dialogForm.value = new SysQuartzJob();
   }
 
+  function openCronForm() {
+    cronGenerator.cron = dialogForm.value.cronExpression;
+  }
+
+  function updateCronForm(val: any) {
+    if (typeof val !== "string") return false;
+    dialogForm.value.cronExpression = val;
+  }
+
   return {
     loading,
     columns,
@@ -320,6 +337,9 @@ export function useColumns(tableRef: Ref) {
     onSizeChange,
     onCurrentChange,
     requestData,
+    cronGenerator,
+    openCronForm,
+    updateCronForm,
     dialog,
     dialogForm,
     dialogRules,

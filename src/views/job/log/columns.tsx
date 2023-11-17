@@ -43,33 +43,34 @@ export function useColumns(tableRef: Ref) {
       prop: "tableNo"
     },
     {
-      label: "任务名称",
+      label: "名称",
       minWidth: 100,
       prop: "jobName"
     },
     {
-      label: "cron执行表达式",
-      width: 120,
-      prop: "cronExpression"
+      label: "日志信息",
+      minWidth: 120,
+      prop: "jobMessage",
+      showOverflowTooltip: true
     },
     {
-      label: "任务执行超时",
-      width: 80,
-      prop: "cronExpression"
+      label: "结束时间",
+      width: 160,
+      prop: "endTime"
     },
     {
-      label: "并发策略",
+      label: "执行结果",
       width: 80,
-      prop: "concurrent",
+      prop: "status",
       cellRenderer: ({ row, props }) => (
-        <el-tag size={props.size} type={row.concurrent === 1 ? "danger" : ""} effect="plain">
-          {row.concurrent === 1 ? "并发执行" : "非并发执行"}
+        <el-tag size={props.size} type={row.status === 1 ? "danger" : row.status === 2 ? "" : "success"} effect="plain">
+          {row.status === 1 ? "失败" : row.status === 2 ? "超时" : "正常"}
         </el-tag>
       )
     },
     {
       label: "操作",
-      width: 120,
+      width: 80,
       fixed: "right",
       slot: "operation"
     }
@@ -134,7 +135,7 @@ export function useColumns(tableRef: Ref) {
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
           const record = data.data.records[i];
-          record.tableNo = pagination.currentPage * pagination.pageSize + i + 1;
+          record.tableNo = (pagination.currentPage - 1) * pagination.pageSize + i + 1;
           dataList.value.push(record);
         }
       })

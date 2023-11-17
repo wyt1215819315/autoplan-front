@@ -8,6 +8,8 @@ import AddFill from "@iconify-icons/ri/add-circle-line";
 import { ref } from "vue";
 import { FormInstance } from "element-plus";
 import VideoPlay from "@iconify-icons/ep/video-play";
+import { cron } from "@/components/crontab";
+import Setting from "@iconify-icons/ri/settings-3-line";
 
 defineOptions({
   name: "QuartzManager"
@@ -23,6 +25,9 @@ const {
   onSizeChange,
   onCurrentChange,
   requestData,
+  cronGenerator,
+  openCronForm,
+  updateCronForm,
   dialog,
   dialogForm,
   dialogRules,
@@ -89,7 +94,12 @@ const {
         <el-row>
           <el-col :span="24">
             <el-form-item label="cron执行表达式:" prop="cronExpression">
-              <el-input v-model="dialogForm.cronExpression" placeholder="请输入cron执行表达式" />
+              <el-popover placement="bottom" width="95vw" trigger="click" @show="openCronForm">
+                <cron :enable-i18n="false" :show-bottom="false" :cron-value="cronGenerator.cron" @change="updateCronForm" />
+                <template #reference>
+                  <el-input v-model="dialogForm.cronExpression" placeholder="请输入cron执行表达式" readonly />
+                </template>
+              </el-popover>
             </el-form-item>
           </el-col>
         </el-row>
@@ -135,6 +145,9 @@ const {
           <el-button type="danger" @click="closeDialog" :loading="loading.addDialogButton"> 取消 </el-button>
         </div>
       </template>
+      <!--      <el-dialog title="CRON表达式生成" v-model="cronGenerator.visible" fullscreen append-to-body>-->
+      <!--        <cron :enable-i18n="false" :cron-value="cronGenerator.cron" @change="updateCronForm" @close="cronGenerator.visible = false" />-->
+      <!--      </el-dialog>-->
     </el-dialog>
   </div>
 </template>

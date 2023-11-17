@@ -146,20 +146,20 @@ export function useColumns(parameter) {
   function onSizeChange(val: any) {
     loadingConfig.text = `正在加载...`;
     pagination.pageSize = val;
-    delay(600).then(() => {
+    delay(100).then(() => {
       requestData();
     });
   }
 
   function onCurrentChange(val: any) {
     loadingConfig.text = `正在加载第${val}页...`;
-    delay(600).then(() => {
+    delay(100).then(() => {
       requestData();
     });
   }
 
   onMounted(() => {
-    delay(600).then(() => {
+    delay(100).then(() => {
       requestData();
     });
   });
@@ -175,7 +175,7 @@ export function useColumns(parameter) {
         dataList.value = [];
         for (let i = 0; i < data.data.records.length; i++) {
           const record = data.data.records[i];
-          record.tableNo = pagination.currentPage * pagination.pageSize + i + 1;
+          record.tableNo = (pagination.currentPage - 1) * pagination.pageSize + i + 1;
           // 解析settings json字符串到列表中去
           dataList.value.push(record);
         }

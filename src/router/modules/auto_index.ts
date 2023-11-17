@@ -5,6 +5,7 @@ export default {
   meta: {
     icon: "card",
     title: "",
-    showLink: false
+    showLink: false,
+    rank: 10
   }
 } as RouteConfigsTable;
