@@ -50,9 +50,7 @@ export const runJob = (id: string) => {
 
 /** 获取定时任务日志分页 */
 export const getJobLogPage = (data?: object) => {
-  return http.request<PageResult>("post", baseUrlApi("/admin/joblog/page"), {
-    data
-  });
+  return http.request<PageResult>("post", baseUrlApi("/admin/joblog/page"), { data });
 };
 
 /** 查看任务日志详情 */
@@ -62,12 +60,14 @@ export const viewJobLog = (id: string) => {
 
 /** 删除定时任务日志 */
 export const deleteJobLog = (data?: object) => {
-  return http.request<Result>("post", baseUrlApi("/admin/joblog/delete"), {
-    data
-  });
+  return http.request<Result>("post", baseUrlApi("/admin/joblog/delete"), { data });
 };
 
 /** 删除全部定时任务日志 */
 export const deleteAllJobLog = () => {
   return http.request<Result>("post", baseUrlApi("/admin/joblog/deleteAll"));
+};
+
+export const getNextExecution = (data?: object) => {
+  return http.request<Result>("post", baseUrlApi("/admin/job/getNextExecution"), { data });
 };

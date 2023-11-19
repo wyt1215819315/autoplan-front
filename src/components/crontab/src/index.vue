@@ -57,6 +57,15 @@
     }
   }
 
+  .execution {
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+    background-color: white;
+    border: 1px solid var(--el-border-color);
+    border-top: 0;
+  }
+
   .bottom {
     width: 100%;
     display: flex;
@@ -103,7 +112,7 @@
           </el-row>
           <el-row>
             <el-radio class="long" v-model="state.second.cronEvery" label="3">{{ state.text.Seconds.specific }} </el-radio>
-            <el-select multiple collapse-tags max-collapse-tags="2" v-model="state.second.specificSpecific" :teleported="false">
+            <el-select multiple collapse-tags :max-collapse-tags="2" v-model="state.second.specificSpecific" :teleported="false">
               <el-option v-for="(val, index) in 60" :key="index" :value="val - 1">{{ val - 1 }} </el-option>
             </el-select>
           </el-row>
@@ -336,6 +345,10 @@
         </div>
       </el-tab-pane>
     </el-tabs>
+    <div class="execution">
+      <p>下次执行时间：</p>
+      <p v-for="item in state.nextExecutionList">{{ item }}</p>
+    </div>
     <el-footer class="bottom" v-show="showBottom">
       <div class="value">
         <span> cron预览: </span>
@@ -353,6 +366,7 @@
 <script>
 import Language from "./language";
 import { watch, reactive, computed, toRefs, defineComponent } from "vue";
+import { getNextExecution } from "@/api/job";
 
 export default defineComponent({
   name: "noVue3Cron",
@@ -372,6 +386,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const { i18n } = toRefs(props);
     const state = reactive({
+      nextExecutionList: [],
       language: i18n.value,
       second: {
         cronEvery: "1",
@@ -775,6 +790,15 @@ export default defineComponent({
       (newCron) => {
         if (newCron !== undefined && newCron.length > 1) {
           emit("change", newCron);
+          // 从后台获取下次的执行时间
+          getNextExecution({
+            cron: newCron,
+            num: 5
+          }).then((data) => {
+            if (data.success) {
+              state.nextExecutionList = data.data;
+            }
+          });
         }
       },
       {
