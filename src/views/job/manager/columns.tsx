@@ -210,6 +210,7 @@ export function useColumns(tableRef: Ref) {
       status: 1,
       timeout: 3600
     };
+    dialog.visible = true;
   }
 
   /**

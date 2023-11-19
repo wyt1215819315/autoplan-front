@@ -1,23 +1,20 @@
-import { $t } from "@/plugins/i18n";
-import { list } from "@/router/enums";
-
 export default {
-  path: "/list",
-  redirect: "/list/card",
+  path: "/auto",
+  redirect: "/auto/mine",
   meta: {
-    icon: "listCheck",
-    title: $t("menus.hsList"),
-    rank: list
+    icon: "user",
+    title: "我的任务",
+    rank: 12
   },
   children: [
     {
-      path: "/list/card",
+      path: "/auto/mine",
       name: "ListCard",
-      component: () => import("@/views/list/card/index.vue"),
+      component: () => import("@/views/auto/mine/index.vue"),
       meta: {
-        icon: "card",
-        title: $t("menus.hsListCard"),
-        showParent: true
+        icon: "user",
+        title: "我的任务",
+        showParent: false
       }
     }
   ]
