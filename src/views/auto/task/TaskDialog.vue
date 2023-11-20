@@ -4,10 +4,9 @@
       <el-row v-show="showTaskSelect">
         <el-col :span="24">
           <el-form-item label="任务选择:" prop="_index.name">
-            <el-select v-model="dialogForm._index" :placeholder="`请选择任务类型`" style="width: 100%" @change="loadColumn">
+            <el-select v-model="dialogForm._index" value-key="id" :placeholder="`请选择任务类型`" style="width: 100%" @change="loadColumn">
               <el-option v-for="option in indexList" :key="option.id" :label="option.name" :value="option" />
             </el-select>
-            <el-input v-model="dialogForm._sys.name" placeholder="请输入任务名称" maxlength="30" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -78,31 +77,46 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "vue";
-import { checkAndSaveTask, checkTask, getIndexList, getSettingColumn } from "@/api/auto";
+import { AutoIndex, checkAndSaveTask, checkAndUpdate, checkTask, checkTaskWithUpdate, getIndexList, getSettingColumn, viewTask } from "@/api/auto";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
-import { isEmpty } from "@pureadmin/utils";
+import { isAllEmpty } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
+import { Result } from "@/api/utils";
+
+class AutoDialogForm {
+  _index: AutoIndex;
+  _sys: {
+    id: any;
+    name: string;
+    enable: number;
+    code: string;
+  };
+  data: object;
+}
 
 defineOptions({ name: "TaskDialog" });
 const props = defineProps({
-  titlePrefix: Boolean,
+  titlePrefix: String,
   visible: Boolean,
-  indexId: Number,
-  taskId: Number,
+  indexId: String,
+  taskId: String,
   indexCode: String
 });
 const show = ref(false);
+const updateMode = ref(false);
 const showTaskSelect = ref(false);
 const indexList = ref([]);
 // 表单数据
-const dialogForm = ref({
+const dialogForm = ref<AutoDialogForm>({
   _index: {
     id: "",
     code: "",
-    name: ""
+    name: "",
+    icon: ""
   },
   _sys: {
+    id: undefined,
     name: "",
     enable: 1,
     code: ""
@@ -129,39 +143,28 @@ const loading = reactive({
 const emit = defineEmits(["closeDialog"]);
 
 watch(
-  () => props.indexId,
-  (newValue) => {
-    if (!isEmpty(newValue)) {
-      if (typeof newValue === "string") {
-        newValue = Number(newValue);
-      }
-      if (useAutoColumnStoreHook().idDataMap.has(newValue)) {
-        message("获取任务表单失败，请刷新页面重试！", { type: "error" });
-      } else {
-        dialogForm.value._index = useAutoColumnStoreHook().idDataMap.get(newValue);
-      }
-    }
-  }
-);
-
-watch(
-  () => props.indexCode,
-  (newValue) => {
-    if (!isEmpty(newValue)) {
-      if (useAutoColumnStoreHook().codeDataMap.has(newValue)) {
-        message("获取任务表单失败，请刷新页面重试！", { type: "error" });
-      } else {
-        dialogForm.value._index = useAutoColumnStoreHook().codeDataMap.get(newValue);
-      }
-    }
-  }
-);
-
-watch(
   () => props.visible,
   async (newValue) => {
     show.value = newValue;
     if (newValue === true) {
+      // load props
+      if (!isAllEmpty(props.indexId)) {
+        const val = props.indexId;
+        if (!useAutoColumnStoreHook().getIdDataMap.has(val)) {
+          message("获取任务表单失败，请刷新页面重试！", { type: "error" });
+          return;
+        } else {
+          dialogForm.value._index = useAutoColumnStoreHook().getIdDataMap.get(val).index;
+        }
+      } else if (!isAllEmpty(props.indexCode)) {
+        const val = props.indexCode;
+        if (!useAutoColumnStoreHook().getCodeDataMap.has(val)) {
+          message("获取任务表单失败，请刷新页面重试！", { type: "error" });
+          return;
+        } else {
+          dialogForm.value._index = useAutoColumnStoreHook().getCodeDataMap.get(val).index;
+        }
+      }
       // load column
       loading.form = true;
       await loadColumn();
@@ -173,30 +176,46 @@ watch(
 );
 
 async function loadColumn() {
-  if (isEmpty(dialogForm.value._index.id)) {
+  if (isAllEmpty(dialogForm.value._index.id)) {
     // 展示任务选择框
     await loadIndexList();
     showTaskSelect.value = true;
   } else {
     // 根据indexId获取表单
-    await getSettingColumn(dialogForm.value._index.id).then((data) => {
-      if (data.success) {
-        for (const item of data.data) {
-          dialogColumn.value.push({
-            ...item
-          });
-          // 填充默认值
-          if (item.defaultValue !== undefined) {
-            if (item.fieldType === "Integer" || item.fieldType === "Long" || item.fieldType === "Double") {
-              dialogForm.value.data[item.field] = Number(item.defaultValue);
-            } else {
-              dialogForm.value.data[item.field] = item.defaultValue;
-            }
-          }
+    const data = useAutoColumnStoreHook().getIdDataMap.get(dialogForm.value._index.id).settings;
+    for (const item of data) {
+      dialogColumn.value.push({
+        ...item
+      });
+      // 填充默认值
+      if (item.defaultValue !== undefined) {
+        if (item.fieldType === "Integer" || item.fieldType === "Long" || item.fieldType === "Double") {
+          dialogForm.value.data[item.field] = Number(item.defaultValue);
+        } else {
+          dialogForm.value.data[item.field] = item.defaultValue;
         }
       }
-    });
+    }
+    if (!isAllEmpty(props.taskId)) {
+      await loadViewData();
+    }
   }
+}
+
+async function loadViewData() {
+  await viewTask(props.taskId)
+    .then((data) => {
+      if (data.success) {
+        updateMode.value = true;
+        dialogForm.value._sys.id = data.data.id;
+        dialogForm.value._sys.name = data.data.name;
+        dialogForm.value._sys.enable = data.data.enable;
+        for (const col in data.data.setting) {
+          dialogForm.value.data[col] = data.data.setting[col];
+        }
+      }
+    })
+    .finally(() => {});
 }
 
 async function doCheckTask(formEl: FormInstance | undefined) {
@@ -204,23 +223,23 @@ async function doCheckTask(formEl: FormInstance | undefined) {
   await formEl.validate((valid) => {
     if (valid) {
       loading.button = true;
-      checkTask(dialogForm.value._index.id, dialogForm.value)
-        .then((data) => {
-          if (data.data.success) {
-            message(data.data.msg, {
-              type: "success"
-            });
-          } else {
-            message(data.data.msg, {
-              type: "error",
-              dangerouslyUseHTMLString: true,
-              duration: 10 * 1000
-            });
-          }
-        })
-        .finally(() => {
-          loading.button = false;
-        });
+      if (updateMode.value) {
+        checkTaskWithUpdate(dialogForm.value)
+          .then((data) => {
+            resolveCheckTask(data, false);
+          })
+          .finally(() => {
+            loading.button = false;
+          });
+      } else {
+        checkTask(dialogForm.value._index.id, dialogForm.value)
+          .then((data) => {
+            resolveCheckTask(data, false);
+          })
+          .finally(() => {
+            loading.button = false;
+          });
+      }
     }
   });
 }
@@ -230,26 +249,40 @@ async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
   await formEl.validate((valid) => {
     if (valid) {
       loading.button = true;
-      checkAndSaveTask(dialogForm.value._index.id, dialogForm.value)
-        .then((data) => {
-          if (data.data.success) {
-            message(data.data.msg, {
-              type: "success"
-            });
-            closeDialog();
-          } else {
-            message(data.data.msg, {
-              type: "error",
-              dangerouslyUseHTMLString: true,
-              duration: 10 * 1000
-            });
-          }
-        })
-        .finally(() => {
-          loading.button = false;
-        });
+      if (updateMode.value) {
+        checkAndUpdate(dialogForm.value)
+          .then((data) => {
+            resolveCheckTask(data, true);
+          })
+          .finally(() => (loading.button = false));
+      } else {
+        checkAndSaveTask(dialogForm.value._index.id, dialogForm.value)
+          .then((data) => {
+            resolveCheckTask(data, true);
+          })
+          .finally(() => {
+            loading.button = false;
+          });
+      }
     }
   });
+}
+
+function resolveCheckTask(data: Result<any>, close: Boolean) {
+  if (data.data.success) {
+    message(data.data.msg, {
+      type: "success"
+    });
+    if (close) {
+      closeDialog();
+    }
+  } else {
+    message(data.data.msg, {
+      type: "error",
+      dangerouslyUseHTMLString: true,
+      duration: 10 * 1000
+    });
+  }
 }
 
 async function loadIndexList() {
@@ -265,7 +298,8 @@ function initForm() {
     _index: {
       id: "",
       name: "",
-      code: ""
+      code: "",
+      icon: ""
     },
     _sys: {
       enable: 1,
@@ -283,6 +317,7 @@ function initForm() {
     }
   };
   dialogColumn.value = [];
+  updateMode.value = false;
 }
 
 function closeDialog() {

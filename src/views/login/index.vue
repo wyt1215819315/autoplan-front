@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  ref,
-  toRaw,
-  reactive,
-  watch,
-  computed,
-  onMounted,
-  onBeforeUnmount
-} from "vue";
+import { ref, toRaw, reactive, watch, computed, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
@@ -21,7 +13,7 @@ import update from "./components/update.vue";
 import { useNav } from "@/layout/hooks/useNav";
 import type { FormInstance } from "element-plus";
 import { $t, transformI18n } from "@/plugins/i18n";
-import { operates, thirdParty } from "./utils/enums";
+import { operates } from "./utils/enums";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
@@ -32,13 +24,11 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
-import globalization from "@/assets/svg/globalization.svg?component";
 import Lock from "@iconify-icons/ri/lock-fill";
-import Check from "@iconify-icons/ep/check";
 import User from "@iconify-icons/ri/user-3-fill";
 import { md5 } from "@/utils/crypto";
 import { baseUrlApi } from "@/api/utils";
-import Info from "@iconify-icons/ri/information-line";
+import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 
 defineOptions({
   name: "Login"
@@ -59,8 +49,7 @@ const { initStorage } = useLayout();
 initStorage();
 const { dataTheme, dataThemeChange } = useDataThemeChange();
 dataThemeChange();
-const { title, getDropdownItemStyle, getDropdownItemClass } = useNav();
-const { locale, translationCh, translationEn } = useTranslationLang();
+const { title } = useNav();
 
 const ruleForm = reactive({
   username: "",
@@ -79,9 +68,11 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           password: md5(ruleForm.password),
           code: ruleForm.verifyCode
         })
-        .then(res => {
+        .then((res) => {
           if (res.success) {
             // 获取后端路由
+            // 初始化表单缓存
+            useAutoColumnStoreHook().initData();
             initRouter().then(() => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });
@@ -120,10 +111,10 @@ onBeforeUnmount(() => {
   window.document.removeEventListener("keypress", onkeypress);
 });
 
-watch(checked, bool => {
+watch(checked, (bool) => {
   useUserStoreHook().SET_ISREMEMBERED(bool);
 });
-watch(loginDay, value => {
+watch(loginDay, (value) => {
   useUserStoreHook().SET_LOGINDAY(value);
 });
 </script>
@@ -133,13 +124,7 @@ watch(loginDay, value => {
     <img :src="bg" class="wave" />
     <div class="flex-c absolute right-5 top-3">
       <!-- 主题 -->
-      <el-switch
-        v-model="dataTheme"
-        inline-prompt
-        :active-icon="dayIcon"
-        :inactive-icon="darkIcon"
-        @change="dataThemeChange"
-      />
+      <el-switch v-model="dataTheme" inline-prompt :active-icon="dayIcon" :inactive-icon="darkIcon" @change="dataThemeChange" />
       <!-- 国际化 -->
       <!--      <el-dropdown trigger="click">-->
       <!--        <globalization-->
@@ -186,13 +171,7 @@ watch(loginDay, value => {
             </h2>
           </Motion>
 
-          <el-form
-            v-if="currentPage === 0"
-            ref="ruleFormRef"
-            :model="ruleForm"
-            :rules="loginRules"
-            size="large"
-          >
+          <el-form v-if="currentPage === 0" ref="ruleFormRef" :model="ruleForm" :rules="loginRules" size="large">
             <Motion :delay="100">
               <el-form-item
                 :rules="[
@@ -204,24 +183,13 @@ watch(loginDay, value => {
                 ]"
                 prop="username"
               >
-                <el-input
-                  clearable
-                  v-model="ruleForm.username"
-                  :placeholder="t('login.username')"
-                  :prefix-icon="useRenderIcon(User)"
-                />
+                <el-input clearable v-model="ruleForm.username" :placeholder="t('login.username')" :prefix-icon="useRenderIcon(User)" />
               </el-form-item>
             </Motion>
 
             <Motion :delay="150">
               <el-form-item prop="password">
-                <el-input
-                  clearable
-                  show-password
-                  v-model="ruleForm.password"
-                  :placeholder="t('login.password')"
-                  :prefix-icon="useRenderIcon(Lock)"
-                />
+                <el-input clearable show-password v-model="ruleForm.password" :placeholder="t('login.password')" :prefix-icon="useRenderIcon(Lock)" />
               </el-form-item>
             </Motion>
 
@@ -234,11 +202,7 @@ watch(loginDay, value => {
                   :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
                 >
                   <template v-slot:append>
-                    <img
-                      @click="refreshCaptchaCode"
-                      :src="imgCode"
-                      alt="验证码"
-                    />
+                    <img @click="refreshCaptchaCode" :src="imgCode" alt="验证码" />
                   </template>
                 </el-input>
               </el-form-item>
@@ -280,13 +244,7 @@ watch(loginDay, value => {
                 <!--                    {{ t("login.forget") }}-->
                 <!--                  </el-button>-->
                 <!--                </div>-->
-                <el-button
-                  class="w-full mt-4"
-                  size="default"
-                  type="primary"
-                  :loading="loading"
-                  @click="onLogin(ruleFormRef)"
-                >
+                <el-button class="w-full mt-4" size="default" type="primary" :loading="loading" @click="onLogin(ruleFormRef)">
                   {{ t("login.login") }}
                 </el-button>
               </el-form-item>

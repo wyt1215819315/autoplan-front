@@ -2,7 +2,7 @@ import { http } from "@/utils/http";
 import { baseUrlApi, PageResult, Result } from "@/api/utils";
 
 export class AutoIndex {
-  id: number;
+  id: any;
   name: string;
   code: string;
   icon: string;
@@ -38,14 +38,29 @@ export const getTaskPage = (indexId: string, data?: object) => {
   return http.request<PageResult>("post", baseUrlApi("/auto/task/" + indexId + "/page"), { data });
 };
 
+/** view任务详情 */
+export const viewTask = (taskId: any) => {
+  return http.request<Result<any>>("get", baseUrlApi("/auto/task/view/" + taskId));
+};
+
 /** 仅校验任务 */
 export const checkTask = (indexId: string, data?: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/auto/task/" + indexId + "/check"), { data });
 };
 
+/** 编辑情况下的仅校验任务 */
+export const checkTaskWithUpdate = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/auto/task/checkUserWithTask"), { data });
+};
+
 /** 校验任务并保存 */
 export const checkAndSaveTask = (indexId: string, data?: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/auto/task/" + indexId + "/checkAndSave"), { data });
+};
+
+/** 校验任务并更新 */
+export const checkAndUpdate = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/auto/task/checkAndUpdate"), { data });
 };
 
 /** 获取我的任务列表 */

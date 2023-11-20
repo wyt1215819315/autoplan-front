@@ -3,6 +3,8 @@ import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { AutoIndex, getIndexInfo, getTaskPage, getUserInfoColumn } from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
+import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
+import { message } from "@/utils/message";
 
 export function useColumns(parameter) {
   const dataList = ref([]);
@@ -19,17 +21,8 @@ export function useColumns(parameter) {
   const dialog = reactive({
     visible: false,
     title: "",
-    taskId: ""
+    taskId: undefined
   });
-
-  loadIndexInfo();
-
-  function loadIndexInfo() {
-    getIndexInfo(indexId).then((data) => {
-      indexInfo.value = data.data;
-      tableTitle.value = indexInfo.value.name;
-    });
-  }
 
   const columns: TableColumnList = [
     {
@@ -82,18 +75,6 @@ export function useColumns(parameter) {
     }
   ];
 
-  // 动态获取表单列
-  getUserInfoColumn(parameter.id).then((data) => {
-    if (data.success) {
-      for (const col of data.data) {
-        columns.push({
-          label: col.name,
-          prop: "userInfo." + col.field
-        });
-      }
-    }
-  });
-
   /** 分页配置 */
   const pagination = reactive<PaginationProps>({
     pageSize: 15,
@@ -120,6 +101,25 @@ export function useColumns(parameter) {
         " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
       `
   });
+
+  function loadIndexInfo() {
+    if (!useAutoColumnStoreHook().getIdDataMap.has(indexId)) {
+      message("获取任务表单失败，请刷新页面重试！", { type: "error" });
+      return;
+    } else {
+      const data = useAutoColumnStoreHook().getIdDataMap.get(indexId);
+      indexInfo.value = data.index;
+      tableTitle.value = indexInfo.value.name;
+      for (const col of data.display) {
+        columns.push({
+          label: col.name,
+          prop: "userInfo." + col.field
+        });
+      }
+    }
+  }
+
+  loadIndexInfo();
 
   function onSizeChange(val: any) {
     loadingConfig.text = `正在加载...`;
@@ -176,6 +176,9 @@ export function useColumns(parameter) {
 
   function closeDialog() {
     dialog.visible = false;
+    dialog.title = "";
+    dialog.taskId = undefined;
+    requestData();
   }
 
   return {

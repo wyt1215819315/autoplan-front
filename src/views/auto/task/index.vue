@@ -56,7 +56,7 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-popconfirm :title="`是否确认删除用户编号为${row.id}的这条数据`" @confirm="">
+          <el-popconfirm :title="`是否确认删除用户编号为${row.tableNo}的这条数据`" @confirm="">
             <template #reference>
               <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>
@@ -74,6 +74,12 @@ const {
         </template>
       </pure-table>
     </PureTableBar>
-    <TaskDialog :title-prefix="dialog.title" :index-id="parameter.id" :visible="dialog.visible" @close-dialog="closeDialog" />
+    <TaskDialog
+      :title-prefix="dialog.title"
+      :index-id="parameter.id"
+      :task-id="dialog.taskId"
+      :visible="dialog.visible"
+      @close-dialog="closeDialog"
+    />
   </div>
 </template>
