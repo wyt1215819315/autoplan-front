@@ -1,23 +1,13 @@
 import { delay } from "@pureadmin/utils";
 import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import { checkAndSaveTask, checkTask, getIndexInfo, getSettingColumn, getTaskPage, getUserInfoColumn } from "@/api/auto";
+import { AutoIndex, getIndexInfo, getTaskPage, getUserInfoColumn } from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
-import { message } from "@/utils/message";
-import { FormInstance } from "element-plus";
-
-class AutoIndex {
-  id: number;
-  name: string;
-  code: string;
-  icon: string;
-}
 
 export function useColumns(parameter) {
   const dataList = ref([]);
   const loading = ref({
-    main: true,
-    addTaskButton: false
+    main: true
   });
   const select = ref(true);
   const hideVal = ref("nohide");
@@ -28,21 +18,9 @@ export function useColumns(parameter) {
 
   const dialog = reactive({
     visible: false,
-    title: ""
+    title: "",
+    taskId: ""
   });
-  // 表单数据
-  const dialogForm = ref({
-    _sys: {
-      name: "",
-      enable: 1,
-      code: ""
-    },
-    data: {}
-  });
-  // 表单渲染字段
-  const dialogColumn = ref([]);
-  // 表单校验规则
-  const dialogRules = ref({});
 
   loadIndexInfo();
 
@@ -186,105 +164,18 @@ export function useColumns(parameter) {
   }
 
   function addTask() {
-    initForm();
-    dialog.title = "新增" + indexInfo.value.name + "任务";
-    getSettingColumn(indexId).then((data) => {
-      if (data.success) {
-        dialog.visible = true;
-        for (const item of data.data) {
-          dialogColumn.value.push({
-            ...item
-          });
-          // 填充默认值
-          if (item.defaultValue !== undefined) {
-            if (item.fieldType === "Integer" || item.fieldType === "Long" || item.fieldType === "Double") {
-              dialogForm.value.data[item.field] = Number(item.defaultValue);
-            } else {
-              dialogForm.value.data[item.field] = item.defaultValue;
-            }
-          }
-        }
-      }
-    });
+    dialog.title = "新增";
+    dialog.visible = true;
   }
 
-  async function doCheckTask(formEl: FormInstance | undefined) {
-    if (!formEl) return;
-    await formEl.validate((valid) => {
-      if (valid) {
-        loading.value.addTaskButton = true;
-        checkTask(indexId, dialogForm.value)
-          .then((data) => {
-            if (data.data.success) {
-              message(data.data.msg, {
-                type: "success"
-              });
-            } else {
-              message(data.data.msg, {
-                type: "error",
-                dangerouslyUseHTMLString: true,
-                duration: 10 * 1000
-              });
-            }
-          })
-          .finally(() => {
-            loading.value.addTaskButton = false;
-          });
-      }
-    });
-  }
-
-  async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
-    if (!formEl) return;
-    await formEl.validate((valid) => {
-      if (valid) {
-        loading.value.addTaskButton = true;
-        checkAndSaveTask(indexId, dialogForm.value)
-          .then((data) => {
-            if (data.data.success) {
-              message(data.data.msg, {
-                type: "success"
-              });
-              closeDialog();
-              requestData();
-            } else {
-              message(data.data.msg, {
-                type: "error",
-                dangerouslyUseHTMLString: true,
-                duration: 10 * 1000
-              });
-            }
-          })
-          .finally(() => {
-            loading.value.addTaskButton = false;
-          });
-      }
-    });
+  function editTask(row) {
+    dialog.taskId = row.id;
+    dialog.title = "编辑";
+    dialog.visible = true;
   }
 
   function closeDialog() {
     dialog.visible = false;
-  }
-
-  function initForm() {
-    dialog.title = "";
-    dialogForm.value = {
-      _sys: {
-        enable: 1,
-        name: indexInfo.value.name,
-        code: indexInfo.value.code
-      },
-      data: {}
-    };
-    dialogRules.value = {
-      _sys: {
-        name: [
-          { required: true, message: "任务名称必填", trigger: "blur" },
-          { max: 30, message: "任务名称不能超过30字", trigger: "blur" }
-        ]
-      }
-    };
-    dialogColumn.value = [];
   }
 
   return {
@@ -298,14 +189,9 @@ export function useColumns(parameter) {
     onCurrentChange,
     requestData,
     dialog,
-    dialogForm,
-    dialogRules,
-    dialogColumn,
-    indexInfo,
     tableTitle,
     addTask,
-    doCheckTask,
-    doCheckAndSaveTask,
+    editTask,
     closeDialog
   };
 }

@@ -19,34 +19,22 @@ import {
   formatTwoStageRoutes,
   formatFlatteningRoutes
 } from "./utils";
-import {
-  Router,
-  createRouter,
-  RouteRecordRaw,
-  RouteComponent
-} from "vue-router";
-import {
-  type DataInfo,
-  userKey,
-  removeToken,
-  multipleTabsKey
-} from "@/utils/auth";
+import { Router, createRouter, RouteRecordRaw, RouteComponent } from "vue-router";
+import { type DataInfo, userKey, removeToken, multipleTabsKey } from "@/utils/auth";
+import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 
 /** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
  * 如何匹配所有文件请看：https://github.com/mrmlnc/fast-glob#basic-syntax
  * 如何排除文件请看：https://cn.vitejs.dev/guide/features.html#negative-patterns
  */
-const modules: Record<string, any> = import.meta.glob(
-  ["./modules/**/*.ts", "!./modules/**/remaining.ts"],
-  {
-    eager: true
-  }
-);
+const modules: Record<string, any> = import.meta.glob(["./modules/**/*.ts", "!./modules/**/remaining.ts"], {
+  eager: true
+});
 
 /** 原始静态路由（未做任何处理） */
 const routes = [];
 
-Object.keys(modules).forEach(key => {
+Object.keys(modules).forEach((key) => {
   routes.push(modules[key].default);
 });
 
@@ -56,12 +44,10 @@ export const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
 );
 
 /** 用于渲染菜单，保持原始层级 */
-export const constantMenus: Array<RouteComponent> = ascending(
-  routes.flat(Infinity)
-).concat(...remainingRouter);
+export const constantMenus: Array<RouteComponent> = ascending(routes.flat(Infinity)).concat(...remainingRouter);
 
 /** 不参与菜单的路由 */
-export const remainingPaths = Object.keys(remainingRouter).map(v => {
+export const remainingPaths = Object.keys(remainingRouter).map((v) => {
   return remainingRouter[v].path;
 });
 
@@ -71,13 +57,12 @@ export const router: Router = createRouter({
   routes: constantRoutes.concat(...(remainingRouter as any)),
   strict: true,
   scrollBehavior(to, from, savedPosition) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (savedPosition) {
         return savedPosition;
       } else {
         if (from.meta.saveSrollTop) {
-          const top: number =
-            document.documentElement.scrollTop || document.body.scrollTop;
+          const top: number = document.documentElement.scrollTop || document.body.scrollTop;
           resolve({ left: 0, top });
         }
       }
@@ -87,15 +72,11 @@ export const router: Router = createRouter({
 
 /** 重置路由 */
 export function resetRouter() {
-  router.getRoutes().forEach(route => {
+  router.getRoutes().forEach((route) => {
     const { name, meta } = route;
     if (name && router.hasRoute(name) && meta?.backstage) {
       router.removeRoute(name);
-      router.options.routes = formatTwoStageRoutes(
-        formatFlatteningRoutes(
-          buildHierarchyTree(ascending(routes.flat(Infinity)))
-        )
-      );
+      router.options.routes = formatTwoStageRoutes(formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity)))));
     }
   });
   usePermissionStoreHook().clearAllCachePage();
@@ -118,11 +99,10 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   NProgress.start();
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
-    to.matched.some(item => {
+    to.matched.some((item) => {
       if (!item.meta.title) return "";
       const Title = getConfig().Title;
-      if (Title)
-        document.title = `${transformI18n(item.meta.title)} | ${Title}`;
+      if (Title) document.title = `${transformI18n(item.meta.title)} | ${Title}`;
       else document.title = transformI18n(item.meta.title);
     });
   }
@@ -149,17 +129,11 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       }
     } else {
       // 刷新
-      if (
-        usePermissionStoreHook().wholeMenus.length === 0 &&
-        to.path !== "/login"
-      ) {
+      if (usePermissionStoreHook().wholeMenus.length === 0 && to.path !== "/login") {
         initRouter().then((router: Router) => {
           if (!useMultiTagsStoreHook().getMultiTagsCache) {
             const { path } = to;
-            const route = findRouteByPath(
-              path,
-              router.options.routes[0].children
-            );
+            const route = findRouteByPath(path, router.options.routes[0].children);
             getTopMenu(true);
             // query、params模式路由传参数的标签页不在此处处理
             if (route && route.meta?.title) {
@@ -183,6 +157,8 @@ router.beforeEach((to: ToRouteType, _from, next) => {
           }
           // 确保动态路由完全加入路由列表并且不影响静态路由（注意：动态路由刷新时router.beforeEach可能会触发两次，第一次触发动态路由还未完全添加，第二次动态路由才完全添加到路由列表，如果需要在router.beforeEach做一些判断可以在to.name存在的条件下去判断，这样就只会触发一次）
           if (isAllEmpty(to.name)) router.push(to.fullPath);
+          // 初始化表单缓存
+          useAutoColumnStoreHook().initData();
         });
       }
       toCorrectRoute();
