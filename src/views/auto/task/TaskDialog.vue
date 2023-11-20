@@ -4,7 +4,7 @@
       <el-row v-show="showTaskSelect">
         <el-col :span="24">
           <el-form-item label="任务选择:" prop="_index.name">
-            <el-select v-model="dialogForm._index" value-key="id" :placeholder="`请选择任务类型`" style="width: 100%" @change="loadColumn">
+            <el-select v-model="dialogForm._index" value-key="id" :placeholder="`请选择任务类型`" style="width: 100%" @change="changeIndex">
               <el-option v-for="option in indexList" :key="option.id" :label="option.name" :value="option" />
             </el-select>
           </el-form-item>
@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "vue";
-import { AutoIndex, checkAndSaveTask, checkAndUpdate, checkTask, checkTaskWithUpdate, getIndexList, getSettingColumn, viewTask } from "@/api/auto";
+import { AutoIndex, checkAndSaveTask, checkAndUpdate, checkTask, checkTaskWithUpdate, getIndexList, viewTask } from "@/api/auto";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import { isAllEmpty } from "@pureadmin/utils";
 import { message } from "@/utils/message";
@@ -174,6 +174,13 @@ watch(
     }
   }
 );
+
+async function changeIndex() {
+  const _index = dialogForm.value._index;
+  initForm();
+  dialogForm.value._index = _index;
+  await loadColumn();
+}
 
 async function loadColumn() {
   if (isAllEmpty(dialogForm.value._index.id)) {
@@ -304,7 +311,8 @@ function initForm() {
     _sys: {
       enable: 1,
       name: "",
-      code: ""
+      code: "",
+      id: undefined
     },
     data: {}
   };

@@ -4,10 +4,10 @@ import { getCardList } from "@/api/list";
 import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
 import { ref, onMounted, nextTick } from "vue";
-import dialogForm from "./components/DialogForm.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Search from "@iconify-icons/ep/search";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import TaskDialog from "@/views/auto/task/TaskDialog.vue";
 
 defineOptions({
   name: "ListCard"
@@ -136,6 +136,6 @@ const handleManageProduct = (product) => {
         />
       </template>
     </div>
-    <dialogForm v-model:visible="formDialogVisible" :data="formData" />
+    <TaskDialog :title-prefix="`新增`" :visible="formDialogVisible" @close-dialog="formDialogVisible = false" />
   </div>
 </template>
