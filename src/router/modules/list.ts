@@ -9,7 +9,7 @@ export default {
   children: [
     {
       path: "/auto/mine",
-      name: "ListCard",
+      name: "MineCardList",
       component: () => import("@/views/auto/mine/index.vue"),
       meta: {
         icon: "user",

@@ -8,6 +8,20 @@ export class AutoIndex {
   icon: string;
 }
 
+export class AutoTask {
+  id: any;
+  indexId: any;
+  userId: any;
+  onlyId: string;
+  code: string;
+  enable: number;
+  name: string;
+  setting: object;
+  userInfo: object;
+  lastEndTime: string;
+  lastEndStatus: number;
+}
+
 /** 获取所有动态表单字段 */
 export const getColumn = () => {
   return http.request<Result<any>>("get", baseUrlApi("/auto/index/getColumn"));
@@ -35,7 +49,7 @@ export const getSettingColumn = (indexId) => {
 
 /** 分页获取任务列表 */
 export const getTaskPage = (indexId: string, data?: object) => {
-  return http.request<PageResult>("post", baseUrlApi("/auto/task/" + indexId + "/page"), { data });
+  return http.request<PageResult<any>>("post", baseUrlApi("/auto/task/" + indexId + "/page"), { data });
 };
 
 /** view任务详情 */
@@ -64,6 +78,6 @@ export const checkAndUpdate = (data?: object) => {
 };
 
 /** 获取我的任务列表 */
-export const mineTaskList = () => {
-  return http.request<Result<any>>("post", baseUrlApi("/auto/task/mine/list"));
+export const mineTaskPage = (data?: object) => {
+  return http.request<PageResult<AutoTask>>("post", baseUrlApi("/auto/task/mine/page"), { data });
 };

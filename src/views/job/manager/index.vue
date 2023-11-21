@@ -9,7 +9,6 @@ import { ref } from "vue";
 import { FormInstance } from "element-plus";
 import VideoPlay from "@iconify-icons/ep/video-play";
 import { cron } from "@/components/crontab";
-import Setting from "@iconify-icons/ri/settings-3-line";
 
 defineOptions({
   name: "QuartzManager"

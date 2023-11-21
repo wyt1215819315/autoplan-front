@@ -4,10 +4,22 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Delete from "@iconify-icons/ep/delete";
 import VideoPlay from "@iconify-icons/ep/video-play";
 import Info from "@iconify-icons/ri/information-line";
+import { AutoTask } from "@/api/auto";
+import { isAllEmpty } from "@pureadmin/utils";
+import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 
 defineOptions({
   name: "ReCard"
 });
+
+const props = defineProps({
+  item: {
+    require: true,
+    type: Object as AutoTask
+  }
+});
+
+const store = useAutoColumnStoreHook();
 </script>
 
 <template>
@@ -15,22 +27,22 @@ defineOptions({
     <template #header>
       <div class="card-header">
         <el-avatar shape="square" :size="30" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png" />
-        <span>我的XXXXXXXX任务</span>
-        <span class="run-time"> 运行于：04月25日 08:35 </span>
-        <el-tag effect="dark" type="" size="small">开启</el-tag>
+        <span>{{ props.item.name }}</span>
+        <span class="run-time"> {{ isAllEmpty(props.item.lastEndTime) ? "" : `运行于：${props.item.lastEndTime}` }} </span>
+        <el-tag effect="plain" :type="props.item.enable === 1 ? '' : 'danger'" size="small">{{ props.item.enable === 1 ? "开启" : "关闭" }}</el-tag>
       </div>
     </template>
-    <el-avatar
-      style="float: right"
-      shape="circle"
-      :size="60"
-      src="https://img-static.mihoyo.com/communityweb/upload/99e5d22600af87fe08cd21632a0ac191.png"
-    />
+    <el-avatar style="float: right" shape="circle" v-show="!isAllEmpty(props.item.userInfo.headImg)" :size="60" :src="props.item.userInfo.headImg" />
     <div class="card-main">
-      <div v-for="o in 8" :key="o" class="text item">{{ "List item " + o }}</div>
+      <div v-for="(value, key, index) in props.item.userInfo" :key="index" class="text item">
+        {{ store.getColumnName(props.item.code, key) }} :
+        {{ value }}
+      </div>
     </div>
     <div>
-      <el-tag type="danger" effect="dark" size="large" round>身份信息校验失败</el-tag>
+      <el-tag :type="store.getStatusDisplayType(props.item.lastEndStatus)" effect="plain" size="large" round>
+        {{ store.getStatusContent(props.item.lastEndStatus) }}
+      </el-tag>
       <div style="float: right">
         <el-button-group class="ml-4">
           <el-tooltip content="日志" placement="top"><el-button type="info" :icon="useRenderIcon(Info)" circle /></el-tooltip>
@@ -89,7 +101,7 @@ defineOptions({
 }
 
 .item {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .list-card-item {

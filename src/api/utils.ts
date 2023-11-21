@@ -5,18 +5,18 @@ export type Result<T> = {
   data?: T;
 };
 
-export type PageBean = {
+export type PageBean<T> = {
   current: number;
   size: number;
   total: number;
-  records: Array<any>;
+  records: Array<T>;
 };
 
-export type PageResult = {
+export type PageResult<T> = {
   success: boolean;
   code: number;
   msg?: string;
-  data?: PageBean;
+  data?: PageBean<T>;
 };
 
 export const baseUrlApi = (url: string) => {

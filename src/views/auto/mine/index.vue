@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import Card from "./components/Card.vue";
-import { getCardList } from "@/api/list";
 import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, reactive } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Search from "@iconify-icons/ep/search";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 import TaskDialog from "@/views/auto/task/TaskDialog.vue";
+import { AutoTask, mineTaskPage } from "@/api/auto";
+import TaskCard from "@/views/auto/mine/components/TaskCard.vue";
+import { PaginationProps } from "@pureadmin/table";
 
 defineOptions({
-  name: "ListCard"
+  name: "MineCardList"
 });
 
 const svg = `
@@ -32,26 +33,34 @@ const INITIAL_DATA = {
   mark: ""
 };
 
-const pagination = ref({ current: 1, pageSize: 12, total: 0 });
+/** 分页配置 */
+const pagination = reactive<PaginationProps>({
+  pageSize: 12,
+  currentPage: 1,
+  pageSizes: [12, 24],
+  total: 0,
+  align: "center",
+  background: true,
+  small: false
+});
 
-const productList = ref([]);
+const dataList = ref<Array<AutoTask>>([]);
 const dataLoading = ref(true);
 
-const getCardListData = async () => {
-  try {
-    const { data } = await getCardList();
-    productList.value = data.list;
-    pagination.value = {
-      ...pagination.value,
-      total: data.list.length
-    };
-  } catch (e) {
-    console.log(e);
-  } finally {
-    setTimeout(() => {
+const getCardListData = () => {
+  mineTaskPage({
+    size: pagination.pageSize,
+    current: pagination.currentPage
+  })
+    .then((data) => {
+      if (data.success) {
+        pagination.total = data.data.total;
+        dataList.value = data.data.records;
+      }
+    })
+    .finally(() => {
       dataLoading.value = false;
-    }, 500);
-  }
+    });
 };
 
 onMounted(() => {
@@ -63,11 +72,11 @@ const formData = ref({ ...INITIAL_DATA });
 const searchValue = ref("");
 
 const onPageSizeChange = (size: number) => {
-  pagination.value.pageSize = size;
-  pagination.value.current = 1;
+  pagination.pageSize = size;
+  pagination.currentPage = 1;
 };
 const onCurrentChange = (current: number) => {
-  pagination.value.current = current;
+  pagination.currentPage = current;
 };
 const handleDeleteItem = (product) => {
   ElMessageBox.confirm(product ? `确认删除后${product.name}的所有产品信息将被清空, 且无法恢复` : "", "提示", {
@@ -99,36 +108,19 @@ const handleManageProduct = (product) => {
       </el-input>
     </div>
     <div v-loading="dataLoading" :element-loading-svg="svg" element-loading-svg-view-box="-10, -10, 50, 50">
-      <el-empty
-        description="暂无数据"
-        v-show="
-          productList
-            .slice(pagination.pageSize * (pagination.current - 1), pagination.pageSize * pagination.current)
-            .filter((v) => v.name.toLowerCase().includes(searchValue.toLowerCase())).length === 0
-        "
-      />
+      <el-empty description="暂无数据" v-show="dataList.length === 0" />
       <template v-if="pagination.total > 0">
         <el-row>
-          <el-col
-            v-for="(product, index) in productList
-              .slice(pagination.pageSize * (pagination.current - 1), pagination.pageSize * pagination.current)
-              .filter((v) => v.name.toLowerCase().includes(searchValue.toLowerCase()))"
-            :key="index"
-            :xs="24"
-            :sm="12"
-            :md="12"
-            :lg="8"
-            :xl="6"
-          >
-            <Card :product="product" @delete-item="handleDeleteItem" @manage-product="handleManageProduct" />
+          <el-col v-for="(item, index) in dataList" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
+            <TaskCard :item="item" @delete-item="handleDeleteItem" @manage-product="handleManageProduct" />
           </el-col>
         </el-row>
         <el-pagination
           class="float-right"
-          v-model:currentPage="pagination.current"
+          v-model:currentPage="pagination.currentPage"
           :page-size="pagination.pageSize"
           :total="pagination.total"
-          :page-sizes="[12, 24, 36]"
+          :page-sizes="pagination.pageSizes"
           :background="true"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="onPageSizeChange"
