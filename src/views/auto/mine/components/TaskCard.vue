@@ -4,9 +4,11 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Delete from "@iconify-icons/ep/delete";
 import VideoPlay from "@iconify-icons/ep/video-play";
 import Info from "@iconify-icons/ri/information-line";
-import { AutoTask } from "@/api/auto";
+import { AutoTask, deleteTask, runTask } from "@/api/auto";
 import { isAllEmpty } from "@pureadmin/utils";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
+import { ElMessageBox } from "element-plus";
+import { message } from "@/utils/message";
 
 defineOptions({
   name: "ReCard"
@@ -15,24 +17,74 @@ defineOptions({
 const props = defineProps({
   item: {
     require: true,
-    type: Object as AutoTask
+    type: Object as () => AutoTask
   }
 });
-
+const emit = defineEmits(["edit", "refresh"]);
 const store = useAutoColumnStoreHook();
+
+function edit() {
+  emit("edit", props.item);
+}
+function refresh() {
+  emit("refresh");
+}
+
+function handleDelete() {
+  ElMessageBox.confirm(`${props.item.name}任务将被删除且无法恢复，是否继续操作？`, "提示", {
+    type: "warning"
+  })
+    .then(() => {
+      deleteTask(props.item.id).then((data) => {
+        if (data.success) {
+          message("删除成功", { type: "success" });
+          refresh();
+        }
+      });
+    })
+    .catch(() => {});
+}
+
+function handleRun() {
+  ElMessageBox.confirm(`确定要单次执行${props.item.name}任务吗？`, "提示", {
+    type: "warning"
+  })
+    .then(() => {
+      runTask(props.item.id).then((data) => {
+        if (data.success) {
+          message(data.data.msg, { type: data.data.success ? "success" : "error" });
+        }
+      });
+    })
+    .catch(() => {});
+}
+
+function getTaskIconBase64() {
+  const icon = store.getIdDataMap.get(props.item.indexId).icon;
+  if (!isAllEmpty(icon)) {
+    return "data:image/png;base64," + icon;
+  }
+  return null;
+}
 </script>
 
 <template>
   <el-card class="box-card">
     <template #header>
       <div class="card-header">
-        <el-avatar shape="square" :size="30" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png" />
+        <el-avatar v-show="getTaskIconBase64 != null" shape="square" :size="30" :src="`${getTaskIconBase64()}`" />
         <span>{{ props.item.name }}</span>
         <span class="run-time"> {{ isAllEmpty(props.item.lastEndTime) ? "" : `运行于：${props.item.lastEndTime}` }} </span>
         <el-tag effect="plain" :type="props.item.enable === 1 ? '' : 'danger'" size="small">{{ props.item.enable === 1 ? "开启" : "关闭" }}</el-tag>
       </div>
     </template>
-    <el-avatar style="float: right" shape="circle" v-show="!isAllEmpty(props.item.userInfo.headImg)" :size="60" :src="props.item.userInfo.headImg" />
+    <el-avatar
+      style="float: right"
+      shape="circle"
+      v-show="!isAllEmpty(props.item.userInfo['headImg'])"
+      :size="60"
+      :src="props.item.userInfo['headImg']"
+    />
     <div class="card-main">
       <div v-for="(value, key, index) in props.item.userInfo" :key="index" class="text item">
         {{ store.getColumnName(props.item.code, key) }} :
@@ -46,9 +98,15 @@ const store = useAutoColumnStoreHook();
       <div style="float: right">
         <el-button-group class="ml-4">
           <el-tooltip content="日志" placement="top"><el-button type="info" :icon="useRenderIcon(Info)" circle /></el-tooltip>
-          <el-tooltip content="编辑" placement="top"><el-button type="primary" :icon="useRenderIcon(Edit)" circle /></el-tooltip>
-          <el-tooltip content="删除" placement="top"><el-button type="danger" :icon="useRenderIcon(Delete)" circle /></el-tooltip>
-          <el-tooltip content="运行" placement="top"><el-button type="warning" :icon="useRenderIcon(VideoPlay)" circle /></el-tooltip>
+          <el-tooltip content="编辑" placement="top">
+            <el-button type="primary" :icon="useRenderIcon(Edit)" circle @click="edit" />
+          </el-tooltip>
+          <el-tooltip content="删除" placement="top">
+            <el-button type="danger" :icon="useRenderIcon(Delete)" circle @click="handleDelete" />
+          </el-tooltip>
+          <el-tooltip content="运行" placement="top">
+            <el-button type="warning" :icon="useRenderIcon(VideoPlay)" circle @click="handleRun" />
+          </el-tooltip>
         </el-button-group>
       </div>
     </div>

@@ -57,6 +57,16 @@ export const viewTask = (taskId: any) => {
   return http.request<Result<any>>("get", baseUrlApi("/auto/task/view/" + taskId));
 };
 
+/** 删除任务 */
+export const deleteTask = (taskId: any) => {
+  return http.request<Result<any>>("get", baseUrlApi("/auto/task/delete/" + taskId));
+};
+
+/** 单次执行任务 */
+export const runTask = (taskId: any) => {
+  return http.request<Result<any>>("get", baseUrlApi("/auto/task/run/" + taskId));
+};
+
 /** 仅校验任务 */
 export const checkTask = (indexId: string, data?: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/auto/task/" + indexId + "/check"), { data });

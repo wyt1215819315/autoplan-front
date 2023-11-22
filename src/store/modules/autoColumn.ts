@@ -11,6 +11,7 @@ class AutoIndexDisplayInfo {
 
 class AutoIndexData {
   index: AutoIndex;
+  icon: null | string;
   settings: Array<any>;
   display: Array<AutoIndexDisplayInfo>;
 }

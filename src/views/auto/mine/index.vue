@@ -78,16 +78,14 @@ const onPageSizeChange = (size: number) => {
 const onCurrentChange = (current: number) => {
   pagination.currentPage = current;
 };
-const handleDeleteItem = (product) => {
-  ElMessageBox.confirm(product ? `确认删除后${product.name}的所有产品信息将被清空, 且无法恢复` : "", "提示", {
-    type: "warning"
-  })
-    .then(() => {
-      message("删除成功", { type: "success" });
-    })
-    .catch(() => {});
-};
-const handleManageProduct = (product) => {
+const handleDeleteItem = (product) => {};
+
+function closeDialog() {
+  formDialogVisible.value = false;
+  getCardListData();
+}
+
+const handleEditProduct = (product) => {
   formDialogVisible.value = true;
   nextTick(() => {
     formData.value = { ...product, status: product?.isSetup ? "1" : "0" };
@@ -111,8 +109,8 @@ const handleManageProduct = (product) => {
       <el-empty description="暂无数据" v-show="dataList.length === 0" />
       <template v-if="pagination.total > 0">
         <el-row>
-          <el-col v-for="(item, index) in dataList" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-            <TaskCard :item="item" @delete-item="handleDeleteItem" @manage-product="handleManageProduct" />
+          <el-col v-for="(item, index) of dataList" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
+            <TaskCard :item="item" @delete="handleDeleteItem" @manage="handleEditProduct" @refresh="getCardListData" />
           </el-col>
         </el-row>
         <el-pagination
@@ -128,6 +126,6 @@ const handleManageProduct = (product) => {
         />
       </template>
     </div>
-    <TaskDialog :title-prefix="`新增`" :visible="formDialogVisible" @close-dialog="formDialogVisible = false" />
+    <TaskDialog :title-prefix="`新增`" :visible="formDialogVisible" @close-dialog="closeDialog" />
   </div>
 </template>

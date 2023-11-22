@@ -1,7 +1,7 @@
 import { delay } from "@pureadmin/utils";
 import { ref, onMounted, reactive } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
-import { AutoIndex, getIndexInfo, getTaskPage, getUserInfoColumn } from "@/api/auto";
+import { AutoIndex, deleteTask, getTaskPage } from "@/api/auto";
 import { useUserStoreHook } from "@/store/modules/user";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import { message } from "@/utils/message";
@@ -23,6 +23,8 @@ export function useColumns(parameter) {
     title: "",
     taskId: undefined
   });
+
+  const autoStore = useAutoColumnStoreHook();
 
   const columns: TableColumnList = [
     {
@@ -59,7 +61,14 @@ export function useColumns(parameter) {
     {
       label: "任务状态",
       width: 120,
-      prop: "lastEndStatus"
+      prop: "lastEndStatus",
+      cellRenderer: (scope) => {
+        return (
+          <el-tag size="small" type={autoStore.getStatusDisplayType(scope.row.lastEndStatus)}>
+            {autoStore.getStatusContent(scope.row.lastEndStatus)}
+          </el-tag>
+        );
+      }
     },
     {
       label: "任务完成时间",
@@ -174,6 +183,20 @@ export function useColumns(parameter) {
     dialog.visible = true;
   }
 
+  function delTask(row) {
+    loading.value.main = true;
+    deleteTask(row.id)
+      .then((data) => {
+        if (data.success) {
+          message("删除成功！", { type: "success" });
+          requestData();
+        }
+      })
+      .finally(() => {
+        loading.value.main = false;
+      });
+  }
+
   function closeDialog() {
     dialog.visible = false;
     dialog.title = "";
@@ -195,6 +218,7 @@ export function useColumns(parameter) {
     tableTitle,
     addTask,
     editTask,
+    delTask,
     closeDialog
   };
 }

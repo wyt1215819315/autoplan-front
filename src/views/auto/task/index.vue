@@ -28,6 +28,7 @@ const {
   tableTitle,
   addTask,
   editTask,
+  delTask,
   closeDialog
 } = useColumns(parameter);
 </script>
@@ -56,7 +57,7 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-popconfirm :title="`是否确认删除用户编号为${row.tableNo}的这条数据`" @confirm="">
+          <el-popconfirm :title="`是否确认删除用户编号为${row.tableNo}的这条数据`" @confirm="delTask(row)">
             <template #reference>
               <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>
