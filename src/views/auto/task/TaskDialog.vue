@@ -67,6 +67,9 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
+        <el-button v-for="item of customBottomButton" :type="item.type" @click="item.click(dialogForm)" :loading="loading.button">
+          {{ item.text }}
+        </el-button>
         <el-button type="success" @click="doCheckTask(formDialogRef)" :loading="loading.button"> 校验 </el-button>
         <el-button type="primary" @click="doCheckAndSaveTask(formDialogRef)" :loading="loading.button"> 校验并提交 </el-button>
         <el-button type="danger" @click="closeDialog" :loading="loading.button"> 关闭 </el-button>
@@ -83,7 +86,7 @@ import { isAllEmpty } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
 import { Result } from "@/api/utils";
-
+import { useCustomDialog } from "@/views/auto/task/custom/customDialog";
 class AutoDialogForm {
   _index: AutoIndex;
   _sys: {
@@ -141,6 +144,8 @@ const loading = reactive({
   button: false
 });
 const emit = defineEmits(["closeDialog"]);
+// 自定义规则
+const customBottomButton = ref([]);
 
 watch(
   () => props.visible,
@@ -205,6 +210,11 @@ async function loadColumn() {
     }
     if (!isAllEmpty(props.taskId)) {
       await loadViewData();
+    }
+    // 加载自定义配置
+    const { getCustomInfo } = useCustomDialog(dialogForm.value._index.code);
+    if (getCustomInfo() != null && !isAllEmpty(getCustomInfo().bottomButton)) {
+      customBottomButton.value = getCustomInfo().bottomButton;
     }
   }
 }
@@ -326,6 +336,7 @@ function initForm() {
   };
   dialogColumn.value = [];
   updateMode.value = false;
+  customBottomButton.value = [];
 }
 
 function closeDialog() {

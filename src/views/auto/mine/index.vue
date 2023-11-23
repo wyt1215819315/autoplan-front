@@ -9,6 +9,7 @@ import TaskDialog from "@/views/auto/task/TaskDialog.vue";
 import { AutoTask, mineTaskPage } from "@/api/auto";
 import TaskCard from "@/views/auto/mine/components/TaskCard.vue";
 import { PaginationProps } from "@pureadmin/table";
+import Refresh from "@iconify-icons/ep/refresh";
 
 defineOptions({
   name: "MineCardList"
@@ -96,7 +97,10 @@ const handleEditProduct = (product) => {
 <template>
   <div class="main">
     <div class="w-full flex justify-between mb-4">
-      <el-button :icon="useRenderIcon(AddFill)" @click="formDialogVisible = true"> 新建任务 </el-button>
+      <div>
+        <el-button :icon="useRenderIcon(AddFill)" @click="formDialogVisible = true"> 新建任务 </el-button>
+        <el-button :icon="useRenderIcon(Refresh)" @click="getCardListData"> 刷新列表 </el-button>
+      </div>
       <el-input style="width: 300px" v-model="searchValue" placeholder="请输入任务名称" clearable>
         <template #suffix>
           <el-icon class="el-input__icon">
