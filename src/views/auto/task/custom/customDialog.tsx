@@ -11,8 +11,35 @@ export function useCustomDialog(code: string) {
     text: string;
   }
 
+  // 如果需要自定义任务弹框的内容，可以在这里编写，提供了三个位置的功能，把code作为key对应即可
   const object = ref({
     bili: {
+      // 头部折叠面板
+      headDesc: [
+        {
+          title: "测试头部折叠面板",
+          html: (
+            <div>
+              <div>
+                Consistent with real life: in line with the process and logic of real life, and comply with languages and habits that the users are
+                used to;
+              </div>
+              <div>
+                Consistent within interface: all elements should be consistent, such as: design style, icons and texts, position of elements, etc.
+              </div>
+            </div>
+          )
+        }
+      ],
+      // 头部按钮
+      headButton: [
+        {
+          type: "info",
+          click: showBiliQrcode,
+          text: "扫码登录"
+        }
+      ],
+      // 底部按钮，建议最多塞一个，要不然移动端会原地爆炸
       bottomButton: [
         {
           type: "info",

@@ -1,6 +1,16 @@
 <template>
   <el-dialog :title="`${props.titlePrefix}${dialogForm._index.name}任务`" v-model="show" fullscreen append-to-body @close="closeDialog">
-    <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw" v-loading="loading.form">
+    <el-collapse v-model="collapseActiveName" accordion v-show="customHeadDesc.length > 0">
+      <el-collapse-item v-for="(item, index) of customHeadDesc" :key="index" :title="item.title" :name="index">
+        {{ item.html }}
+      </el-collapse-item>
+    </el-collapse>
+    <div>
+      <el-button v-for="(item, index) of customHeadButton" :key="index" :type="item.type" @click="item.click(dialogForm)" :loading="loading.button">
+        {{ item.text }}
+      </el-button>
+    </div>
+    <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw" :label-position="labelPosition" v-loading="loading.form">
       <el-row v-show="showTaskSelect">
         <el-col :span="24">
           <el-form-item label="任务选择:" prop="_index.name">
@@ -49,7 +59,7 @@
             <el-input
               v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
               type="number"
-              v-model="dialogForm.data[item.field]"
+              v-model.number="dialogForm.data[item.field]"
               :placeholder="`请输入${item.name}`"
             />
             <!-- 选择框-->
@@ -67,7 +77,13 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button v-for="item of customBottomButton" :type="item.type" @click="item.click(dialogForm)" :loading="loading.button">
+        <el-button
+          v-for="(item, index) of customBottomButton"
+          :key="index"
+          :type="item.type"
+          @click="item.click(dialogForm)"
+          :loading="loading.button"
+        >
           {{ item.text }}
         </el-button>
         <el-button type="success" @click="doCheckTask(formDialogRef)" :loading="loading.button"> 校验 </el-button>
@@ -79,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { AutoIndex, checkAndSaveTask, checkAndUpdate, checkTask, checkTaskWithUpdate, getIndexList, viewTask } from "@/api/auto";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import { isAllEmpty } from "@pureadmin/utils";
@@ -106,6 +122,7 @@ const props = defineProps({
   taskId: String,
   indexCode: String
 });
+const collapseActiveName = ref(1);
 const show = ref(false);
 const updateMode = ref(false);
 const showTaskSelect = ref(false);
@@ -144,9 +161,33 @@ const loading = reactive({
   button: false
 });
 const emit = defineEmits(["closeDialog"]);
+const windowWidth = ref();
+const labelPosition = ref("right");
 // 自定义规则
+const customHeadButton = ref([]);
 const customBottomButton = ref([]);
+const customHeadDesc = ref([]);
 
+onMounted(() => {
+  window.onresize = () => {
+    return (() => {
+      windowWidth.value = document.documentElement.clientWidth; // 宽
+    })();
+  };
+});
+watch(
+  () => windowWidth.value,
+  (newValue) => {
+    if (!isAllEmpty(newValue)) {
+      if (newValue <= 768) {
+        // 小屏设备
+        labelPosition.value = "top";
+      } else {
+        labelPosition.value = "right";
+      }
+    }
+  }
+);
 watch(
   () => props.visible,
   async (newValue) => {
@@ -213,8 +254,16 @@ async function loadColumn() {
     }
     // 加载自定义配置
     const { getCustomInfo } = useCustomDialog(dialogForm.value._index.code);
-    if (getCustomInfo() != null && !isAllEmpty(getCustomInfo().bottomButton)) {
-      customBottomButton.value = getCustomInfo().bottomButton;
+    if (getCustomInfo() != null) {
+      if (!isAllEmpty(getCustomInfo().headButton)) {
+        customHeadButton.value = getCustomInfo().headButton;
+      }
+      if (!isAllEmpty(getCustomInfo().bottomButton)) {
+        customBottomButton.value = getCustomInfo().bottomButton;
+      }
+      if (!isAllEmpty(getCustomInfo().headDesc)) {
+        customHeadDesc.value = getCustomInfo().headDesc;
+      }
     }
   }
 }
