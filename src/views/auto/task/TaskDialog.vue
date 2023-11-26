@@ -1,8 +1,8 @@
 <template>
   <el-dialog :title="`${props.titlePrefix}${dialogForm._index.name}任务`" v-model="show" fullscreen append-to-body @close="closeDialog">
-    <el-collapse v-model="collapseActiveName" accordion v-show="customHeadDesc.length > 0">
-      <el-collapse-item v-for="(item, index) of customHeadDesc" :key="index" :title="item.title" :name="index">
-        {{ item.html }}
+    <el-collapse style="margin-bottom: 20px" v-model="collapseActiveName" accordion v-show="customHeadDesc.length > 0">
+      <el-collapse-item class="custom-collapse" v-for="(item, index) of customHeadDesc" :key="index" :title="item.title" :name="index">
+        <div v-html="item.html" />
       </el-collapse-item>
     </el-collapse>
     <div>
@@ -252,6 +252,10 @@ async function loadColumn() {
     if (!isAllEmpty(props.taskId)) {
       await loadViewData();
     }
+    // 如果不是更新状态就默认填充一些东西
+    if (!updateMode.value) {
+      dialogForm.value._sys.name = dialogForm.value._index.name + "任务";
+    }
     // 加载自定义配置
     const { getCustomInfo } = useCustomDialog(dialogForm.value._index.code);
     if (getCustomInfo() != null) {
@@ -392,3 +396,18 @@ function closeDialog() {
   emit("closeDialog");
 }
 </script>
+
+<style lang="scss" scoped>
+::v-deep(.custom-collapse) {
+  .el-collapse-item__wrap {
+    padding: 8px 16px;
+    background-color: rgba(var(--el-color-primary-rgb), 0.1);
+    border-radius: 4px;
+    border-left: 5px solid var(--el-color-primary);
+    margin: 20px 0;
+  }
+  .el-collapse-item__content {
+    padding-bottom: 0;
+  }
+}
+</style>

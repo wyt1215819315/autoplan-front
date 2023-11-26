@@ -86,9 +86,11 @@ function getTaskIconBase64() {
       :src="props.item.userInfo['headImg']"
     />
     <div class="card-main">
-      <div v-for="(value, key, index) in props.item.userInfo" :key="index" class="text item">
-        {{ store.getColumnName(props.item.code, key) }} :
-        {{ value }}
+      <div v-for="(value, key, index) in props.item.userInfo" :key="index">
+        <div v-show="key !== 'headImg'" class="text item">
+          {{ store.getColumnName(props.item.code, key) }} :
+          {{ value }}
+        </div>
       </div>
     </div>
     <div>

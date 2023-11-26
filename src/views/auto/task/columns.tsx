@@ -122,7 +122,8 @@ export function useColumns(parameter) {
       for (const col of data.display) {
         columns.push({
           label: col.name,
-          prop: "userInfo." + col.field
+          prop: "userInfo." + col.field,
+          showOverflowTooltip: true
         });
       }
     }

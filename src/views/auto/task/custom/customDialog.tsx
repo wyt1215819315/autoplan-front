@@ -14,37 +14,39 @@ export function useCustomDialog(code: string) {
   // 如果需要自定义任务弹框的内容，可以在这里编写，提供了三个位置的功能，把code作为key对应即可
   const object = ref({
     bili: {
-      // 头部折叠面板
-      headDesc: [
-        {
-          title: "测试头部折叠面板",
-          html: (
-            <div>
-              <div>
-                Consistent with real life: in line with the process and logic of real life, and comply with languages and habits that the users are
-                used to;
-              </div>
-              <div>
-                Consistent within interface: all elements should be consistent, such as: design style, icons and texts, position of elements, etc.
-              </div>
-            </div>
-          )
-        }
-      ],
       // 头部按钮
       headButton: [
         {
-          type: "info",
+          type: "primary",
           click: showBiliQrcode,
           text: "扫码登录"
         }
-      ],
+      ]
       // 底部按钮，建议最多塞一个，要不然移动端会原地爆炸
-      bottomButton: [
+      // bottomButton: [
+      //   {
+      //     type: "info",
+      //     click: showBiliQrcode,
+      //     text: "扫码登录"
+      //   }
+      // ]
+    },
+    MihoyouSign: {
+      // 头部折叠面板
+      headDesc: [
         {
-          type: "info",
-          click: showBiliQrcode,
-          text: "扫码登录"
+          title: "关于cookie的说明",
+          // 这边的html因为是v-html直接渲染的缘故，无法使用组件，请使用原生html的形式来写
+          html:
+            "<p>米游社中的cookie没有login_ticket字段，如果需要使用米游币任务，请前往米哈游通行证页面获取cookie</p>" +
+            "<p>" +
+            "    <span style='color: red'>电脑端</span>可以将后面的链接拖动到书签，登录米游社点击书签即可获取：" +
+            '    <a class="el-button" href="javascript:(function(){let domain=document.domain;let cookie=document.cookie;prompt(\'Cookies: \'+domain, cookie)})();" target="_blank">Ganyu Cookies Getter' +
+            "    </a>" +
+            "    <br>" +
+            '    <span style="color: red">手机端</span>请查看' +
+            '    <a class="el-button el-button--primary" href="https://blog.oldwu.top/index.php/archives/84/#toc_9" target="_blank">使用说明</a>' +
+            "</p>"
         }
       ]
     }
@@ -97,7 +99,6 @@ export function useCustomDialog(code: string) {
                   } else {
                     msg.value = data.data.message;
                   }
-                  console.log(data.data);
                 } else {
                   msg.value = "二维码已失效";
                   disabled.value = true;

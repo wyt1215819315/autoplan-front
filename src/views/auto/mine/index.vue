@@ -69,7 +69,6 @@ onMounted(() => {
 });
 
 const formDialogVisible = ref(false);
-const formData = ref({ ...INITIAL_DATA });
 const searchValue = ref("");
 
 const onPageSizeChange = (size: number) => {
@@ -79,19 +78,11 @@ const onPageSizeChange = (size: number) => {
 const onCurrentChange = (current: number) => {
   pagination.currentPage = current;
 };
-const handleDeleteItem = (product) => {};
 
 function closeDialog() {
   formDialogVisible.value = false;
   getCardListData();
 }
-
-const handleEditProduct = (product) => {
-  formDialogVisible.value = true;
-  nextTick(() => {
-    formData.value = { ...product, status: product?.isSetup ? "1" : "0" };
-  });
-};
 </script>
 
 <template>
@@ -114,7 +105,7 @@ const handleEditProduct = (product) => {
       <template v-if="pagination.total > 0">
         <el-row>
           <el-col v-for="(item, index) of dataList" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-            <TaskCard :item="item" @delete="handleDeleteItem" @manage="handleEditProduct" @refresh="getCardListData" />
+            <TaskCard :item="item" @refresh="getCardListData" />
           </el-col>
         </el-row>
         <el-pagination
