@@ -82,6 +82,7 @@ export const useAutoColumnStore = defineStore({
     },
     initStatusContentMapData() {
       this.statusMap = new Map<number, StatusData>();
+      this.statusMap.set(100, { content: "运行中...", type: "info" });
       this.statusMap.set(200, { content: "运行成功", type: "success" });
       this.statusMap.set(201, { content: "部分运行成功", type: "warning" });
       this.statusMap.set(500, { content: "系统错误", type: "danger" });

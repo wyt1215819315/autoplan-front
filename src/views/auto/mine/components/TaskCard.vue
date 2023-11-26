@@ -32,7 +32,9 @@ function refresh() {
 
 function handleDelete() {
   ElMessageBox.confirm(`${props.item.name}任务将被删除且无法恢复，是否继续操作？`, "提示", {
-    type: "warning"
+    type: "warning",
+    confirmButtonText: "确定",
+    cancelButtonText: "取消"
   })
     .then(() => {
       deleteTask(props.item.id).then((data) => {
@@ -47,12 +49,15 @@ function handleDelete() {
 
 function handleRun() {
   ElMessageBox.confirm(`确定要单次执行${props.item.name}任务吗？`, "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
     type: "warning"
   })
     .then(() => {
       runTask(props.item.id).then((data) => {
         if (data.success) {
           message(data.data.msg, { type: data.data.success ? "success" : "error" });
+          refresh();
         }
       });
     })
