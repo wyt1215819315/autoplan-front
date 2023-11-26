@@ -49,6 +49,14 @@ export function useCustomDialog(code: string) {
             "</p>"
         }
       ]
+    },
+    MiSport: {
+      headDesc: [
+        {
+          title: "关于小米运动的说明",
+          html: "原小米运动已经改名为Zepp Life，并且当前仅支持邮箱注册，本任务采用的还是老版本的小米运动接口，因此只支持手机号登录，经过抓包看新版本的鉴权接口更换了域名，并且请求体做了加密，本人没有能力破解该加密，如果有大佬知道，可以提交pr或者联系我来对邮箱登录进行支持"
+        }
+      ]
     }
   });
 
@@ -91,6 +99,7 @@ export function useCustomDialog(code: string) {
                     dialogForm.data.dedeuserid = data.data.DedeUserID;
                     dialogForm.data.biliJct = data.data.bili_jct;
                     dialogForm.data.sessdata = data.data.SESSDATA;
+                    clearInterval(timer);
                     closeDialog(dialogOptions.value, dialogIndex.value);
                   } else if (data.data.code === 86090) {
                     msg.value = "已扫码，请在App上点击确认登录";
