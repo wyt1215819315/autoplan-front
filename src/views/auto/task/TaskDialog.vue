@@ -2,7 +2,8 @@
   <el-dialog :title="`${props.titlePrefix}${dialogForm._index.name}任务`" v-model="show" fullscreen append-to-body @close="closeDialog">
     <el-collapse style="margin-bottom: 20px" v-model="collapseActiveName" accordion v-show="customHeadDesc.length > 0">
       <el-collapse-item class="custom-collapse" v-for="(item, index) of customHeadDesc" :key="index" :title="item.title" :name="index">
-        <div v-html="item.html" />
+        <component :is="item.html" />
+        <!--        <div v-html="item.html" />-->
       </el-collapse-item>
     </el-collapse>
     <div>

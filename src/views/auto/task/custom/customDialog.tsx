@@ -36,17 +36,27 @@ export function useCustomDialog(code: string) {
       headDesc: [
         {
           title: "关于cookie的说明",
-          // 这边的html因为是v-html直接渲染的缘故，无法使用组件，请使用原生html的形式来写
-          html:
-            "<p>米游社中的cookie没有login_ticket字段，如果需要使用米游币任务，请前往米哈游通行证页面获取cookie</p>" +
-            "<p>" +
-            "    <span style='color: red'>电脑端</span>可以将后面的链接拖动到书签，登录米游社点击书签即可获取：" +
-            '    <a class="el-button" href="javascript:(function(){let domain=document.domain;let cookie=document.cookie;prompt(\'Cookies: \'+domain, cookie)})();" target="_blank">Ganyu Cookies Getter' +
-            "    </a>" +
-            "    <br>" +
-            '    <span style="color: red">手机端</span>请查看' +
-            '    <a class="el-button el-button--primary" href="https://blog.oldwu.top/index.php/archives/84/#toc_9" target="_blank">使用说明</a>' +
-            "</p>"
+          // tsx语法 会被渲染为组件
+          html: (
+            <div>
+              <p>米游社中的cookie没有login_ticket字段，如果需要使用米游币任务，请前往米哈游通行证页面获取cookie</p>
+              <p>
+                <span style="color: red">电脑端</span>可以将后面的链接拖动到书签，登录米游社点击书签即可获取：
+                <a
+                  class="el-button"
+                  href="javascript:(function(){let domain=document.domain;let cookie=document.cookie;prompt('Cookies: '+domain, cookie)})();"
+                  target="_blank"
+                >
+                  Ganyu Cookies Getter
+                </a>
+                <br />
+                <span style="color: red">手机端</span>请查看
+                <a class="el-button el-button--primary" href="https://blog.oldwu.top/index.php/archives/84/#toc_9" target="_blank">
+                  使用说明
+                </a>
+              </p>
+            </div>
+          )
         }
       ]
     },
