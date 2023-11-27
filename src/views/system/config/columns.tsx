@@ -9,6 +9,8 @@ export class SysConfig {
   id: number;
   key: string;
   value: string;
+  name: string;
+  remark: string;
 }
 
 export function useColumns(tableRef: Ref) {
@@ -31,7 +33,8 @@ export function useColumns(tableRef: Ref) {
     key: [
       { required: true, message: "请输入键（Key）", trigger: "blur" },
       { max: 200, message: "键不能超过200字", trigger: "blur" }
-    ]
+    ],
+    name: [{ max: 200, message: "名称不能超过200字", trigger: "blur" }]
   });
 
   const columns: TableColumnList = [
@@ -52,27 +55,41 @@ export function useColumns(tableRef: Ref) {
       prop: "key"
     },
     {
+      label: "名称",
+      minWidth: 120,
+      prop: "name",
+      showOverflowTooltip: true
+    },
+    {
       label: "值（Value）",
       minWidth: 150,
       prop: "value",
       showOverflowTooltip: true,
       cellRenderer: (scope) => (
         <div>
-          <el-switch
-            v-if={scope.row.value == "false" || scope.row.value == "true"}
-            size="default"
-            v-model={scope.row.value}
-            active-value={"true"}
-            inactive-value={"false"}
-            active-text="真"
-            inactive-text="假"
-            inline-prompt
-            loading={scope.row.loading}
-            onChange={() => doChangeValue(scope.row)}
-          />
-          <span v-else>{scope.row.value}</span>
+          {scope.row.value == "false" || scope.row.value == "true" ? (
+            <el-switch
+              size="default"
+              v-model={scope.row.value}
+              active-value={"true"}
+              inactive-value={"false"}
+              active-text="真"
+              inactive-text="假"
+              inline-prompt
+              loading={scope.row.loading}
+              onChange={() => doChangeValue(scope.row)}
+            />
+          ) : (
+            <span>{scope.row.value}</span>
+          )}
         </div>
       )
+    },
+    {
+      label: "备注",
+      minWidth: 100,
+      prop: "remark",
+      showOverflowTooltip: true
     },
     {
       label: "操作",

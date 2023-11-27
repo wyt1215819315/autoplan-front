@@ -35,9 +35,9 @@ const {
 
 <template>
   <div>
-    <PureTableBar title="定时任务管理" :columns="columns" :simple-mode="true" @refresh="requestData">
+    <PureTableBar title="系统配置管理" :columns="columns" :simple-mode="true" @refresh="requestData">
       <template #buttons>
-        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="add"> 新增任务 </el-button>
+        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="add"> 新增配置 </el-button>
       </template>
       <pure-table
         adaptive
@@ -71,15 +71,29 @@ const {
       <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw">
         <el-row>
           <el-col :span="24">
+            <el-form-item label="名称:" prop="name">
+              <el-input v-model="dialogForm.name" placeholder="输入中文键值解释" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
             <el-form-item label="键（Key）:" prop="key">
-              <el-input v-model="dialogForm.key" placeholder="请输入Key" maxlength="30" />
+              <el-input v-model="dialogForm.key" placeholder="请输入Key" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="值（Value）:" prop="value">
-              <el-input v-model="dialogForm.value" placeholder="请输入Value" />
+              <el-input type="textarea" v-model="dialogForm.value" placeholder="请输入Value" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注:" prop="remark">
+              <el-input type="textarea" v-model="dialogForm.remark" placeholder="输入备注" />
             </el-form-item>
           </el-col>
         </el-row>
