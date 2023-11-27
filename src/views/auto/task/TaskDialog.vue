@@ -391,6 +391,8 @@ function initForm() {
   dialogColumn.value = [];
   updateMode.value = false;
   customBottomButton.value = [];
+  customHeadDesc.value = [];
+  customHeadButton.value = [];
 }
 
 function closeDialog() {
