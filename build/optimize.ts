@@ -25,26 +25,22 @@ const include = [
   "sortablejs",
   "swiper/vue",
   "mint-filter",
-  "md-editor-v3",
+  "md-notice-editor-v3",
   "@vueuse/core",
-  "vue3-danmaku",
   "v-contextmenu",
-  "vue-pdf-embed",
-  "wavesurfer.js",
   "swiper/modules",
   "china-area-data",
   "vue-json-pretty",
   "@logicflow/core",
   "@pureadmin/utils",
-  "@wangeditor/editor",
+  "@wangeditor/notice-editor",
   "responsive-storage",
   "@howdyjs/mouse-menu",
   "@logicflow/extension",
   "vue-virtual-scroller",
-  "@amap/amap-jsapi-loader",
   "el-table-infinite-scroll",
   "vue-waterfall-plugin-next",
-  "@wangeditor/editor-for-vue",
+  "@wangeditor/notice-editor-for-vue",
   "vuedraggable/src/vuedraggable"
 ];
 
@@ -52,10 +48,6 @@ const include = [
  * 在预构建中强制排除的依赖项
  * 温馨提示：所有以 `@iconify-icons/` 开头引入的的本地图标模块，都应该加入到下面的 `exclude` 里，因为平台推荐的使用方式是哪里需要哪里引入而且都是单个的引入，不需要预构建，直接让浏览器加载就好
  */
-const exclude = [
-  "@iconify-icons/ep",
-  "@iconify-icons/ri",
-  "@pureadmin/theme/dist/browser-utils"
-];
+const exclude = ["@iconify-icons/ep", "@iconify-icons/ri", "@pureadmin/theme/dist/browser-utils"];
 
 export { include, exclude };
