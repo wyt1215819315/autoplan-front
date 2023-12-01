@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import editForm from "../form.vue";
 import { message } from "@/utils/message";
-import { getRoleList } from "@/api/system";
+import { getRoleList } from "@/api/system/system";
 import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
@@ -45,7 +45,7 @@ export function useRole() {
     {
       label: "状态",
       minWidth: 130,
-      cellRenderer: scope => (
+      cellRenderer: (scope) => (
         <el-switch
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
@@ -69,8 +69,7 @@ export function useRole() {
       label: "创建时间",
       minWidth: 180,
       prop: "createTime",
-      formatter: ({ createTime }) =>
-        dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+      formatter: ({ createTime }) => dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
     },
     {
       label: "操作",
@@ -91,11 +90,7 @@ export function useRole() {
 
   function onChange({ row, index }) {
     ElMessageBox.confirm(
-      `确认要<strong>${
-        row.status === 0 ? "停用" : "启用"
-      }</strong><strong style='color:var(--el-color-primary)'>${
-        row.name
-      }</strong>吗?`,
+      `确认要<strong>${row.status === 0 ? "停用" : "启用"}</strong><strong style='color:var(--el-color-primary)'>${row.name}</strong>吗?`,
       "系统提示",
       {
         confirmButtonText: "确定",
@@ -106,21 +101,13 @@ export function useRole() {
       }
     )
       .then(() => {
-        switchLoadMap.value[index] = Object.assign(
-          {},
-          switchLoadMap.value[index],
-          {
-            loading: true
-          }
-        );
+        switchLoadMap.value[index] = Object.assign({}, switchLoadMap.value[index], {
+          loading: true
+        });
         setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign(
-            {},
-            switchLoadMap.value[index],
-            {
-              loading: false
-            }
-          );
+          switchLoadMap.value[index] = Object.assign({}, switchLoadMap.value[index], {
+            loading: false
+          });
           message(`已${row.status === 0 ? "停用" : "启用"}${row.name}`, {
             type: "success"
           });
@@ -161,7 +148,7 @@ export function useRole() {
     }, 500);
   }
 
-  const resetForm = formEl => {
+  const resetForm = (formEl) => {
     if (!formEl) return;
     formEl.resetFields();
     onSearch();
@@ -192,7 +179,7 @@ export function useRole() {
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
-        FormRef.validate(valid => {
+        FormRef.validate((valid) => {
           if (valid) {
             console.log("curData", curData);
             // 表单规则校验通过

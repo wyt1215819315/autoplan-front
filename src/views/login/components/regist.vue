@@ -11,7 +11,7 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
-import { doReg } from "@/api/user";
+import { doReg } from "@/api/system/user";
 import { md5 } from "@/utils/crypto";
 
 const { t } = useI18n();
@@ -50,7 +50,7 @@ const onUpdate = async (formEl: FormInstance | undefined) => {
           username: ruleForm.username,
           password: md5(ruleForm.password)
         })
-          .then(data => {
+          .then((data) => {
             if (data.success) {
               onBack();
             }
@@ -76,12 +76,7 @@ function onBack() {
 </script>
 
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="ruleForm"
-    :rules="updateRules"
-    size="large"
-  >
+  <el-form ref="ruleFormRef" :model="ruleForm" :rules="updateRules" size="large">
     <Motion>
       <el-form-item
         :rules="[
@@ -93,12 +88,7 @@ function onBack() {
         ]"
         prop="username"
       >
-        <el-input
-          clearable
-          v-model="ruleForm.username"
-          :placeholder="t('login.username')"
-          :prefix-icon="useRenderIcon(User)"
-        />
+        <el-input clearable v-model="ruleForm.username" :placeholder="t('login.username')" :prefix-icon="useRenderIcon(User)" />
       </el-form-item>
     </Motion>
 
@@ -128,25 +118,13 @@ function onBack() {
 
     <Motion :delay="200">
       <el-form-item prop="password">
-        <el-input
-          clearable
-          show-password
-          v-model="ruleForm.password"
-          :placeholder="t('login.password')"
-          :prefix-icon="useRenderIcon(Lock)"
-        />
+        <el-input clearable show-password v-model="ruleForm.password" :placeholder="t('login.password')" :prefix-icon="useRenderIcon(Lock)" />
       </el-form-item>
     </Motion>
 
     <Motion :delay="250">
       <el-form-item :rules="repeatPasswordRule" prop="repeatPassword">
-        <el-input
-          clearable
-          show-password
-          v-model="ruleForm.repeatPassword"
-          :placeholder="t('login.sure')"
-          :prefix-icon="useRenderIcon(Lock)"
-        />
+        <el-input clearable show-password v-model="ruleForm.repeatPassword" :placeholder="t('login.sure')" :prefix-icon="useRenderIcon(Lock)" />
       </el-form-item>
     </Motion>
 
@@ -163,13 +141,7 @@ function onBack() {
 
     <Motion :delay="350">
       <el-form-item>
-        <el-button
-          class="w-full"
-          size="default"
-          type="primary"
-          :loading="loading"
-          @click="onUpdate(ruleFormRef)"
-        >
+        <el-button class="w-full" size="default" type="primary" :loading="loading" @click="onUpdate(ruleFormRef)">
           {{ t("login.definite") }}
         </el-button>
       </el-form-item>

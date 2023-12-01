@@ -3,7 +3,7 @@ import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
-import { deleteSystemConfig, getSystemConfigPage, saveSystemConfig, updateSystemConfig, updateSystemConfigValue } from "@/api/system";
+import { deleteSystemConfig, getSystemConfigPage, saveSystemConfig, updateSystemConfig, updateSystemConfigValue } from "@/api/system/system";
 
 export class SysConfig {
   id: number;

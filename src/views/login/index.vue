@@ -29,6 +29,7 @@ import User from "@iconify-icons/ri/user-3-fill";
 import { md5 } from "@/utils/crypto";
 import { baseUrlApi } from "@/api/utils";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
+import { useWebhookColumnStoreHook } from "@/store/modules/webhook";
 
 defineOptions({
   name: "Login"
@@ -73,6 +74,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
             // 获取后端路由
             // 初始化表单缓存
             useAutoColumnStoreHook().initData();
+            useWebhookColumnStoreHook().initData();
             initRouter().then(() => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });

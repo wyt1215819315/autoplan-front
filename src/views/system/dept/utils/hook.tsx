@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { getDeptList } from "@/api/system";
+import { getDeptList } from "@/api/system/system";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -46,8 +46,7 @@ export function useDept() {
       label: "创建时间",
       minWidth: 200,
       prop: "createTime",
-      formatter: ({ createTime }) =>
-        dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+      formatter: ({ createTime }) => dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
     },
     {
       label: "备注",
@@ -78,11 +77,11 @@ export function useDept() {
     let newData = data;
     if (!isAllEmpty(form.name)) {
       // 前端搜索部门名称
-      newData = newData.filter(item => item.name.includes(form.name));
+      newData = newData.filter((item) => item.name.includes(form.name));
     }
     if (!isAllEmpty(form.status)) {
       // 前端搜索状态
-      newData = newData.filter(item => item.status === form.status);
+      newData = newData.filter((item) => item.status === form.status);
     }
     dataList.value = handleTree(newData); // 处理成树结构
     setTimeout(() => {
@@ -133,7 +132,7 @@ export function useDept() {
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
-        FormRef.validate(valid => {
+        FormRef.validate((valid) => {
           if (valid) {
             console.log("curData", curData);
             // 表单规则校验通过
