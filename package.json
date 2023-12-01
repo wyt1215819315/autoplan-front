@@ -45,7 +45,6 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "@amap/amap-jsapi-loader": "^1.0.1",
     "@howdyjs/mouse-menu": "^2.0.9",
     "@logicflow/core": "^1.2.15",
     "@logicflow/extension": "^1.2.16",
