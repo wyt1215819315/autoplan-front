@@ -97,7 +97,7 @@ export function useColumns() {
       .then((data) => {
         if (data.success) {
           dataList.value = [];
-          for (let i = 0; i < data.data.records.length; i++) {
+          for (let i = 0; i < data.data.length; i++) {
             const record = data.data[i];
             record.tableNo = i + 1;
             dataList.value.push(record);

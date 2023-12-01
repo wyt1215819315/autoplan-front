@@ -40,7 +40,9 @@ export const useWebhookColumnStore = defineStore({
       getColumn().then((data) => {
         if (data.success) {
           this.list = data.data.list;
-          this.data = data.data.data;
+          for (const key in data.data.data) {
+            this.data.set(key, data.data.data[key]);
+          }
         }
       });
     }

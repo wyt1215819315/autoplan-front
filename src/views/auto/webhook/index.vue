@@ -9,7 +9,7 @@ import More from "@iconify-icons/ep/more-filled";
 import WebhookDialog from "@/views/auto/webhook/WebhookDialog.vue";
 
 defineOptions({
-  name: "TaskInfoPage"
+  name: "MineWebhookPage"
 });
 const { loading, columns, dataList, loadingConfig, requestData, dialog, addTask, editTask, delTask, closeDialog } = useColumns();
 </script>

@@ -1,3 +1,5 @@
+import { $t } from "@/plugins/i18n";
+
 export default {
   path: "/system",
   meta: {
@@ -12,8 +14,26 @@ export default {
       component: () => import("@/views/system/config/index.vue"),
       meta: {
         icon: "setting",
-        title: "配置管理",
-        showParent: true
+        title: "配置管理"
+      }
+    },
+    {
+      path: "/system/user",
+      name: "User",
+      component: () => import("@/views/system/user/index.vue"),
+      meta: {
+        icon: "user",
+        title: "用户管理"
+      }
+    },
+    {
+      path: "/system/notice-editor",
+      name: "Editor",
+      component: () => import("@/views/system/notice-editor/index.vue"),
+      meta: {
+        icon: "edit",
+        title: "公告编辑",
+        keepAlive: true
       }
     }
   ]

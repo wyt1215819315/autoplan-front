@@ -3,7 +3,7 @@
     <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw" :label-position="labelPosition" v-loading="loading.form">
       <el-row v-show="showTaskSelect">
         <el-col :span="24">
-          <el-form-item label="类型:" prop="_index.name">
+          <el-form-item label="类型:" prop="_index">
             <el-select v-model="dialogForm._index" :placeholder="`请选择Webhook类型`" style="width: 100%" @change="changeIndex">
               <el-option v-for="option in webhookStore.getAllList" :key="option" :label="option" :value="option" />
             </el-select>
@@ -37,38 +37,51 @@
         <el-col :span="24">
           <el-form-item :prop="item.field">
             <template v-slot:label="{}">
-              <span>{{ item.name }}:</span>
-              <el-tooltip v-show="!isAllEmpty(item.desc)" class="item" effect="dark" placement="top">
-                <i class="el-icon-question" style="font-size: 14px; vertical-align: middle" />
-                <div>{{ item.desc }}</div>
-              </el-tooltip>
+              <div style="align-items: center; display: flex">
+                <div v-show="!isAllEmpty(item.desc)">
+                  <el-tooltip class="item" effect="dark" placement="top">
+                    <IconifyIconOffline :icon="QuestionFilled" style="margin-right: 5px" />
+                    <template v-slot:content>
+                      <div>{{ item.desc }}</div>
+                    </template>
+                  </el-tooltip>
+                </div>
+                <span>{{ item.name }}:</span>
+              </div>
             </template>
-            <template>
-              <!-- 普通文本输入框-->
-              <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
-              <!-- 长文本输入框-->
-              <el-input
-                v-if="item.fieldType === 'TextArea'"
-                v-model="dialogForm.data[item.field]"
-                type="textarea"
-                :placeholder="`请输入${item.name}`"
-              />
-              <!-- 数字输入框-->
-              <el-input
-                v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
-                type="number"
-                v-model.number="dialogForm.data[item.field]"
-                :placeholder="`请输入${item.name}`"
-              />
-              <!-- 选择框-->
-              <el-select
-                v-if="item.options !== undefined"
-                v-model="dialogForm.data[item.field]"
-                :placeholder="`请选择${item.name}`"
-                style="width: 100%"
-              >
-                <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
-              </el-select>
+            <template v-slot:default>
+              <!-- 自定义webhook模式，特殊处理-->
+              <el-col v-if="dialogForm._index === '自定义' && item.field === 'successFlag'">
+                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
+                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
+              </el-col>
+              <el-col :span="24" v-else>
+                <!-- 普通文本输入框-->
+                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
+                <!-- 长文本输入框-->
+                <el-input
+                  v-if="item.fieldType === 'TextArea'"
+                  v-model="dialogForm.data[item.field]"
+                  type="textarea"
+                  :placeholder="`请输入${item.name}`"
+                />
+                <!-- 数字输入框-->
+                <el-input
+                  v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
+                  type="number"
+                  v-model.number="dialogForm.data[item.field]"
+                  :placeholder="`请输入${item.name}`"
+                />
+                <!-- 选择框-->
+                <el-select
+                  v-if="item.options !== undefined"
+                  v-model="dialogForm.data[item.field]"
+                  :placeholder="`请选择${item.name}`"
+                  style="width: 100%"
+                >
+                  <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
+                </el-select>
+              </el-col>
             </template>
           </el-form-item>
         </el-col>
@@ -93,6 +106,7 @@ import { FormInstance } from "element-plus";
 import { Result } from "@/api/utils";
 import { useWebhookColumnStoreHook } from "@/store/modules/webhook";
 import { viewWebhook } from "@/api/webhook";
+import QuestionFilled from "@iconify-icons/ep/question-filled";
 
 defineOptions({ name: "WebhookDialog" });
 
@@ -131,11 +145,9 @@ const dialogForm = ref<WebhookDialogForm>({
 const dialogColumn = ref([]);
 // 表单校验规则
 const dialogRules = ref({
+  _index: [],
   _sys: {
-    name: [
-      { required: true, message: "任务名称必填", trigger: "blur" },
-      { max: 30, message: "任务名称不能超过30字", trigger: "blur" }
-    ]
+    name: []
   }
 });
 const formDialogRef = ref<FormInstance>();
@@ -196,7 +208,7 @@ async function loadColumn() {
   if (!updateMode.value) {
     // 展示任务选择框
     if (indexList.value === undefined || indexList.value.length === 0) {
-      indexList.value = webhookStore.getAllList();
+      indexList.value = webhookStore.getAllList;
     }
     showTaskSelect.value = true;
   }
@@ -295,12 +307,12 @@ function initForm() {
     _sys: {
       enable: 1,
       name: "",
-      type: "",
       id: undefined
     },
     data: {}
   };
   dialogRules.value = {
+    _index: [{ required: true, message: "类型必选", trigger: "blur" }],
     _sys: {
       name: [
         { required: true, message: "Webhook名称必填", trigger: "blur" },
