@@ -19,6 +19,10 @@ export type PageResult<T> = {
   data?: PageBean<T>;
 };
 
+export class BaseTableList {
+  tableNo: number;
+}
+
 export const baseUrlApi = (url: string) => {
   if (!url.startsWith("/")) {
     url = "/" + url;

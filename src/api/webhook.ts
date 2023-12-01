@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
-import { baseUrlApi, Result } from "@/api/utils";
+import { BaseTableList, baseUrlApi, Result } from "@/api/utils";
 
-class SysWebhook {
+class SysWebhook extends BaseTableList {
   id: number;
   userId: number;
   name: string;
