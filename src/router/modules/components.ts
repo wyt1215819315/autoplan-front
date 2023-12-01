@@ -50,18 +50,6 @@ export default {
       }
     },
     {
-      path: "/components/map",
-      name: "MapPage",
-      component: () => import("@/views/components/map/index.vue"),
-      meta: {
-        title: $t("menus.hsmap"),
-        keepAlive: true,
-        transition: {
-          name: "fade"
-        }
-      }
-    },
-    {
       path: "/components/draggable",
       name: "Draggable",
       component: () => import("@/views/components/draggable/index.vue"),
