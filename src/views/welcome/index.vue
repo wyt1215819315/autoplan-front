@@ -9,18 +9,21 @@ import TypeIt from "@/components/ReTypeit";
 import { useWindowSize } from "@vueuse/core";
 import { ref, computed, markRaw } from "vue";
 import Github from "./components/Github.vue";
-import { randomColor } from "@pureadmin/utils";
+import { isAllEmpty, randomColor } from "@pureadmin/utils";
 import { useRenderFlicker } from "@/components/ReFlicker";
+import { viewNotice } from "@/api/system/notice";
+import EditorDisplay from "@/components/editor/EditorDisplay.vue";
 
 defineOptions({
   name: "Welcome"
 });
 
-const list = ref();
+const versionLogList = ref();
+const noticeInfo = ref<string>();
 const loading = ref<boolean>(true);
 const { version } = __APP_INFO__.pkg;
 const titleClass = computed(() => {
-  return ["text-base", "font-medium"];
+  return ["text-base", "font-bold"];
 });
 
 const { height } = useWindowSize();
@@ -30,7 +33,7 @@ setTimeout(() => {
 }, 800);
 
 getReleases().then(({ data }) => {
-  list.value = data.list.map(v => {
+  versionLogList.value = data.list.map((v) => {
     return {
       content: v.body,
       timestamp: dayjs(v.published_at).format("YYYY/MM/DD hh:mm:ss A"),
@@ -42,19 +45,19 @@ getReleases().then(({ data }) => {
     };
   });
 });
+
+// 获取公告内容
+viewNotice().then((data) => {
+  noticeInfo.value = data.data;
+});
 </script>
 
 <template>
   <div>
     <el-row :gutter="24">
       <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="12"
-        :xl="12"
-        class="mb-[18px]"
-        v-motion
+        class="card"
+        :span="24"
         :initial="{
           opacity: 0,
           y: 100
@@ -67,86 +70,47 @@ getReleases().then(({ data }) => {
           }
         }"
       >
-        <el-card
-          shadow="never"
-          :style="{ height: `calc(${height}px - 35vh - 250px)` }"
-        >
+        <el-card shadow="never">
           <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/pure-admin/vue-pure-admin/releases"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it2'"
-                :values="[`PureAdmin 版本日志（当前版本 v${version}）`]"
-                :cursor="false"
-                :speed="60"
-              />
+            <a :class="titleClass" target="_black">
+              <TypeIt :className="'type-it1'" :values="[`公告栏`]" :cursor="false" :speed="60" />
+            </a>
+          </template>
+          <el-empty v-if="isAllEmpty(noticeInfo)" description="当前无公告" />
+          <EditorDisplay :data="noticeInfo" />
+        </el-card>
+      </el-col>
+
+      <el-col
+        class="card"
+        :span="24"
+        :initial="{
+          opacity: 0,
+          y: 100
+        }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: {
+            delay: 200
+          }
+        }"
+      >
+        <el-card shadow="never">
+          <template #header>
+            <a :class="titleClass" href="https://github.com/pure-admin/vue-pure-admin/releases" target="_black">
+              <TypeIt :className="'type-it2'" :values="[`PureAdmin 版本日志（当前版本 v${version}）`]" :cursor="false" :speed="60" />
             </a>
           </template>
           <el-skeleton animated :rows="7" :loading="loading">
             <template #default>
               <el-scrollbar :height="`calc(${height}px - 35vh - 340px)`">
-                <el-timeline v-show="list?.length > 0">
-                  <el-timeline-item
-                    v-for="(item, index) in list"
-                    :key="index"
-                    :icon="item.icon"
-                    :timestamp="item.timestamp"
-                  >
+                <el-timeline v-show="versionLogList?.length > 0">
+                  <el-timeline-item v-for="(item, index) in versionLogList" :key="index" :icon="item.icon" :timestamp="item.timestamp">
                     <md-editor v-model="item.content" preview-only />
                   </el-timeline-item>
                 </el-timeline>
-                <el-empty v-show="list?.length === 0" />
-              </el-scrollbar>
-            </template>
-          </el-skeleton>
-        </el-card>
-      </el-col>
-
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="12"
-        :xl="12"
-        class="mb-[18px]"
-        v-motion
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 200
-          }
-        }"
-      >
-        <el-card
-          shadow="never"
-          :style="{ height: `calc(${height}px - 35vh - 250px)` }"
-        >
-          <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/xiaoxian521"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it1'"
-                :values="['GitHub信息']"
-                :cursor="false"
-                :speed="120"
-              />
-            </a>
-          </template>
-          <el-skeleton animated :rows="7" :loading="loading">
-            <template #default>
-              <el-scrollbar :height="`calc(${height}px - 35vh - 340px)`">
-                <Github />
+                <el-empty v-show="versionLogList?.length === 0" />
               </el-scrollbar>
             </template>
           </el-skeleton>
@@ -175,60 +139,8 @@ getReleases().then(({ data }) => {
       >
         <el-card shadow="never">
           <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/pure-admin/vue-pure-admin"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it4'"
-                :values="['GitHub折线图信息']"
-                :cursor="false"
-                :speed="120"
-              />
-            </a>
-          </template>
-          <el-skeleton animated :rows="7" :loading="loading">
-            <template #default>
-              <Line />
-            </template>
-          </el-skeleton>
-        </el-card>
-      </el-col>
-
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="8"
-        :xl="8"
-        class="mb-[18px]"
-        v-motion
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 400
-          }
-        }"
-      >
-        <el-card shadow="never">
-          <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/pure-admin/vue-pure-admin"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it3'"
-                :values="['GitHub饼图信息']"
-                :cursor="false"
-                :speed="120"
-              />
+            <a :class="titleClass" href="https://github.com/pure-admin/vue-pure-admin" target="_black">
+              <TypeIt :className="'type-it3'" :values="['GitHub饼图信息']" :cursor="false" :speed="120" />
             </a>
           </template>
           <el-skeleton animated :rows="7" :loading="loading">
@@ -261,17 +173,8 @@ getReleases().then(({ data }) => {
       >
         <el-card shadow="never">
           <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/pure-admin/vue-pure-admin"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it5'"
-                :values="['GitHub柱状图信息']"
-                :cursor="false"
-                :speed="120"
-              />
+            <a :class="titleClass" href="https://github.com/pure-admin/vue-pure-admin" target="_black">
+              <TypeIt :className="'type-it5'" :values="['GitHub柱状图信息']" :cursor="false" :speed="120" />
             </a>
           </template>
           <el-skeleton animated :rows="7" :loading="loading">
@@ -292,5 +195,9 @@ getReleases().then(({ data }) => {
 
 .main-content {
   margin: 20px 20px 0 !important;
+}
+
+.card {
+  margin-bottom: 20px;
 }
 </style>

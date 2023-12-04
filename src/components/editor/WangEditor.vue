@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import "@wangeditor/editor/dist/css/style.css";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import { onBeforeUnmount, ref, shallowRef, onMounted } from "vue";
+import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { IToolbarConfig } from "@wangeditor/editor";
+import { isAllEmpty } from "@pureadmin/utils";
 
 defineOptions({
   name: "WangEditor"
@@ -13,14 +14,33 @@ const mode = "default";
 const editorRef = shallowRef();
 
 // 内容 HTML
-const valueHtml = ref("<p>你好</p>");
+const valueHtml = ref("");
 
-// 模拟 ajax 异步获取内容
-onMounted(() => {
-  setTimeout(() => {
-    valueHtml.value = "<p>我是模拟的异步数据</p>";
-  }, 1500);
+const props = defineProps({
+  data: {
+    type: String,
+    default: ""
+  }
 });
+const emit = defineEmits(["change"]);
+
+watch(
+  () => props.data,
+  (val) => {
+    if (!isAllEmpty(val)) {
+      valueHtml.value = val;
+    }
+  }
+);
+
+watch(
+  () => valueHtml.value,
+  (val) => {
+    if (!isAllEmpty(val)) {
+      emit("change", val);
+    }
+  }
+);
 
 const toolbarConfig: Partial<IToolbarConfig> = { excludeKeys: ["fullScreen", "group-video", "uploadImage"] };
 
