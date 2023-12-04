@@ -350,6 +350,7 @@ function resolveCheckTask(data: Result<any>, close: Boolean) {
   } else {
     message(data.data.msg, {
       type: "error",
+      showClose: true,
       dangerouslyUseHTMLString: true,
       duration: 10 * 1000
     });

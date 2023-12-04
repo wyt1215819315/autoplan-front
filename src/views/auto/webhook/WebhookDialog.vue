@@ -51,37 +51,65 @@
             </template>
             <template v-slot:default>
               <!-- 自定义webhook模式，特殊处理-->
-              <el-col v-if="dialogForm._index === '自定义' && item.field === 'successFlag'">
-                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
-                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
-              </el-col>
-              <el-col :span="24" v-else>
-                <!-- 普通文本输入框-->
-                <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
-                <!-- 长文本输入框-->
-                <el-input
-                  v-if="item.fieldType === 'TextArea'"
-                  v-model="dialogForm.data[item.field]"
-                  type="textarea"
-                  :placeholder="`请输入${item.name}`"
+              <template v-if="dialogForm._index === '自定义' && item.field === 'successFlag'">
+                <el-col :span="4">
+                  <el-select v-model="customWebhook.successFlag.valueType">
+                    <el-option label="状态码等于" value="status" />
+                    <el-option label="响应体等于" value="raw" />
+                    <el-option label="响应JSON等于" value="json" />
+                  </el-select>
+                </el-col>
+                <el-col :span="customWebhook.successFlag.valueType === 'json' ? 12 : 20">
+                  <el-input v-model="customWebhook.successFlag.value" :placeholder="`请输入比较的值`" />
+                </el-col>
+                <el-col v-show="customWebhook.successFlag.valueType === 'json'" :span="8">
+                  <el-input v-model="customWebhook.successFlag.key" :placeholder="`输入JSON判断路径(例如data.userInfo[0].avatar)`" />
+                </el-col>
+              </template>
+              <template v-else-if="dialogForm._index === '自定义' && item.field === 'params'">
+                <JsonInputTable
+                  :data-model="paramsDataModel"
+                  :data="customWebhook.params.data"
+                  @on-val-change="(val) => (dialogForm.data['params'] = val)"
                 />
-                <!-- 数字输入框-->
-                <el-input
-                  v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
-                  type="number"
-                  v-model.number="dialogForm.data[item.field]"
-                  :placeholder="`请输入${item.name}`"
+              </template>
+              <template v-else-if="dialogForm._index === '自定义' && item.field === 'headers'">
+                <JsonInputTable
+                  :data-model="headersDataModel"
+                  :data="customWebhook.headers.data"
+                  @on-val-change="(val) => (dialogForm.data['headers'] = val)"
                 />
-                <!-- 选择框-->
-                <el-select
-                  v-if="item.options !== undefined"
-                  v-model="dialogForm.data[item.field]"
-                  :placeholder="`请选择${item.name}`"
-                  style="width: 100%"
-                >
-                  <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
-                </el-select>
-              </el-col>
+              </template>
+              <template v-else>
+                <!-- 自定义表单-->
+                <el-col :span="24">
+                  <!-- 普通文本输入框-->
+                  <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
+                  <!-- 长文本输入框-->
+                  <el-input
+                    v-if="item.fieldType === 'TextArea'"
+                    v-model="dialogForm.data[item.field]"
+                    type="textarea"
+                    :placeholder="`请输入${item.name}`"
+                  />
+                  <!-- 数字输入框-->
+                  <el-input
+                    v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
+                    type="number"
+                    v-model.number="dialogForm.data[item.field]"
+                    :placeholder="`请输入${item.name}`"
+                  />
+                  <!-- 选择框-->
+                  <el-select
+                    v-if="item.options !== undefined"
+                    v-model="dialogForm.data[item.field]"
+                    :placeholder="`请选择${item.name}`"
+                    style="width: 100%"
+                  >
+                    <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
+                  </el-select>
+                </el-col>
+              </template>
             </template>
           </el-form-item>
         </el-col>
@@ -89,8 +117,8 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="success" @click="doCheckTask(formDialogRef)" :loading="loading.button"> 测试 </el-button>
-        <el-button type="primary" @click="doCheckAndSaveTask(formDialogRef)" :loading="loading.button"> 保存 </el-button>
+        <el-button type="success" @click="doCheck(formDialogRef)" :loading="loading.button"> 测试 </el-button>
+        <el-button type="primary" @click="doSaveOrUpdate(formDialogRef)" :loading="loading.button"> 保存 </el-button>
         <el-button type="danger" @click="closeDialog" :loading="loading.button"> 关闭 </el-button>
       </div>
     </template>
@@ -99,14 +127,15 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
-import { checkAndSaveTask, checkTask } from "@/api/auto";
 import { isAllEmpty } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
 import { Result } from "@/api/utils";
 import { useWebhookColumnStoreHook } from "@/store/modules/webhook";
-import { viewWebhook } from "@/api/webhook";
+import { checkWebhook, saveOrUpdateWebhook, viewWebhook } from "@/api/webhook";
 import QuestionFilled from "@iconify-icons/ep/question-filled";
+import JsonInputTable from "@/components/jsontable/src/JsonInputTable.vue";
+import { JsonTableModel } from "@/components/jsontable/src/hook";
 
 defineOptions({ name: "WebhookDialog" });
 
@@ -117,20 +146,59 @@ class WebhookDialogForm {
     name: string;
     enable: number;
   };
-  data: object;
+  data: any;
 }
 
 const props = defineProps({
   titlePrefix: String,
   visible: Boolean,
-  id: Number
+  id: String
 });
 
 const webhookStore = useWebhookColumnStoreHook();
 const show = ref(false);
 const updateMode = ref(false);
 const showTaskSelect = ref(false);
-const indexList = ref([]);
+const customWebhook = ref({
+  successFlag: {
+    key: "",
+    valueType: "status",
+    value: ""
+  },
+  params: {
+    data: ""
+  },
+  headers: {
+    data: ""
+  }
+});
+const paramsDataModel: Array<JsonTableModel> = [
+  {
+    field: "key",
+    name: "键"
+  },
+  {
+    field: "valueType",
+    name: "值类型",
+    fieldType: "select",
+    selectValue: ["String", "Number"]
+  },
+  {
+    field: "value",
+    name: "值"
+  }
+];
+const headersDataModel: Array<JsonTableModel> = [
+  {
+    field: "key",
+    name: "键"
+  },
+  {
+    field: "value",
+    name: "值"
+  }
+];
+const indexList = ref([] as any);
 // 表单数据
 const dialogForm = ref<WebhookDialogForm>({
   _index: undefined,
@@ -220,7 +288,7 @@ async function loadColumn() {
         ...item
       });
       // 填充默认值
-      if (item.defaultValue !== undefined) {
+      if (!updateMode.value && item.defaultValue !== undefined) {
         if (item.fieldType === "Integer" || item.fieldType === "Long" || item.fieldType === "Double") {
           dialogForm.value.data[item.field] = Number(item.defaultValue);
         } else {
@@ -244,22 +312,35 @@ async function loadViewData() {
         dialogForm.value._sys.name = data.data.name;
         dialogForm.value._sys.enable = data.data.enable;
         dialogForm.value._index = data.data.type;
-        for (const col in data.data.setting) {
-          dialogForm.value.data[col] = data.data.setting[col];
+        const dataObj = JSON.parse(data.data.data);
+        for (const col in dataObj) {
+          dialogForm.value.data[col] = dataObj[col];
         }
+        if (data.data.type === "自定义") {
+          const successFlagObj = JSON.parse(dataObj.successFlag);
+          if (successFlagObj !== undefined) {
+            customWebhook.value.successFlag.value = successFlagObj.value;
+            customWebhook.value.successFlag.valueType = successFlagObj.valueType;
+            customWebhook.value.successFlag.key = successFlagObj.key;
+          }
+          customWebhook.value.params.data = dataObj.params;
+          customWebhook.value.headers.data = dataObj.headers;
+        }
+        console.log(dialogForm.value.data.url);
+        console.log(customWebhook.value);
       }
     })
     .finally(() => {});
 }
 
-async function doCheckTask(formEl: FormInstance | undefined) {
+async function doCheck(formEl: FormInstance | undefined) {
   if (!formEl) return;
   await formEl.validate((valid) => {
     if (valid) {
       loading.button = true;
-      checkTask(dialogForm.value._index.id, dialogForm.value)
+      checkWebhook(installMainData())
         .then((data) => {
-          resolveCheckTask(data, false);
+          resolveResult(data, false);
         })
         .finally(() => {
           loading.button = false;
@@ -268,14 +349,14 @@ async function doCheckTask(formEl: FormInstance | undefined) {
   });
 }
 
-async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
+async function doSaveOrUpdate(formEl: FormInstance | undefined) {
   if (!formEl) return;
   await formEl.validate((valid) => {
     if (valid) {
       loading.button = true;
-      checkAndSaveTask(dialogForm.value._index.id, dialogForm.value)
+      saveOrUpdateWebhook(installData())
         .then((data) => {
-          resolveCheckTask(data, true);
+          resolveResult(data, true);
         })
         .finally(() => {
           loading.button = false;
@@ -284,17 +365,42 @@ async function doCheckAndSaveTask(formEl: FormInstance | undefined) {
   });
 }
 
-function resolveCheckTask(data: Result<any>, close: Boolean) {
-  if (data.data.success) {
-    message(data.data.msg, {
+function installData() {
+  const data = {
+    id: dialogForm.value._sys.id,
+    enable: dialogForm.value._sys.enable,
+    name: dialogForm.value._sys.name,
+    type: dialogForm.value._index,
+    data: ""
+  };
+  data.data = JSON.stringify(installMainData());
+  return data;
+}
+
+function installMainData() {
+  dialogForm.value.data.type = dialogForm.value._index;
+  if (dialogForm.value._index === "自定义") {
+    dialogForm.value.data.successFlag = JSON.stringify({
+      value: customWebhook.value.successFlag.value,
+      valueType: customWebhook.value.successFlag.valueType,
+      key: customWebhook.value.successFlag.key
+    });
+  }
+  return dialogForm.value.data;
+}
+
+function resolveResult(data: Result<any>, close: Boolean) {
+  if (data.success) {
+    message(data.msg, {
       type: "success"
     });
     if (close) {
       closeDialog();
     }
   } else {
-    message(data.data.msg, {
+    message(data.msg, {
       type: "error",
+      showClose: true,
       dangerouslyUseHTMLString: true,
       duration: 10 * 1000
     });
@@ -321,6 +427,8 @@ function initForm() {
     }
   };
   dialogColumn.value = [];
+  showTaskSelect.value = false;
+  updateMode.value = false;
 }
 
 function closeDialog() {

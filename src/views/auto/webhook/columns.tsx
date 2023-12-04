@@ -16,7 +16,7 @@ export function useColumns() {
   const dialog = reactive({
     visible: false,
     title: "",
-    taskId: undefined
+    id: undefined
   });
 
   const columns: TableColumnList = [
@@ -62,7 +62,7 @@ export function useColumns() {
     },
     {
       label: "操作",
-      width: 120,
+      width: 140,
       fixed: "right",
       slot: "operation",
       hide: !useUserStoreHook().isAdmin()
@@ -109,18 +109,18 @@ export function useColumns() {
       });
   }
 
-  function addTask() {
+  function add() {
     dialog.title = "新增";
     dialog.visible = true;
   }
 
-  function editTask(row) {
-    dialog.taskId = row.id;
+  function edit(row) {
+    dialog.id = row.id;
     dialog.title = "编辑";
     dialog.visible = true;
   }
 
-  function delTask(row) {
+  function del(row) {
     loading.value.main = true;
     deleteWebhook(row.id)
       .then((data) => {
@@ -137,7 +137,7 @@ export function useColumns() {
   function closeDialog() {
     dialog.visible = false;
     dialog.title = "";
-    dialog.taskId = undefined;
+    dialog.id = undefined;
     requestData();
   }
 
@@ -149,9 +149,9 @@ export function useColumns() {
     loadingConfig,
     requestData,
     dialog,
-    addTask,
-    editTask,
-    delTask,
+    add,
+    edit,
+    del,
     closeDialog
   };
 }

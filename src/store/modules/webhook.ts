@@ -32,7 +32,7 @@ export const useWebhookColumnStore = defineStore({
     }
   },
   actions: {
-    getDataByCode(code: string): string {
+    getDataByCode(code: string) {
       return this.data.get(code);
     },
     async initData() {

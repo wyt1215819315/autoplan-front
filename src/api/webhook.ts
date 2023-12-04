@@ -31,10 +31,10 @@ export const viewWebhook = (id: any) => {
 
 /** 新增修改webhook */
 export const saveOrUpdateWebhook = (data: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/system/webhook/saveOrUpdate"), { data });
+  return http.request<Result<any>>("post", baseUrlApi("/system/webhook/saveOrUpdate"), { data }, null, false, false);
 };
 
 /** 校验webhook */
 export const checkWebhook = (data: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/system/webhook/check"), { data });
+  return http.request<Result<any>>("post", baseUrlApi("/system/webhook/check"), { data }, null, false, false);
 };
