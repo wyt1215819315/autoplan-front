@@ -79,12 +79,17 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });
             });
-          } else if (res.code === -1) {
-            // 验证码超时刷新验证码
-            refreshCaptchaCode();
+          } else {
+            loading.value = false;
+            if (res.code === -1) {
+              // 验证码超时刷新验证码
+              refreshCaptchaCode();
+            }
           }
         })
-        .finally(() => (loading.value = false));
+        .catch(() => {
+          loading.value = false;
+        });
     } else {
       loading.value = false;
       return fields;
