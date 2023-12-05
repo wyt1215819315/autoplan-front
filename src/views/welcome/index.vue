@@ -13,6 +13,8 @@ import { isAllEmpty, randomColor } from "@pureadmin/utils";
 import { useRenderFlicker } from "@/components/ReFlicker";
 import { viewNotice } from "@/api/system/notice";
 import EditorDisplay from "@/components/editor/EditorDisplay.vue";
+import { useUserStoreHook } from "@/store/modules/user";
+import { router } from "@/router";
 
 defineOptions({
   name: "Welcome"
@@ -50,6 +52,10 @@ getReleases().then(({ data }) => {
 viewNotice().then((data) => {
   noticeInfo.value = data.data;
 });
+
+function pushEditNotice() {
+  router.push("/system/notice-editor");
+}
 </script>
 
 <template>
@@ -75,6 +81,7 @@ viewNotice().then((data) => {
             <a :class="titleClass" target="_black">
               <TypeIt :className="'type-it1'" :values="[`公告栏`]" :cursor="false" :speed="60" />
             </a>
+            <el-button class="float-right" v-if="useUserStoreHook().isAdmin()" plain @click="pushEditNotice">编辑</el-button>
           </template>
           <el-empty v-if="isAllEmpty(noticeInfo)" description="当前无公告" />
           <EditorDisplay :data="noticeInfo" />
