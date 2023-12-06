@@ -60,7 +60,7 @@ export function useColumns(parameter) {
     },
     {
       label: "任务状态",
-      width: 120,
+      width: 130,
       prop: "lastEndStatus",
       cellRenderer: (scope) => {
         return (

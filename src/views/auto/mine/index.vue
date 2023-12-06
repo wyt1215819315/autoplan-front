@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { message } from "@/utils/message";
-import { ElMessageBox } from "element-plus";
-import { ref, onMounted, nextTick, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Search from "@iconify-icons/ep/search";
 import AddFill from "@iconify-icons/ri/add-circle-line";
@@ -26,14 +24,6 @@ const svg = `
         " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
       `;
 
-const INITIAL_DATA = {
-  name: "",
-  status: "",
-  description: "",
-  type: "",
-  mark: ""
-};
-
 /** 分页配置 */
 const pagination = reactive<PaginationProps>({
   pageSize: 12,
@@ -47,6 +37,12 @@ const pagination = reactive<PaginationProps>({
 
 const dataList = ref<Array<AutoTask>>([]);
 const dataLoading = ref(true);
+const taskDialog = ref({
+  title: "",
+  visible: false,
+  taskId: undefined,
+  indexId: undefined
+});
 
 const getCardListData = () => {
   mineTaskPage({
@@ -68,7 +64,6 @@ onMounted(() => {
   getCardListData();
 });
 
-const formDialogVisible = ref(false);
 const searchValue = ref("");
 
 const onPageSizeChange = (size: number) => {
@@ -79,8 +74,22 @@ const onCurrentChange = (current: number) => {
   pagination.currentPage = current;
 };
 
+function addTask() {
+  taskDialog.value.title = "新增";
+  taskDialog.value.taskId = undefined;
+  taskDialog.value.indexId = undefined;
+  taskDialog.value.visible = true;
+}
+
+function editTask(item: any) {
+  taskDialog.value.title = "编辑";
+  taskDialog.value.taskId = item.id;
+  taskDialog.value.indexId = item.indexId;
+  taskDialog.value.visible = true;
+}
+
 function closeDialog() {
-  formDialogVisible.value = false;
+  taskDialog.value.visible = false;
   getCardListData();
 }
 </script>
@@ -89,7 +98,7 @@ function closeDialog() {
   <div class="main">
     <div class="w-full flex justify-between mb-4">
       <div>
-        <el-button :icon="useRenderIcon(AddFill)" @click="formDialogVisible = true"> 新建任务 </el-button>
+        <el-button :icon="useRenderIcon(AddFill)" @click="addTask"> 新建任务 </el-button>
         <el-button :icon="useRenderIcon(Refresh)" @click="getCardListData"> 刷新列表 </el-button>
       </div>
       <el-input style="width: 300px" v-model="searchValue" placeholder="请输入任务名称" clearable>
@@ -105,7 +114,7 @@ function closeDialog() {
       <template v-if="pagination.total > 0">
         <el-row>
           <el-col v-for="(item, index) of dataList" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-            <TaskCard :item="item" @refresh="getCardListData" />
+            <TaskCard :item="item" @refresh="getCardListData" @edit="editTask" />
           </el-col>
         </el-row>
         <el-pagination
@@ -121,6 +130,12 @@ function closeDialog() {
         />
       </template>
     </div>
-    <TaskDialog :title-prefix="`新增`" :visible="formDialogVisible" @close-dialog="closeDialog" />
+    <TaskDialog
+      :title-prefix="taskDialog.title"
+      :index-id="taskDialog.indexId"
+      :task-id="taskDialog.taskId"
+      :visible="taskDialog.visible"
+      @close-dialog="closeDialog"
+    />
   </div>
 </template>
