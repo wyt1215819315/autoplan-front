@@ -38,12 +38,12 @@ export function useColumns(tableRef: Ref) {
   });
 
   const columns: TableColumnList = [
-    {
-      type: "selection",
-      align: "left",
-      reserveSelection: true,
-      width: 40
-    },
+    // {
+    //   type: "selection",
+    //   align: "left",
+    //   reserveSelection: true,
+    //   width: 40
+    // },
     {
       label: "序号",
       width: 60,

@@ -1,14 +1,5 @@
-import Axios, {
-  AxiosInstance,
-  AxiosRequestConfig,
-  CustomParamsSerializer
-} from "axios";
-import {
-  PureHttpError,
-  RequestMethods,
-  PureHttpResponse,
-  PureHttpRequestConfig
-} from "./types.d";
+import Axios, { AxiosInstance, AxiosRequestConfig, CustomParamsSerializer } from "axios";
+import { PureHttpError, RequestMethods, PureHttpResponse, PureHttpRequestConfig } from "./types.d";
 import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
@@ -51,7 +42,7 @@ class PureHttp {
 
   /** 重连原始请求 */
   private static retryOriginalRequest(config: PureHttpRequestConfig) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       PureHttp.requests.push((token: string) => {
         config.headers["Authorization"] = formatToken(token);
         resolve(config);
@@ -76,9 +67,9 @@ class PureHttp {
         }
         /** 请求白名单，放置一些不需要token的接口（通过设置请求白名单，防止token过期后再请求造成的死循环问题） */
         const whiteList = ["/refresh-token", "/login"];
-        return whiteList.find(url => url === config.url)
+        return whiteList.find((url) => url === config.url)
           ? config
-          : new Promise(resolve => {
+          : new Promise((resolve) => {
               const data = getToken();
               if (data) {
                 const now = new Date().getTime();
@@ -89,10 +80,10 @@ class PureHttp {
                     // token过期刷新
                     useUserStoreHook()
                       .handRefreshToken({ refreshToken: data.refreshToken })
-                      .then(res => {
+                      .then((res) => {
                         const token = res.data.accessToken;
                         config.headers["Authorization"] = formatToken(token);
-                        PureHttp.requests.forEach(cb => cb(token));
+                        PureHttp.requests.forEach((cb) => cb(token));
                         PureHttp.requests = [];
                       })
                       .finally(() => {
@@ -101,9 +92,7 @@ class PureHttp {
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
-                  config.headers["Authorization"] = formatToken(
-                    data.accessToken
-                  );
+                  config.headers["Authorization"] = formatToken(data.accessToken);
                   resolve(config);
                 }
               } else {
@@ -111,7 +100,7 @@ class PureHttp {
               }
             });
       },
-      error => {
+      (error) => {
         return Promise.reject(error);
       }
     );
@@ -153,7 +142,8 @@ class PureHttp {
     url: string,
     param?: AxiosRequestConfig,
     axiosConfig?: PureHttpRequestConfig,
-    showMsg: boolean = false
+    showMsg: boolean = false,
+    showErrorMsg: boolean = true
   ): Promise<T> {
     const config = {
       method,
@@ -168,9 +158,9 @@ class PureHttp {
         .request(config)
         .then((response: undefined) => {
           if (this.isAjaxResult(response)) {
-            const msg = (response as Result).msg;
-            const success = (response as Result).success;
-            const code = (response as Result).code;
+            const msg = (response as Result<any>).msg;
+            const success = (response as Result<any>).success;
+            const code = (response as Result<any>).code;
             // 登录失效判断
             if (code !== undefined && code === 7) {
               message("登录会话已过期，请重新登录！", { type: "error" });
@@ -184,7 +174,7 @@ class PureHttp {
               } else {
                 message("操作成功！", { type: "success" });
               }
-            } else if (!success) {
+            } else if (!success && showErrorMsg) {
               // 错误信息无论如何要展示
               if (msg !== undefined && msg.length > 0) {
                 message(msg, { type: "error" });
@@ -195,37 +185,24 @@ class PureHttp {
           }
           resolve(response);
         })
-        .catch(error => {
+        .catch((error) => {
           message("网络请求出现异常:" + error, { type: "error" });
           reject(error);
         });
     });
   }
 
-  private isAjaxResult(response: unknown): response is Result {
-    return (
-      typeof response === "object" &&
-      response !== null &&
-      "success" in response &&
-      typeof (response as Result).success === "boolean"
-    );
+  private isAjaxResult(response: unknown): response is Result<any> {
+    return typeof response === "object" && response !== null && "success" in response && typeof (response as Result<any>).success === "boolean";
   }
 
   /** 单独抽离的post工具函数 */
-  public post<T, P>(
-    url: string,
-    params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig
-  ): Promise<P> {
+  public post<T, P>(url: string, params?: AxiosRequestConfig<T>, config?: PureHttpRequestConfig): Promise<P> {
     return this.request<P>("post", url, params, config);
   }
 
   /** 单独抽离的get工具函数 */
-  public get<T, P>(
-    url: string,
-    params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig
-  ): Promise<P> {
+  public get<T, P>(url: string, params?: AxiosRequestConfig<T>, config?: PureHttpRequestConfig): Promise<P> {
     return this.request<P>("get", url, params, config);
   }
 }
