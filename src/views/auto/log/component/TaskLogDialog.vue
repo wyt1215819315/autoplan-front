@@ -1,22 +1,35 @@
 <template>
   <el-dialog :title="`${props.titlePrefix}日志`" v-model="show" fullscreen append-to-body @close="closeDialog">
-    <el-collapse v-model="activeNames">
-      <el-collapse-item v-for="(item, index) in logDisplayData" :key="index" :name="index">
-        <template #title>
-          <StatusIcon :status="item.style" :size="18" />
-          {{ item.taskName }}
-        </template>
-        <div v-for="(info, infoIndex) in item.dataList" :key="infoIndex" class="task-info-div">
-          <StatusIcon :status="getInfoStatus(info)" :size="18" />
-          {{ info.data }}
+    <el-card class="box-card">
+      <template #header>
+        <div class="card-header">
+          <span class="run-time">
+            最后运行于 {{ logData.date }}
+            <span style="color: var(--el-color-warning)" v-if="logData.notToday">(非今日)</span>
+          </span>
+          <el-tag :type="store.getStatusDisplayType(logData.status)" effect="plain" size="large">
+            {{ store.getStatusContent(logData.status) }}
+          </el-tag>
         </div>
-      </el-collapse-item>
-    </el-collapse>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button type="danger" @click="closeDialog"> 关闭 </el-button>
-      </div>
-    </template>
+      </template>
+      <el-collapse v-model="activeNames">
+        <el-collapse-item v-for="(item, index) in logDisplayData" :key="index" :name="index">
+          <template #title>
+            <StatusIcon :status="item.style" :size="18" />
+            {{ item.taskName }}
+          </template>
+          <div v-for="(info, infoIndex) in item.dataList" :key="infoIndex" class="task-info-div">
+            <span><StatusIcon :status="getInfoStatus(info)" :size="18" /></span>
+            <span>{{ info.data }}</span>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="danger" @click="closeDialog"> 关闭 </el-button>
+        </div>
+      </template>
+    </el-card>
   </el-dialog>
 </template>
 
@@ -26,6 +39,15 @@ import { isAllEmpty } from "@pureadmin/utils";
 import { getNearlyLogByTaskId } from "@/api/auto_log";
 import { isJsonString } from "@/utils/oldwu-util";
 import StatusIcon from "@/views/auto/log/component/StatusIcon.vue";
+import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
+import dayjs from "dayjs";
+
+class AutoLogData {
+  status: number;
+  date: string;
+  type: string;
+  notToday: boolean;
+}
 
 class logDisplayDataClass {
   taskName: string;
@@ -45,7 +67,9 @@ defineOptions({
 const show = ref(false);
 const activeNames = ref([]);
 const logDisplayData = ref<Array<logDisplayDataClass>>([]);
+const logData = ref<AutoLogData>(new AutoLogData());
 
+const store = useAutoColumnStoreHook();
 const props = defineProps({
   titlePrefix: String,
   visible: Boolean,
@@ -60,6 +84,12 @@ watch(
       // load log
       getNearlyLogByTaskId(props.taskId).then((data) => {
         if (data.success) {
+          logData.value.status = data.data.status;
+          const jsDate = dayjs(data.data.date, { format: "YYYY-MM-DD HH:mm:ss" });
+          const currentDate = dayjs();
+          logData.value.notToday = !jsDate.isSame(currentDate, "day");
+          logData.value.date = data.data.date;
+          logData.value.type = data.data.type;
           const text = data.data.text;
           if (isJsonString(text)) {
             const logArray = JSON.parse(text);
@@ -118,7 +148,7 @@ function getInfoStatus(item: any): string {
     } else {
       return "info";
     }
-  } else if (item.data.includes("失败")) {
+  } else if (item.data.includes("失败") || item.data.includes("错误") || item.data.includes("出错")) {
     return "error";
   } else if (info.toLowerCase().includes("warn")) {
     return "warn";
@@ -162,6 +192,7 @@ function getTaskStatus(array: Array<any>): string {
 function initForm() {
   activeNames.value = [];
   logDisplayData.value = [];
+  logData.value = new AutoLogData();
 }
 
 function closeDialog() {
@@ -171,8 +202,27 @@ function closeDialog() {
 <style lang="scss" scoped>
 .task-info-div {
   display: flex;
-  vertical-align: center;
-  align-items: center;
+  align-items: flex-start;
   margin-left: 10px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 30px;
+
+  .run-time {
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    font-size: 16px;
+  }
+}
+
+.box-card {
+  :deep(.el-card__header) {
+    padding: 14px 16px;
+  }
 }
 </style>
