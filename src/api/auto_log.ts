@@ -11,14 +11,18 @@ class HistoryTaskLog {
   text: string;
 }
 
-export const getNearlyLog = (code: string) => {
-  return http.request<Result<HistoryTaskLog>>("get", baseUrlApi("/taskLog/getNearlyLog/" + code));
+export const getNearlyLogByCode = (code: string) => {
+  return http.request<Result<HistoryTaskLog>>("get", baseUrlApi("/taskLog/getNearlyLogByCode/" + code));
+};
+
+export const getNearlyLogByTaskId = (taskId: any) => {
+  return http.request<Result<HistoryTaskLog>>("get", baseUrlApi("/taskLog/getNearlyLogByTaskId/" + taskId));
 };
 
 //*********************管理员部分*********************
 
 export const getAutoLogList = (data: object) => {
-  return http.request<PageResult<HistoryTaskLog>>("post", baseUrlApi("/taskLog/list", { data }));
+  return http.request<PageResult<HistoryTaskLog>>("post", baseUrlApi("/taskLog/list"), { data });
 };
 
 export const viewLog = (id: any) => {

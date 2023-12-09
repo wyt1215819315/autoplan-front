@@ -9,6 +9,8 @@ import { isAllEmpty } from "@pureadmin/utils";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import { ElMessageBox } from "element-plus";
 import { message } from "@/utils/message";
+import { ref } from "vue";
+import TaskLogDialog from "@/views/auto/log/component/TaskLogDialog.vue";
 
 defineOptions({
   name: "ReCard"
@@ -21,6 +23,11 @@ const props = defineProps({
   }
 });
 const emit = defineEmits(["edit", "refresh"]);
+const logDialog = ref({
+  show: false,
+  taskId: undefined,
+  titlePrefix: ""
+});
 const store = useAutoColumnStoreHook();
 
 function edit() {
@@ -28,6 +35,18 @@ function edit() {
 }
 function refresh() {
   emit("refresh");
+}
+
+function showLog() {
+  logDialog.value.show = true;
+  logDialog.value.taskId = props.item.id;
+  logDialog.value.titlePrefix = props.item.name;
+}
+
+function closeLogDialog() {
+  logDialog.value.show = false;
+  logDialog.value.taskId = undefined;
+  logDialog.value.titlePrefix = "";
 }
 
 function handleDelete() {
@@ -104,7 +123,9 @@ function getTaskIconBase64() {
       </el-tag>
       <div style="float: right">
         <el-button-group class="ml-4">
-          <el-tooltip content="日志" placement="top"><el-button type="info" :icon="useRenderIcon(Info)" circle /></el-tooltip>
+          <el-tooltip content="日志" placement="top">
+            <el-button type="info" :icon="useRenderIcon(Info)" circle @click="showLog" />
+          </el-tooltip>
           <el-tooltip content="编辑" placement="top">
             <el-button type="primary" :icon="useRenderIcon(Edit)" circle @click="edit" />
           </el-tooltip>
@@ -118,6 +139,7 @@ function getTaskIconBase64() {
       </div>
     </div>
   </el-card>
+  <TaskLogDialog :title-prefix="logDialog.titlePrefix" :visible="logDialog.show" :task-id="logDialog.taskId" @close-dialog="closeLogDialog" />
 </template>
 
 <style scoped lang="scss">
@@ -128,7 +150,7 @@ function getTaskIconBase64() {
   margin-bottom: 12px;
   margin-right: 12px;
   overflow: hidden;
-  cursor: pointer;
+  //cursor: pointer;
   border-radius: 3px;
 
   :deep(.el-card__header) {
