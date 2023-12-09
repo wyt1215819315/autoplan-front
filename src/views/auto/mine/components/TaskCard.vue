@@ -16,6 +16,10 @@ defineOptions({
   name: "ReCard"
 });
 
+const toolTip = {
+  showAfter: 200,
+  autoClose: 1000
+};
 const props = defineProps({
   item: {
     require: true,
@@ -123,16 +127,16 @@ function getTaskIconBase64() {
       </el-tag>
       <div style="float: right">
         <el-button-group class="ml-4">
-          <el-tooltip content="日志" placement="top">
+          <el-tooltip :show-after="toolTip.showAfter" :auto-close="toolTip.autoClose" content="日志" placement="top">
             <el-button type="info" :icon="useRenderIcon(Info)" circle @click="showLog" />
           </el-tooltip>
-          <el-tooltip content="编辑" placement="top">
+          <el-tooltip :show-after="toolTip.showAfter" :auto-close="toolTip.autoClose" content="编辑" placement="top">
             <el-button type="primary" :icon="useRenderIcon(Edit)" circle @click="edit" />
           </el-tooltip>
-          <el-tooltip content="删除" placement="top">
+          <el-tooltip :show-after="toolTip.showAfter" :auto-close="toolTip.autoClose" content="删除" placement="top">
             <el-button type="danger" :icon="useRenderIcon(Delete)" circle @click="handleDelete" />
           </el-tooltip>
-          <el-tooltip content="运行" placement="top">
+          <el-tooltip :show-after="toolTip.showAfter" :auto-close="toolTip.autoClose" content="运行" placement="top">
             <el-button type="warning" :icon="useRenderIcon(VideoPlay)" circle @click="handleRun" />
           </el-tooltip>
         </el-button-group>
