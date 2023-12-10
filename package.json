@@ -95,8 +95,7 @@
     "vue-types": "^5.1.1",
     "vue-virtual-scroller": "2.0.0-beta.8",
     "vue-waterfall-plugin-next": "^2.2.4",
-    "vuedraggable": "^4.1.0",
-    "xlsx": "^0.18.5"
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.7.0",

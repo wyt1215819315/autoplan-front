@@ -10,8 +10,7 @@ import Print from "./prints/index.vue";
 import Echarts from "./echarts/index.vue";
 import TableSelect from "./table-select/index.vue";
 
-const rendContent = (val: string) =>
-  `代码位置：src/views/pure-table/high/${val}/index.vue`;
+const rendContent = (val: string) => `代码位置：src/views/pure-table/high/${val}/index.vue`;
 
 export const list = [
   {
@@ -55,12 +54,6 @@ export const list = [
     content: rendContent("edit"),
     title: "单元格编辑",
     component: Edit
-  },
-  {
-    key: "excel",
-    content: rendContent("excel"),
-    title: "导出excel",
-    component: Excel
   },
   {
     key: "print",
