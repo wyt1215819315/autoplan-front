@@ -98,8 +98,8 @@ function closeDialog() {
   <div class="main">
     <div class="w-full flex justify-between mb-4">
       <div>
-        <el-button :icon="useRenderIcon(AddFill)" @click="addTask"> 新建任务 </el-button>
-        <el-button :icon="useRenderIcon(Refresh)" @click="getCardListData"> 刷新列表 </el-button>
+        <el-button :icon="useRenderIcon(AddFill)" @click="addTask"> 新建 </el-button>
+        <el-button :icon="useRenderIcon(Refresh)" @click="getCardListData"> 刷新 </el-button>
       </div>
       <el-input style="width: 30vw; max-width: 300px" v-model="searchValue" placeholder="请输入任务名称" clearable>
         <template #suffix>

@@ -1,11 +1,10 @@
-import { $t } from "@/plugins/i18n";
-
 export default {
   path: "/system",
   meta: {
     icon: "setting",
     title: "系统管理",
-    rank: 12
+    rank: 12,
+    roles: ["ADMIN"]
   },
   children: [
     {

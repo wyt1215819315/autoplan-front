@@ -36,10 +36,19 @@ export function useCustomDialog(code: string) {
       headDesc: [
         {
           title: "关于cookie的说明",
-          // tsx语法 会被渲染为组件
+          // tsx语法
           html: (
             <div>
-              <p>米游社中的cookie没有login_ticket字段，如果需要使用米游币任务，请前往米哈游通行证页面获取cookie</p>
+              <p>
+                <a href={"https://www.miyoushe.com/ys/"} target={"_blank"}>
+                  米游社
+                </a>
+                中的cookie没有login_ticket字段，如果需要使用米游币任务，请前往
+                <a href={"https://user.mihoyo.com/#/login/captcha"} target={"_blank"}>
+                  米哈游通行证
+                </a>
+                页面获取cookie
+              </p>
               <p>
                 <span style="color: red">电脑端</span>可以将后面的链接拖动到书签，登录米游社点击书签即可获取：
                 <a

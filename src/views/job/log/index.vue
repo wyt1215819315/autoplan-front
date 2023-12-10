@@ -32,7 +32,7 @@ const {
   <div>
     <PureTableBar title="定时任务日志管理" :columns="columns" :simple-mode="true" @refresh="requestData">
       <template #buttons>
-        <el-button type="danger" :icon="useRenderIcon(Delete)" @click="doDeleteAll"> 删除全部日志 </el-button>
+        <el-button type="danger" :icon="useRenderIcon(Delete)" @click="doDeleteAll"> 清空日志 </el-button>
       </template>
       <pure-table
         adaptive

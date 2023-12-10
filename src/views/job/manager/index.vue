@@ -66,7 +66,7 @@ const {
         <template #operation="{ row }">
           <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(VideoPlay)" @click="doRunJob(row)"> 运行 </el-button>
           <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(EditPen)" @click="edit(row)"> 修改 </el-button>
-          <el-popconfirm :title="`是否确认删除编号为${row.tableNo}的这条数据`" @confirm="doDelete(row)">
+          <el-popconfirm :title="`是否确认删除[${row.jobName}]任务`" @confirm="doDelete(row)">
             <template #reference>
               <el-button class="reset-margin" link type="primary" :loading="loading.delete" :icon="useRenderIcon(Delete)"> 删除 </el-button>
             </template>

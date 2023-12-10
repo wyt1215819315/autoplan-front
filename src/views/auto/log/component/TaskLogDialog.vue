@@ -153,6 +153,9 @@ function getInfoStatus(item: any): string {
   } else if (info.toLowerCase().includes("warn")) {
     return "warn";
   }
+  if (item.data.includes("成功")) {
+    return "success";
+  }
   return "info";
 }
 
@@ -176,14 +179,15 @@ function getTaskStatus(array: Array<any>): string {
     }
   }
   // 扫成功
-  let successFlag = false;
-  for (const obj of array) {
-    const style = obj.style.toLowerCase();
-    if (style.includes("success")) {
-      successFlag = true;
-    }
-  }
-  if (successFlag && resultStyle !== "warn") {
+  // let successFlag = false;
+  // for (const obj of array) {
+  //   const style = obj.style.toLowerCase();
+  //   if (style.includes("success")) {
+  //     successFlag = true;
+  //   }
+  // }
+  // if (successFlag && resultStyle !== "warn") {
+  if (resultStyle !== "warn") {
     resultStyle = "success";
   }
   return resultStyle;

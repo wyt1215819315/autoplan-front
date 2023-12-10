@@ -17,7 +17,7 @@ defineOptions({
 });
 
 const toolTip = {
-  showAfter: 200,
+  showAfter: 500,
   autoClose: 1000
 };
 const props = defineProps({

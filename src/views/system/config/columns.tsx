@@ -202,6 +202,7 @@ export function useColumns(tableRef: Ref) {
           }
           if (data.success) {
             message("操作成功！", { type: "success" });
+            requestData();
             closeDialog();
           }
         } finally {
