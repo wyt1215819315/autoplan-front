@@ -5,14 +5,20 @@ import { emitter } from "@/utils/mitt";
 import { routeMetaType } from "../types";
 import userAvatar from "@/assets/user.jpg";
 import { getTopMenu } from "@/router/utils";
-import { useGlobal } from "@pureadmin/utils";
-import { transformI18n } from "@/plugins/i18n";
+import { isAllEmpty, useGlobal } from "@pureadmin/utils";
+import { $t, transformI18n } from "@/plugins/i18n";
 import { router, remainingPaths } from "@/router";
-import { computed, type CSSProperties } from "vue";
+import { computed, type CSSProperties, ref } from "vue";
 import { useAppStoreHook } from "@/store/modules/app";
 import { useUserStoreHook } from "@/store/modules/user";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { addDialog } from "@/components/ReDialog/index";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import Lock from "@iconify-icons/ri/lock-fill";
+import { editSelfPassword } from "@/api/system/user";
+import { message } from "@/utils/message";
+import { md5 } from "@/utils/crypto";
 
 const errorInfo = "当前路由配置不正确，请检查配置";
 
@@ -129,6 +135,68 @@ export function useNav() {
     return new URL("/logo.svg", import.meta.url).href;
   }
 
+  /** 修改密码 */
+  function editPassword() {
+    const passwordForm = ref({
+      password: "",
+      rePassword: ""
+    });
+    const repeatPasswordRule = [
+      { require: true },
+      {
+        validator: (rule, value, callback) => {
+          if (value === "") {
+            callback(new Error(transformI18n($t("login.passwordSureReg"))));
+          } else if (passwordForm.value.password !== value) {
+            callback(new Error(transformI18n($t("login.passwordDifferentReg"))));
+          } else {
+            callback();
+          }
+        },
+        trigger: "blur"
+      }
+    ];
+    addDialog({
+      title: "修改密码",
+      contentRenderer: () => (
+        <el-form model={passwordForm.value}>
+          <el-form-item rules={[{ require: true }, { max: 18, min: 6, message: "密码必须介于6到18位" }]} prop="password">
+            <el-input
+              clearable
+              show-password
+              v-model={passwordForm.value.password}
+              placeholder={transformI18n($t("login.password"))}
+              prefix-icon={useRenderIcon(Lock)}
+            />
+          </el-form-item>
+          <el-form-item rules={repeatPasswordRule} prop="rePassword">
+            <el-input
+              clearable
+              show-password
+              v-model={passwordForm.value.rePassword}
+              placeholder={transformI18n($t("login.sure"))}
+              prefix-icon={useRenderIcon(Lock)}
+            />
+          </el-form-item>
+        </el-form>
+      ),
+      beforeSure: (done) => {
+        if (isAllEmpty(passwordForm.value.password)) {
+          message("密码不能为空！");
+          return;
+        }
+        editSelfPassword({
+          password: md5(passwordForm.value.password)
+        }).then((data) => {
+          if (data.success) {
+            message("修改成功！", { type: "success" });
+            done();
+          }
+        });
+      }
+    });
+  }
+
   return {
     title,
     device,
@@ -152,6 +220,7 @@ export function useNav() {
     avatarsStyle,
     tooltipEffect,
     getDropdownItemStyle,
-    getDropdownItemClass
+    getDropdownItemClass,
+    editPassword
   };
 }

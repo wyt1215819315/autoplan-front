@@ -10,6 +10,7 @@ import globalization from "@/assets/svg/globalization.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
+import Edit from "@iconify-icons/ep/edit";
 
 const {
   layout,
@@ -22,7 +23,8 @@ const {
   avatarsStyle,
   toggleSideBar,
   getDropdownItemStyle,
-  getDropdownItemClass
+  getDropdownItemClass,
+  editPassword
 } = useNav();
 
 const { t, locale, translationCh, translationEn } = useTranslationLang();
@@ -30,17 +32,9 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 
 <template>
   <div class="navbar bg-[#fff] shadow-sm shadow-[rgba(0,21,41,0.08)]">
-    <topCollapse
-      v-if="device === 'mobile'"
-      class="hamburger-container"
-      :is-active="pureApp.sidebar.opened"
-      @toggleClick="toggleSideBar"
-    />
+    <topCollapse v-if="device === 'mobile'" class="hamburger-container" :is-active="pureApp.sidebar.opened" @toggleClick="toggleSideBar" />
 
-    <Breadcrumb
-      v-if="layout !== 'mix' && device !== 'mobile'"
-      class="breadcrumb-container"
-    />
+    <Breadcrumb v-if="layout !== 'mix' && device !== 'mobile'" class="breadcrumb-container" />
 
     <mixNav v-if="layout === 'mix'" />
 
@@ -48,12 +42,10 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
       <!-- 菜单搜索 -->
       <Search />
       <!-- 通知 -->
-      <Notice id="header-notice" />
+      <!--      <Notice id="header-notice" />-->
       <!-- 国际化 -->
       <!--      <el-dropdown id="header-translation" trigger="click">-->
-      <!--        <globalization-->
-      <!--          class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none"-->
-      <!--        />-->
+      <!--        <globalization class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none" />-->
       <!--        <template #dropdown>-->
       <!--          <el-dropdown-menu class="translation">-->
       <!--            <el-dropdown-item-->
@@ -61,11 +53,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
       <!--              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"-->
       <!--              @click="translationCh"-->
       <!--            >-->
-      <!--              <IconifyIconOffline-->
-      <!--                class="check-zh"-->
-      <!--                v-show="locale === 'zh'"-->
-      <!--                :icon="Check"-->
-      <!--              />-->
+      <!--              <IconifyIconOffline class="check-zh" v-show="locale === 'zh'" :icon="Check" />-->
       <!--              简体中文-->
       <!--            </el-dropdown-item>-->
       <!--            <el-dropdown-item-->
@@ -89,21 +77,18 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item @click="editPassword">
+              <IconifyIconOffline :icon="Edit" style="margin: 5px" />
+              修改密码
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
-              <IconifyIconOffline
-                :icon="LogoutCircleRLine"
-                style="margin: 5px"
-              />
+              <IconifyIconOffline :icon="LogoutCircleRLine" style="margin: 5px" />
               {{ t("buttons.hsLoginOut") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <span
-        class="set-icon navbar-bg-hover"
-        :title="t('buttons.hssystemSet')"
-        @click="onPanel"
-      >
+      <span class="set-icon navbar-bg-hover" :title="t('buttons.hssystemSet')" @click="onPanel">
         <IconifyIconOffline :icon="Setting" />
       </span>
     </div>

@@ -5,14 +5,12 @@ import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import croppingUpload from "../upload.vue";
-import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import { type PaginationProps } from "@pureadmin/table";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
 import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
 import { getRoleIds, getDeptList, getUserList, getAllRoleList } from "@/api/system/system";
-import { ElForm, ElInput, ElFormItem, ElProgress, ElMessageBox } from "element-plus";
+import { ElForm, ElInput, ElFormItem, ElProgress } from "element-plus";
 import { type Ref, h, ref, toRaw, watch, computed, reactive, onMounted } from "vue";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
@@ -27,10 +25,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const ruleFormRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
-  // 上传头像信息
-  const avatarInfo = ref();
-  const switchLoadMap = ref({});
-  const { switchStyle } = usePublicHooks();
   const higherDeptOptions = ref();
   const treeData = ref([]);
   const treeLoading = ref(true);
@@ -54,20 +48,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       width: 90
     },
     {
-      label: "用户头像",
-      prop: "avatar",
-      cellRenderer: ({ row }) => (
-        <el-image
-          fit="cover"
-          preview-teleported={true}
-          src={row.avatar}
-          preview-src-list={Array.of(row.avatar)}
-          class="w-[24px] h-[24px] rounded-full align-middle"
-        />
-      ),
-      width: 90
-    },
-    {
       label: "用户名称",
       prop: "username",
       minWidth: 130
@@ -88,34 +68,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       )
     },
     {
-      label: "部门",
-      prop: "dept.name",
-      minWidth: 90
-    },
-    {
       label: "手机号码",
       prop: "phone",
       minWidth: 90,
       formatter: ({ phone }) => hideTextAtIndex(phone, { start: 3, end: 6 })
-    },
-    {
-      label: "状态",
-      prop: "status",
-      minWidth: 90,
-      cellRenderer: (scope) => (
-        <el-switch
-          size={scope.props.size === "small" ? "small" : "default"}
-          loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.status}
-          active-value={1}
-          inactive-value={0}
-          active-text="已启用"
-          inactive-text="已停用"
-          inline-prompt
-          style={switchStyle.value}
-          onChange={() => onChange(scope as any)}
-        />
-      )
     },
     {
       label: "创建时间",
@@ -147,36 +103,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   // 当前密码强度（0-4）
   const curScore = ref();
   const roleOptions = ref([]);
-
-  function onChange({ row, index }) {
-    ElMessageBox.confirm(
-      `确认要<strong>${row.status === 0 ? "停用" : "启用"}</strong><strong style='color:var(--el-color-primary)'>${row.username}</strong>用户吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        switchLoadMap.value[index] = Object.assign({}, switchLoadMap.value[index], {
-          loading: true
-        });
-        setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign({}, switchLoadMap.value[index], {
-            loading: false
-          });
-          message("已成功修改用户状态", {
-            type: "success"
-          });
-        }, 300);
-      })
-      .catch(() => {
-        row.status === 0 ? (row.status = 1) : (row.status = 0);
-      });
-  }
 
   function handleUpdate(row) {
     console.log(row);
@@ -241,30 +167,12 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     onSearch();
   };
 
-  function onTreeSelect({ id, selected }) {
-    form.deptId = selected ? id : "";
-    onSearch();
-  }
-
-  function formatHigherDeptOptions(treeList) {
-    // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
-    if (!treeList || !treeList.length) return;
-    const newTreeList = [];
-    for (let i = 0; i < treeList.length; i++) {
-      treeList[i].disabled = treeList[i].status === 0 ? true : false;
-      formatHigherDeptOptions(treeList[i].children);
-      newTreeList.push(treeList[i]);
-    }
-    return newTreeList;
-  }
-
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}用户`,
       props: {
         formInline: {
           title,
-          higherDeptOptions: formatHigherDeptOptions(higherDeptOptions.value),
           parentId: row?.dept.id ?? 0,
           nickname: row?.nickname ?? "",
           username: row?.username ?? "",
@@ -304,27 +212,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             }
           }
         });
-      }
-    });
-  }
-
-  /** 上传头像 */
-  function handleUpload(row) {
-    addDialog({
-      title: "裁剪、上传头像",
-      width: "40%",
-      draggable: true,
-      closeOnClickModal: false,
-      contentRenderer: () =>
-        h(croppingUpload, {
-          imgSrc: row.avatar,
-          onCropper: (info) => (avatarInfo.value = info)
-        }),
-      beforeSure: (done) => {
-        console.log("裁剪后的图片信息：", avatarInfo.value);
-        // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-        done(); // 关闭弹框
-        onSearch(); // 刷新表格数据
       }
     });
   }
@@ -439,8 +326,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     loading,
     columns,
     dataList,
-    treeData,
-    treeLoading,
     selectedNum,
     pagination,
     buttonClass,
@@ -448,10 +333,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     resetForm,
     onbatchDel,
     openDialog,
-    onTreeSelect,
     handleUpdate,
     handleDelete,
-    handleUpload,
     handleReset,
     handleRole,
     handleSizeChange,

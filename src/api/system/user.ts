@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { baseUrlApi } from "@/api/utils";
+import { baseUrlApi, Result } from "@/api/utils";
 
 export type UserResult = {
   success: boolean;
@@ -33,6 +33,13 @@ export type RefreshTokenResult = {
 /** 登录 */
 export const getLogin = (data?: object) => {
   return http.request<UserResult>("post", baseUrlApi("/auth/formLogin"), {
+    data
+  });
+};
+
+/** 登录 */
+export const editSelfPassword = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/auth/editSelfPassword"), {
     data
   });
 };

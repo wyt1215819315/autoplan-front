@@ -5,12 +5,7 @@ import { message } from "@/utils/message";
 import forms, { type FormProps } from "./form.vue";
 import formPrimitive from "./formPrimitive.vue";
 import { cloneDeep, debounce } from "@pureadmin/utils";
-import {
-  addDialog,
-  closeDialog,
-  updateDialog,
-  closeAllDialog
-} from "@/components/ReDialog";
+import { addDialog, closeDialog, updateDialog, closeAllDialog } from "@/components/ReDialog";
 
 defineOptions({
   name: "DialogPage"
@@ -325,9 +320,7 @@ function onFormTwoClick() {
         formInline: formInline.value
       }),
     closeCallBack: () => {
-      message(
-        `当前表单数据为 姓名：${formInline.value.user} 城市：${formInline.value.region}`
-      );
+      message(`当前表单数据为 姓名：${formInline.value.user} 城市：${formInline.value.region}`);
       // 重置表单数据
       formInline.value = cloneDeep(resetFormInline);
     }
@@ -349,9 +342,7 @@ function onFormThreeClick() {
         formInline: formThreeInline.value
       }),
     closeCallBack: () => {
-      message(
-        `当前表单数据为 姓名：${formThreeInline.value.user} 城市：${formThreeInline.value.region}`
-      );
+      message(`当前表单数据为 姓名：${formThreeInline.value.user} 城市：${formThreeInline.value.region}`);
       // 重置表单数据
       formThreeInline.value = cloneDeep(resetFormThreeInline);
     }
@@ -373,9 +364,7 @@ function onFormFourClick() {
     title: "结合Form表单（第四种方式）",
     contentRenderer: () => <forms formInline={formFourInline.value} />,
     closeCallBack: () => {
-      message(
-        `当前表单数据为 姓名：${formFourInline.value.user} 城市：${formFourInline.value.region}`
-      );
+      message(`当前表单数据为 姓名：${formFourInline.value.user} 城市：${formFourInline.value.region}`);
       // 重置表单数据
       formFourInline.value = cloneDeep(resetFormFourInline);
     }
@@ -392,7 +381,7 @@ function onFormPrimitiveFormClick() {
     contentRenderer: () =>
       h(formPrimitive, {
         data: formPrimitiveParam.value,
-        "onUpdate:data": val => (formPrimitiveParam.value = val)
+        "onUpdate:data": (val) => (formPrimitiveParam.value = val)
       }),
     closeCallBack: () => {
       message(`当前表单内容：${formPrimitiveParam.value}`);
@@ -405,16 +394,9 @@ function onFormPrimitiveFormClick() {
 function onBeforeCancelClick() {
   addDialog({
     title: "点击底部取消按钮的回调",
-    contentRenderer: () => (
-      <p>弹框内容-点击底部取消按钮的回调（会暂停弹框的关闭）</p>
-    ),
+    contentRenderer: () => <p>弹框内容-点击底部取消按钮的回调（会暂停弹框的关闭）</p>,
     beforeCancel: (done, { options, index }) => {
-      console.log(
-        "%coptions, index===>>>: ",
-        "color: MidnightBlue; background: Aquamarine; font-size: 20px;",
-        options,
-        index
-      );
+      console.log("%coptions, index===>>>: ", "color: MidnightBlue; background: Aquamarine; font-size: 20px;", options, index);
       // done(); // 需要关闭把注释解开即可
     }
   });
@@ -423,18 +405,9 @@ function onBeforeCancelClick() {
 function onBeforeSureClick() {
   addDialog({
     title: "点击底部确定按钮的回调",
-    contentRenderer: () => (
-      <p>
-        弹框内容-点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口）
-      </p>
-    ),
+    contentRenderer: () => <p>弹框内容-点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口）</p>,
     beforeSure: (done, { options, index }) => {
-      console.log(
-        "%coptions, index===>>>: ",
-        "color: MidnightBlue; background: Aquamarine; font-size: 20px;",
-        options,
-        index
-      );
+      console.log("%coptions, index===>>>: ", "color: MidnightBlue; background: Aquamarine; font-size: 20px;", options, index);
       // done(); // 需要关闭把注释解开即可
     }
   });
@@ -447,19 +420,11 @@ function onBeforeSureClick() {
       <div class="card-header">
         <span class="font-medium">
           二次封装 element-plus 的
-          <el-link
-            href="https://element-plus.org/zh-CN/component/dialog.html"
-            target="_blank"
-            style="margin: 0 4px 5px; font-size: 16px"
-          >
+          <el-link href="https://element-plus.org/zh-CN/component/dialog.html" target="_blank" style="margin: 0 4px 5px; font-size: 16px">
             Dialog
           </el-link>
           ，采用函数式调用弹框组件（更多操作实例请参考
-          <span
-            class="cursor-pointer text-primary"
-            @click="router.push({ name: 'Dept' })"
-            >系统管理页面</span
-          >
+          <span class="cursor-pointer text-primary" @click="router.push({ name: 'Dept' })">系统管理页面</span>
           ）
         </span>
       </div>
@@ -473,13 +438,9 @@ function onBeforeSureClick() {
       <el-button @click="onStyleClick"> 自定义弹出位置 </el-button>
       <el-button @click="onoOpenDelayClick"> 延时2秒打开弹框 </el-button>
       <el-button @click="onCloseDelayClick"> 延时2秒关闭弹框 </el-button>
-      <el-button @click="onShowCloseClick">
-        不显示右上角关闭按钮图标
-      </el-button>
+      <el-button @click="onShowCloseClick"> 不显示右上角关闭按钮图标 </el-button>
       <el-button @click="onBeforeCloseClick"> 禁止通过键盘ESC关闭 </el-button>
-      <el-button @click="onCloseOnClickModalClick">
-        禁止通过点击modal关闭
-      </el-button>
+      <el-button @click="onCloseOnClickModalClick"> 禁止通过点击modal关闭 </el-button>
       <el-button @click="onHideFooterClick"> 隐藏底部取消、确定按钮 </el-button>
       <el-button @click="onHeaderRendererClick"> 自定义头部 </el-button>
       <el-button @click="onFooterRendererClick"> 自定义底部 </el-button>
@@ -491,30 +452,16 @@ function onBeforeSureClick() {
     </el-space>
     <el-divider />
     <el-space wrap>
-      <el-button @click="onFormOneClick">
-        结合Form表单（第一种方式）
-      </el-button>
-      <el-button @click="onFormTwoClick">
-        结合Form表单（第二种方式）
-      </el-button>
-      <el-button @click="onFormThreeClick">
-        结合Form表单（第三种方式）
-      </el-button>
-      <el-button @click="onFormFourClick">
-        结合Form表单（第四种方式）
-      </el-button>
-      <el-button @click="onFormPrimitiveFormClick">
-        子组件 prop 为 primitive 类型
-      </el-button>
+      <el-button @click="onFormOneClick"> 结合Form表单（第一种方式） </el-button>
+      <el-button @click="onFormTwoClick"> 结合Form表单（第二种方式） </el-button>
+      <el-button @click="onFormThreeClick"> 结合Form表单（第三种方式） </el-button>
+      <el-button @click="onFormFourClick"> 结合Form表单（第四种方式） </el-button>
+      <el-button @click="onFormPrimitiveFormClick"> 子组件 prop 为 primitive 类型 </el-button>
     </el-space>
     <el-divider />
     <el-space wrap>
-      <el-button @click="onBeforeCancelClick">
-        点击底部取消按钮的回调（会暂停弹框的关闭）
-      </el-button>
-      <el-button @click="onBeforeSureClick">
-        点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口）
-      </el-button>
+      <el-button @click="onBeforeCancelClick"> 点击底部取消按钮的回调（会暂停弹框的关闭） </el-button>
+      <el-button @click="onBeforeSureClick"> 点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口） </el-button>
     </el-space>
   </el-card>
 </template>
