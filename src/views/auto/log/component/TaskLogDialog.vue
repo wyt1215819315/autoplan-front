@@ -12,11 +12,14 @@
           </el-tag>
         </div>
       </template>
-      <el-collapse v-model="activeNames">
-        <template v-for="(item, index) in logDisplayData" :key="index">
-          <TaskLogCollapseTree :item="item" :index="index" :depth="1" />
+      <el-tree :data="logDisplayData" :props="treeProps">
+        <template #default="{ node, data }">
+          <div style="display: flex; align-items: flex-start">
+            <span><StatusIcon :status="data.style" :size="18" /></span>
+            <span style="white-space: break-spaces">{{ node.label }}</span>
+          </div>
         </template>
-      </el-collapse>
+      </el-tree>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="danger" @click="closeDialog"> 关闭 </el-button>
@@ -33,7 +36,7 @@ import { getNearlyLogByTaskId } from "@/api/auto_log";
 import { isJsonString } from "@/utils/oldwu-util";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import dayjs from "dayjs";
-import TaskLogCollapseTree from "@/views/auto/log/component/TaskLogCollapseTree.vue";
+import StatusIcon from "@/views/auto/log/component/StatusIcon.vue";
 
 class AutoLogData {
   status: number;
@@ -53,7 +56,6 @@ defineOptions({
 });
 
 const show = ref(false);
-const activeNames = ref([]);
 const logDisplayData = ref<Array<LogDisplayDataClass>>([]);
 const logData = ref<AutoLogData>(new AutoLogData());
 
@@ -64,6 +66,10 @@ const props = defineProps({
   taskId: String
 });
 const emit = defineEmits(["closeDialog"]);
+const treeProps = {
+  children: "children",
+  label: "data"
+};
 watch(
   () => props.visible,
   async (newValue) => {
@@ -80,8 +86,7 @@ watch(
           logData.value.type = data.data.type;
           const text = data.data.text;
           if (isJsonString(text)) {
-            logDisplayData.value = Object.assign(new LogDisplayDataClass(), JSON.parse(text));
-            console.log(logDisplayData);
+            logDisplayData.value = Object.assign([], JSON.parse(text));
           }
         } else {
           closeDialog();
@@ -94,7 +99,6 @@ watch(
 );
 
 function initForm() {
-  activeNames.value = [];
   logDisplayData.value = [];
   logData.value = new AutoLogData();
 }
@@ -104,6 +108,20 @@ function closeDialog() {
 }
 </script>
 <style lang="scss" scoped>
+:deep(.el-tree-node) {
+  white-space: normal;
+  outline: 0;
+  border-top: 1px solid var(--el-border-color-lighter);
+
+  .el-tree-node__content {
+    text-align: left;
+    align-items: center;
+    padding: 8px;
+    height: 100%;
+    //border-top: 1px solid var(--el-border-color-lighter);
+  }
+}
+
 .task-info-div {
   display: flex;
   align-items: flex-start;

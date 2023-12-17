@@ -62,6 +62,6 @@ watch(
 }
 .grey-icon {
   margin-right: 5px;
-  color: gray;
+  color: var(--el-color-info);
 }
 </style>
