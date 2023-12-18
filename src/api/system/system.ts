@@ -3,7 +3,7 @@ import { baseUrlApi, PageResult, Result } from "@/api/utils";
 
 // ***********************系统配置管理***********************
 export const getSystemConfigPage = (data?: object) => {
-  return http.request<PageResult<any>>("post", baseUrlApi("/system/config/page"), { data });
+  return http.request<PageResult<any>>("get", baseUrlApi("/system/config/page"), data);
 };
 export const saveSystemConfig = (data?: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/system/config/save"), { data });
@@ -21,7 +21,7 @@ export const deleteSystemConfig = (id: number) => {
 
 /** 获取用户管理列表 */
 export const getUserList = (data?: object) => {
-  return http.request<PageResult<any>>("post", baseUrlApi("/system/user/page"), { data });
+  return http.request<PageResult<any>>("get", baseUrlApi("/system/user/page"), data);
 };
 
 /** 更新用户 */

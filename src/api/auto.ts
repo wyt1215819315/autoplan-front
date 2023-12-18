@@ -29,7 +29,7 @@ export const getColumn = () => {
 
 /** 获取自动任务列表 */
 export const getIndexList = () => {
-  return http.request<Result<Array<AutoIndex>>>("post", baseUrlApi("/auto/index/list"));
+  return http.request<Result<Array<AutoIndex>>>("get", baseUrlApi("/auto/index/list"));
 };
 
 /** 根据id获取这个自动任务的详情 */
@@ -49,7 +49,7 @@ export const getSettingColumn = (indexId) => {
 
 /** 分页获取任务列表 */
 export const getTaskPage = (indexId: string, data?: object) => {
-  return http.request<PageResult<any>>("post", baseUrlApi("/auto/task/" + indexId + "/page"), { data });
+  return http.request<PageResult<any>>("get", baseUrlApi("/auto/task/" + indexId + "/page"), data);
 };
 
 /** view任务详情 */
@@ -89,5 +89,5 @@ export const checkAndUpdate = (data?: object) => {
 
 /** 获取我的任务列表 */
 export const mineTaskPage = (data?: object) => {
-  return http.request<PageResult<AutoTask>>("post", baseUrlApi("/auto/task/mine/page"), { data });
+  return http.request<PageResult<AutoTask>>("get", baseUrlApi("/auto/task/mine/page"), data);
 };

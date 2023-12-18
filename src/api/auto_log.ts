@@ -22,7 +22,7 @@ export const getNearlyLogByTaskId = (taskId: any) => {
 //*********************管理员部分*********************
 
 export const getAutoLogList = (data: object) => {
-  return http.request<PageResult<HistoryTaskLog>>("post", baseUrlApi("/taskLog/list"), { data });
+  return http.request<PageResult<HistoryTaskLog>>("get", baseUrlApi("/taskLog/list"), data);
 };
 
 export const viewLog = (id: any) => {

@@ -148,7 +148,7 @@ class PureHttp {
     showErrorMsg: boolean = true
   ): Promise<T> {
     // 处理get请求，将js对象转为querystring
-    if (typeof param === "object" && !isAllEmpty(param)) {
+    if (method == "get" && typeof param === "object" && !isAllEmpty(param)) {
       url += url.includes("?") ? "&" : "?";
       url += qs.stringify(param);
       param = undefined;

@@ -3,30 +3,22 @@ import { baseUrlApi, PageResult, Result } from "@/api/utils";
 
 /** 分页获取定时任务列表 */
 export const getJobPage = (data?: object) => {
-  return http.request<PageResult<any>>("post", baseUrlApi("/admin/job/page"), {
-    data
-  });
+  return http.request<PageResult<any>>("get", baseUrlApi("/admin/job/page"), data);
 };
 
 /** 更新定时任务 */
 export const updateJob = (data?: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/admin/job/update"), {
-    data
-  });
+  return http.request<Result<any>>("post", baseUrlApi("/admin/job/update"), { data });
 };
 
 /** 删除定时任务 */
 export const deleteJob = (data?: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/admin/job/delete"), {
-    data
-  });
+  return http.request<Result<any>>("post", baseUrlApi("/admin/job/delete"), { data });
 };
 
 /** 保存定时任务 */
 export const saveJob = (data?: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/admin/job/save"), {
-    data
-  });
+  return http.request<Result<any>>("post", baseUrlApi("/admin/job/save"), { data });
 };
 
 /** 保存定时任务 */
@@ -50,7 +42,7 @@ export const runJob = (id: string) => {
 
 /** 获取定时任务日志分页 */
 export const getJobLogPage = (data?: object) => {
-  return http.request<PageResult<any>>("post", baseUrlApi("/admin/joblog/page"), { data });
+  return http.request<PageResult<any>>("get", baseUrlApi("/admin/joblog/page"), data);
 };
 
 /** 查看任务日志详情 */
