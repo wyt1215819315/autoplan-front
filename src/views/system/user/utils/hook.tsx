@@ -3,17 +3,16 @@ import dayjs from "dayjs";
 import roleForm from "../form/role.vue";
 import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
-import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { type PaginationProps } from "@pureadmin/table";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
 import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
-import { getRoleIds, getDeptList, getUserList, getAllRoleList } from "@/api/system/system";
+import { getRoleIds, getUserList, getAllRoleList } from "@/api/system/system";
 import { ElForm, ElInput, ElFormItem, ElProgress } from "element-plus";
 import { type Ref, h, ref, toRaw, watch, computed, reactive, onMounted } from "vue";
 
-export function useUser(tableRef: Ref, treeRef: Ref) {
+export function useUser(tableRef: Ref) {
   const form = reactive({
     // 左侧部门树的id
     deptId: "",
@@ -25,9 +24,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const ruleFormRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
-  const higherDeptOptions = ref();
-  const treeData = ref([]);
-  const treeLoading = ref(true);
   const selectedNum = ref(0);
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -163,7 +159,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     if (!formEl) return;
     formEl.resetFields();
     form.deptId = "";
-    treeRef.value.onTreeReset();
     onSearch();
   };
 
@@ -308,14 +303,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   onMounted(async () => {
-    treeLoading.value = true;
     onSearch();
-
-    // 归属部门
-    const { data } = await getDeptList();
-    higherDeptOptions.value = handleTree(data);
-    treeData.value = handleTree(data);
-    treeLoading.value = false;
 
     // 角色列表
     roleOptions.value = (await getAllRoleList()).data;

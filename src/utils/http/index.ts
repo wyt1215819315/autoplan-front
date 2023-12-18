@@ -6,6 +6,8 @@ import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { Result } from "@/api/utils";
 import { message } from "@/utils/message";
+import { isAllEmpty } from "@pureadmin/utils";
+import qs from "qs";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -145,6 +147,12 @@ class PureHttp {
     showMsg: boolean = false,
     showErrorMsg: boolean = true
   ): Promise<T> {
+    // 处理get请求，将js对象转为querystring
+    if (typeof param === "object" && !isAllEmpty(param)) {
+      url += url.includes("?") ? "&" : "?";
+      url += qs.stringify(param);
+      param = undefined;
+    }
     const config = {
       method,
       url,

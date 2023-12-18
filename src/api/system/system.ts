@@ -21,25 +21,35 @@ export const deleteSystemConfig = (id: number) => {
 
 /** 获取用户管理列表 */
 export const getUserList = (data?: object) => {
-  return http.request<PageResult<any>>("post", "/user", { data });
+  return http.request<PageResult<any>>("post", baseUrlApi("/system/user/page"), { data });
+};
+
+/** 更新用户 */
+export const updateUser = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/system/user/update"), { data });
+};
+
+/** 保存用户 */
+export const saveUser = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/system/user/save"), { data });
+};
+
+/** 删除用户 */
+export const deleteUser = (id?: any) => {
+  return http.request<PageResult<any>>("get", baseUrlApi("/system/user/delete/" + id));
 };
 
 /** 用户管理-获取所有角色列表 */
-export const getAllRoleList = () => {
-  return http.request<Result<any>>("get", "/list-all-role");
+export const getAllRoleList = (data?: object) => {
+  return http.request<Result<any>>("get", baseUrlApi("/system/user/page"), { data });
 };
 
 /** 用户管理-根据userId，获取对应角色id列表（userId：用户id） */
 export const getRoleIds = (data?: object) => {
-  return http.request<Result<any>>("post", "/list-role-ids", { data });
+  return http.request<Result<any>>("post", baseUrlApi("/system/user/page"), { data });
 };
 
 /** 获取角色管理列表 */
 export const getRoleList = (data?: object) => {
-  return http.request<PageResult<any>>("post", "/role", { data });
-};
-
-/** 获取部门管理列表 */
-export const getDeptList = (data?: object) => {
-  return http.request<Result<any>>("post", "/dept", { data });
+  return http.request<PageResult<any>>("post", baseUrlApi("/system/user/page"), { data });
 };

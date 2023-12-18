@@ -17,7 +17,6 @@ defineOptions({
   name: "User"
 });
 
-const treeRef = ref();
 const formRef = ref();
 const tableRef = ref();
 
@@ -41,7 +40,7 @@ const {
   onSelectionCancel,
   handleCurrentChange,
   handleSelectionChange
-} = useUser(tableRef, treeRef);
+} = useUser(tableRef);
 </script>
 
 <template>

@@ -12,7 +12,16 @@
           </el-tag>
         </div>
       </template>
-      <el-tree :data="logDisplayData" :props="treeProps">
+      <el-button
+        :class="buttonClass"
+        link
+        type="primary"
+        :icon="useRenderIcon(isExpand ? ExpandIcon : UnExpandIcon)"
+        @click="toggleRowExpansionAll(!isExpand)"
+      >
+        {{ isExpand ? "折叠全部" : "展开全部" }}
+      </el-button>
+      <el-tree :data="logDisplayData" :props="treeProps" ref="treeRef">
         <template #default="{ node, data }">
           <div style="display: flex; align-items: flex-start">
             <span><StatusIcon :status="data.style" :size="18" /></span>
@@ -30,13 +39,16 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, watch } from "vue";
+import { computed, getCurrentInstance, ref, watch } from "vue";
 import { isAllEmpty } from "@pureadmin/utils";
 import { getNearlyLogByTaskId } from "@/api/auto_log";
 import { isJsonString } from "@/utils/oldwu-util";
 import { useAutoColumnStoreHook } from "@/store/modules/autoColumn";
 import dayjs from "dayjs";
 import StatusIcon from "@/views/auto/log/component/StatusIcon.vue";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import ExpandIcon from "@/views/system/user/svg/expand.svg";
+import UnExpandIcon from "@/views/system/user/svg/unexpand.svg";
 
 class AutoLogData {
   status: number;
@@ -70,6 +82,12 @@ const treeProps = {
   children: "children",
   label: "data"
 };
+const isExpand = ref(true);
+const treeRef = ref();
+const { proxy } = getCurrentInstance();
+const buttonClass = computed(() => {
+  return ["!h-[20px]", "reset-margin", "!text-gray-500", "dark:!text-white", "dark:hover:!text-primary"];
+});
 watch(
   () => props.visible,
   async (newValue) => {
@@ -97,6 +115,14 @@ watch(
     }
   }
 );
+
+function toggleRowExpansionAll(status) {
+  isExpand.value = status;
+  const nodes = (proxy.$refs["treeRef"] as any).store._getAllNodes();
+  for (let i = 0; i < nodes.length; i++) {
+    nodes[i].expanded = status;
+  }
+}
 
 function initForm() {
   logDisplayData.value = [];
