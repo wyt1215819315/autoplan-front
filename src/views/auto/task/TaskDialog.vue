@@ -104,7 +104,7 @@
         </el-button>
         <el-button type="success" @click="doCheckTask(formDialogRef)" :loading="loading.button"> 校验 </el-button>
         <el-button type="primary" @click="doCheckAndSaveTask(formDialogRef)" :loading="loading.button"> 校验并提交 </el-button>
-        <el-button type="danger" @click="closeDialog" :loading="loading.button"> 关闭 </el-button>
+        <el-button type="danger" @click="show = false" :loading="loading.button"> 关闭 </el-button>
       </div>
     </template>
   </el-dialog>

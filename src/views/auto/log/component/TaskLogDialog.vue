@@ -31,7 +31,7 @@
       </el-tree>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="danger" @click="closeDialog"> 关闭 </el-button>
+          <el-button type="danger" @click="show = false"> 关闭 </el-button>
         </div>
       </template>
     </el-card>

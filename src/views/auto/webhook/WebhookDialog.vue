@@ -119,7 +119,7 @@
       <div class="dialog-footer">
         <el-button type="success" @click="doCheck(formDialogRef)" :loading="loading.button"> 测试 </el-button>
         <el-button type="primary" @click="doSaveOrUpdate(formDialogRef)" :loading="loading.button"> 保存 </el-button>
-        <el-button type="danger" @click="closeDialog" :loading="loading.button"> 关闭 </el-button>
+        <el-button type="danger" @click="show = false" :loading="loading.button"> 关闭 </el-button>
       </div>
     </template>
   </el-dialog>
