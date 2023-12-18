@@ -47,31 +47,46 @@
       <el-row v-for="(item, index) in dialogColumn" :key="index" v-show="item.ref === undefined || item.refValue.includes(dialogForm.data[item.ref])">
         <el-col :span="24">
           <el-form-item :label="`${item.name}:`" :prop="item.field">
-            <!-- 普通文本输入框-->
-            <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
-            <!-- 长文本输入框-->
-            <el-input
-              v-if="item.fieldType === 'TextArea'"
-              v-model="dialogForm.data[item.field]"
-              type="textarea"
-              :placeholder="`请输入${item.name}`"
-            />
-            <!-- 数字输入框-->
-            <el-input
-              v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
-              type="number"
-              v-model.number="dialogForm.data[item.field]"
-              :placeholder="`请输入${item.name}`"
-            />
-            <!-- 选择框-->
-            <el-select
-              v-if="item.options !== undefined"
-              v-model="dialogForm.data[item.field]"
-              :placeholder="`请选择${item.name}`"
-              style="width: 100%"
-            >
-              <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
-            </el-select>
+            <template v-slot:label="{}">
+              <div style="align-items: center; display: flex">
+                <div v-show="!isAllEmpty(item.desc)">
+                  <el-tooltip class="item" effect="dark" placement="top">
+                    <IconifyIconOffline :icon="QuestionFilled" style="margin-right: 5px" />
+                    <template v-slot:content>
+                      <div>{{ item.desc }}</div>
+                    </template>
+                  </el-tooltip>
+                </div>
+                <span>{{ item.name }}:</span>
+              </div>
+            </template>
+            <template v-slot:default>
+              <!-- 普通文本输入框-->
+              <el-input v-if="item.fieldType === 'String'" v-model="dialogForm.data[item.field]" :placeholder="`请输入${item.name}`" />
+              <!-- 长文本输入框-->
+              <el-input
+                v-if="item.fieldType === 'TextArea'"
+                v-model="dialogForm.data[item.field]"
+                type="textarea"
+                :placeholder="`请输入${item.name}`"
+              />
+              <!-- 数字输入框-->
+              <el-input
+                v-if="(item.fieldType === 'Integer' || item.fieldType === 'Long' || item.fieldType === 'Double') && item.options === undefined"
+                type="number"
+                v-model.number="dialogForm.data[item.field]"
+                :placeholder="`请输入${item.name}`"
+              />
+              <!-- 选择框-->
+              <el-select
+                v-if="item.options !== undefined"
+                v-model="dialogForm.data[item.field]"
+                :placeholder="`请选择${item.name}`"
+                style="width: 100%"
+              >
+                <el-option v-for="option in item.options" :key="option.value" :label="option.name" :value="option.value" />
+              </el-select>
+            </template>
           </el-form-item>
         </el-col>
       </el-row>
@@ -104,6 +119,7 @@ import { message } from "@/utils/message";
 import { FormInstance } from "element-plus";
 import { Result } from "@/api/utils";
 import { useCustomDialog } from "@/views/auto/task/custom/customDialog";
+import QuestionFilled from "@iconify-icons/ep/question-filled";
 class AutoDialogForm {
   _index: AutoIndex;
   _sys: {
