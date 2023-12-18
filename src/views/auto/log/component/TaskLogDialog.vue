@@ -13,6 +13,7 @@
         </div>
       </template>
       <el-button
+        style="margin-bottom: 5px"
         :class="buttonClass"
         link
         type="primary"
@@ -82,7 +83,7 @@ const treeProps = {
   children: "children",
   label: "data"
 };
-const isExpand = ref(true);
+const isExpand = ref(false);
 const treeRef = ref();
 const { proxy } = getCurrentInstance();
 const buttonClass = computed(() => {
