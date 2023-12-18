@@ -9,6 +9,8 @@ import { isEmpty } from "@pureadmin/utils";
 import { useRoute } from "vue-router";
 import More from "@iconify-icons/ep/more-filled";
 import TaskDialog from "@/views/auto/task/TaskDialog.vue";
+import Info from "@iconify-icons/ri/information-line";
+import TaskLogDialog from "@/views/auto/log/component/TaskLogDialog.vue";
 
 defineOptions({
   name: "TaskInfoPage"
@@ -25,10 +27,13 @@ const {
   onCurrentChange,
   requestData,
   dialog,
+  taskLogDialog,
   tableTitle,
   addTask,
   editTask,
   delTask,
+  showLog,
+  closeLogDialog,
   closeDialog
 } = useColumns(parameter);
 </script>
@@ -69,6 +74,9 @@ const {
                 <el-dropdown-item>
                   <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(EditPen)" @click="editTask(row)"> 修改 </el-button>
                 </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(Info)" @click="showLog(row)"> 日志 </el-button>
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -81,6 +89,12 @@ const {
       :task-id="dialog.taskId"
       :visible="dialog.visible"
       @close-dialog="closeDialog"
+    />
+    <TaskLogDialog
+      :title-prefix="taskLogDialog.title"
+      :visible="taskLogDialog.visible"
+      :task-id="taskLogDialog.taskId"
+      @close-dialog="closeLogDialog"
     />
   </div>
 </template>

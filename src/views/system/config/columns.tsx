@@ -169,7 +169,7 @@ export function useColumns(tableRef: Ref) {
 
   function add() {
     initForm();
-    dialog.title = "新增定时任务";
+    dialog.title = "新增系统配置";
     dialog.visible = true;
   }
 
@@ -178,7 +178,7 @@ export function useColumns(tableRef: Ref) {
    */
   function edit(row?: any) {
     initForm();
-    dialog.title = "编辑定时任务";
+    dialog.title = "编辑系统配置";
     dialogForm.value = row;
     dialog.visible = true;
   }

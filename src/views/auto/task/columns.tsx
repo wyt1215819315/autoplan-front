@@ -23,6 +23,11 @@ export function useColumns(parameter) {
     title: "",
     taskId: undefined
   });
+  const taskLogDialog = reactive({
+    visible: false,
+    title: "",
+    taskId: undefined
+  });
 
   const autoStore = useAutoColumnStoreHook();
 
@@ -184,6 +189,12 @@ export function useColumns(parameter) {
     dialog.visible = true;
   }
 
+  function showLog(row) {
+    taskLogDialog.taskId = row.id;
+    taskLogDialog.title = tableTitle.value;
+    taskLogDialog.visible = true;
+  }
+
   function delTask(row) {
     loading.value.main = true;
     deleteTask(row.id)
@@ -205,6 +216,12 @@ export function useColumns(parameter) {
     requestData();
   }
 
+  function closeLogDialog() {
+    taskLogDialog.visible = false;
+    taskLogDialog.title = "";
+    taskLogDialog.taskId = undefined;
+  }
+
   return {
     loading,
     columns,
@@ -216,10 +233,13 @@ export function useColumns(parameter) {
     onCurrentChange,
     requestData,
     dialog,
+    taskLogDialog,
     tableTitle,
     addTask,
     editTask,
     delTask,
+    showLog,
+    closeLogDialog,
     closeDialog
   };
 }
