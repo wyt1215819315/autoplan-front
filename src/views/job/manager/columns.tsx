@@ -97,8 +97,8 @@ export function useColumns(tableRef: Ref) {
       minWidth: 80,
       prop: "concurrent",
       cellRenderer: ({ row, props }) => (
-        <el-tag size={props.size} type={row.concurrent === 1 ? "danger" : ""} effect="plain">
-          {row.concurrent === 1 ? "并发执行" : "非并发执行"}
+        <el-tag size={props.size} type={row.concurrent === 0 ? "danger" : ""} effect="plain">
+          {row.concurrent === 0 ? "并发执行" : "非并发执行"}
         </el-tag>
       )
     },
@@ -111,10 +111,10 @@ export function useColumns(tableRef: Ref) {
           size="small"
           // loading={switchLoadMap.value[scope.index]?.loading}
           v-model={scope.row.status}
-          active-value={1}
-          inactive-value={0}
+          active-value={0}
+          inactive-value={1}
           active-text="启用"
-          inactive-text="停用"
+          inactive-text="暂停"
           inline-prompt
           // disabled={!useUserStoreHook().isAdmin()}
           loading={scope.row.loading}

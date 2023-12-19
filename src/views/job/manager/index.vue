@@ -115,8 +115,8 @@ const {
               <el-switch
                 size="default"
                 v-model="dialogForm.concurrent"
-                :active-value="1"
-                :inactive-value="0"
+                :active-value="0"
+                :inactive-value="1"
                 active-text="允许"
                 inactive-text="禁止"
                 inline-prompt
@@ -128,10 +128,10 @@ const {
               <el-switch
                 size="default"
                 v-model="dialogForm.status"
-                :active-value="1"
-                :inactive-value="0"
+                :active-value="0"
+                :inactive-value="1"
                 active-text="启用"
-                inactive-text="停止"
+                inactive-text="暂停"
                 inline-prompt
               />
             </el-form-item>
