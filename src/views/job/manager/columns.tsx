@@ -109,7 +109,6 @@ export function useColumns(tableRef: Ref) {
       cellRenderer: (scope) => (
         <el-switch
           size="small"
-          // loading={switchLoadMap.value[scope.index]?.loading}
           v-model={scope.row.status}
           active-value={0}
           inactive-value={1}

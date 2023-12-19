@@ -3,7 +3,7 @@ import { ref, onMounted, reactive } from "vue";
 import type { LoadingConfig } from "@pureadmin/table";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
-import { deleteWebhook, getWebHookList } from "@/api/webhook";
+import { changeWebhookStatus, deleteWebhook, getWebHookList } from "@/api/webhook";
 
 export function useColumns() {
   const dataList = ref([]);
@@ -56,7 +56,8 @@ export function useColumns() {
           active-text="启用"
           inactive-text="停用"
           inline-prompt
-          // onChange={() => onChange(scope as any)}
+          loading={scope.row.loading}
+          onChange={() => doChangeStatus(scope as any)}
         />
       )
     },
@@ -131,6 +132,22 @@ export function useColumns() {
       })
       .finally(() => {
         loading.value.main = false;
+      });
+  }
+
+  function doChangeStatus(row: any) {
+    row.loading = true;
+    changeWebhookStatus({
+      id: row.id,
+      enable: row.enable
+    })
+      .then((data) => {
+        if (data.success) {
+          message("修改状态成功！", { type: "success" });
+        }
+      })
+      .finally(() => {
+        row.loading = false;
       });
   }
 

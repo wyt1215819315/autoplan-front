@@ -34,6 +34,11 @@ export const saveOrUpdateWebhook = (data: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/system/webhook/saveOrUpdate"), { data }, null, false, false);
 };
 
+/** 修改webhook状态 */
+export const changeWebhookStatus = (data: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/system/webhook/changeStatus"), { data });
+};
+
 /** 校验webhook */
 export const checkWebhook = (data: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/system/webhook/check"), { data }, null, false, false);
