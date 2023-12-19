@@ -64,7 +64,11 @@ const {
         @page-current-change="onCurrentChange"
       >
         <template #operation="{ row }">
-          <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(VideoPlay)" @click="doRunJob(row)"> 运行 </el-button>
+          <el-popconfirm :title="`是否单次运行[${row.jobName}]任务`" @confirm="doRunJob(row)">
+            <template #reference>
+              <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(VideoPlay)"> 运行 </el-button>
+            </template>
+          </el-popconfirm>
           <el-button class="reset-margin" link type="primary" :icon="useRenderIcon(EditPen)" @click="edit(row)"> 修改 </el-button>
           <el-popconfirm :title="`是否确认删除[${row.jobName}]任务`" @confirm="doDelete(row)">
             <template #reference>
