@@ -3,7 +3,6 @@ import { ref, onMounted, reactive, Ref } from "vue";
 import type { PaginationProps, LoadingConfig } from "@pureadmin/table";
 import { message } from "@/utils/message";
 import { deleteJobLog, deleteAllJobLog, getJobLogPage, viewJobLog } from "@/api/job";
-import { FormItemProps } from "@/views/system/dept/utils/types";
 import { ElMessageBox } from "element-plus";
 
 class SysQuartzJobLog {
@@ -147,7 +146,7 @@ export function useColumns(tableRef: Ref) {
   /**
    * 打开编辑页面
    */
-  function edit(row?: any) {
+  function view(row?: any) {
     initForm();
     viewJobLog(row.id).then((data) => {
       if (data.success) {
@@ -223,7 +222,7 @@ export function useColumns(tableRef: Ref) {
     requestData,
     dialog,
     form,
-    edit,
+    view,
     doDelete,
     doDeleteAll,
     closeDialog

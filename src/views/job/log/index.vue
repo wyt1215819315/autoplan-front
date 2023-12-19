@@ -24,6 +24,7 @@ const {
   form,
   doDelete,
   doDeleteAll,
+  view,
   closeDialog
 } = useColumns(tableRef);
 </script>
@@ -49,6 +50,7 @@ const {
           background: 'var(--el-fill-color-light)',
           color: 'var(--el-text-color-primary)'
         }"
+        @row-click="view"
         @page-size-change="onSizeChange"
         @page-current-change="onCurrentChange"
       >
@@ -66,56 +68,56 @@ const {
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务名称:" prop="jobName">
-              <el-input v-model="form.jobName" disabled />
+              <el-input v-model="form.jobName" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="调用目标字符串:" prop="invokeTarget">
-              <el-input v-model="form.invokeTarget" disabled />
+              <el-input v-model="form.invokeTarget" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="日志信息:" prop="jobMessage">
-              <el-input type="textarea" v-model="form.jobMessage" disabled />
+              <el-input type="textarea" v-model="form.jobMessage" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务状态:" prop="status">
-              <el-input v-model="form.status" disabled />
+              <el-input v-model="form.status" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="异常信息:" prop="exceptionInfo">
-              <el-input type="textarea" v-model="form.exceptionInfo" disabled />
+              <el-input type="textarea" v-model="form.exceptionInfo" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="开始时间:" prop="startTime">
-              <el-input v-model="form.startTime" disabled />
+              <el-input v-model="form.startTime" readonly />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
             <el-form-item label="结束时间:" prop="endTime">
-              <el-input v-model="form.endTime" disabled />
+              <el-input v-model="form.endTime" readonly />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="danger" @click="closeDialog"> 取消 </el-button>
+          <el-button type="danger" @click="dialog.visible = false"> 取消 </el-button>
         </div>
       </template>
     </el-dialog>
