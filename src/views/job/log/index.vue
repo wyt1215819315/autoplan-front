@@ -3,8 +3,10 @@ import { useColumns } from "./columns";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Delete from "@iconify-icons/ep/delete";
 import { PureTableBar } from "@/components/RePureTableBar";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { FormInstance } from "element-plus";
+import { onMounted } from "vue/dist/vue";
+import { isAllEmpty } from "@pureadmin/utils";
 
 defineOptions({
   name: "QuartzLog"
@@ -27,6 +29,30 @@ const {
   view,
   closeDialog
 } = useColumns(tableRef);
+
+const windowWidth = ref();
+const labelPosition = ref("right");
+
+onMounted(() => {
+  window.onresize = () => {
+    return (() => {
+      windowWidth.value = document.documentElement.clientWidth; // 宽
+    })();
+  };
+});
+watch(
+  () => windowWidth.value,
+  (newValue) => {
+    if (!isAllEmpty(newValue)) {
+      if (newValue <= 768) {
+        // 小屏设备
+        labelPosition.value = "top";
+      } else {
+        labelPosition.value = "right";
+      }
+    }
+  }
+);
 </script>
 
 <template>
@@ -64,7 +90,7 @@ const {
       </pure-table>
     </PureTableBar>
     <el-dialog title="日志详情" v-model="dialog.visible" fullscreen append-to-body @close="closeDialog">
-      <el-form ref="formDialogRef" :model="form" label-width="15vw">
+      <el-form ref="formDialogRef" :model="form" label-width="15vw" :label-position="labelPosition">
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务名称:" prop="jobName">
