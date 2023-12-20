@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, watch } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Search from "@iconify-icons/ep/search";
 import AddFill from "@iconify-icons/ri/add-circle-line";
@@ -8,6 +8,7 @@ import { AutoTask, mineTaskPage } from "@/api/auto";
 import TaskCard from "@/views/auto/mine/components/TaskCard.vue";
 import { PaginationProps } from "@pureadmin/table";
 import Refresh from "@iconify-icons/ep/refresh";
+import { isAllEmpty } from "@pureadmin/utils";
 
 defineOptions({
   name: "MineCardList"
@@ -34,6 +35,24 @@ const pagination = reactive<PaginationProps>({
   background: true,
   small: false
 });
+
+const windowWidth = ref();
+
+onMounted(() => {
+  window.onresize = () => {
+    return (() => {
+      windowWidth.value = document.documentElement.clientWidth; // 宽
+    })();
+  };
+});
+watch(
+  () => windowWidth.value,
+  (newValue) => {
+    if (!isAllEmpty(newValue)) {
+      pagination.small = newValue <= 768;
+    }
+  }
+);
 
 const dataList = ref<Array<AutoTask>>([]);
 const dataLoading = ref(true);

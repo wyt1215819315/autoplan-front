@@ -5,12 +5,13 @@ import EditPen from "@iconify-icons/ep/edit-pen";
 import Delete from "@iconify-icons/ep/delete";
 import { PureTableBar } from "@/components/RePureTableBar";
 import AddFill from "@iconify-icons/ri/add-circle-line";
-import { isEmpty } from "@pureadmin/utils";
+import { isAllEmpty, isEmpty } from "@pureadmin/utils";
 import { useRoute } from "vue-router";
 import More from "@iconify-icons/ep/more-filled";
 import TaskDialog from "@/views/auto/task/TaskDialog.vue";
 import Info from "@iconify-icons/ri/information-line";
 import TaskLogDialog from "@/views/auto/log/component/TaskLogDialog.vue";
+import { ref, watch, onMounted } from "vue";
 
 defineOptions({
   name: "TaskInfoPage"
@@ -36,6 +37,24 @@ const {
   closeLogDialog,
   closeDialog
 } = useColumns(parameter);
+
+const windowWidth = ref();
+
+onMounted(() => {
+  window.onresize = () => {
+    return (() => {
+      windowWidth.value = document.documentElement.clientWidth; // 宽
+    })();
+  };
+});
+watch(
+  () => windowWidth.value,
+  (newValue) => {
+    if (!isAllEmpty(newValue)) {
+      pagination.small = newValue <= 768;
+    }
+  }
+);
 </script>
 
 <template>

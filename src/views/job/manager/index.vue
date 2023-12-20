@@ -5,10 +5,11 @@ import EditPen from "@iconify-icons/ep/edit-pen";
 import Delete from "@iconify-icons/ep/delete";
 import { PureTableBar } from "@/components/RePureTableBar";
 import AddFill from "@iconify-icons/ri/add-circle-line";
-import { ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { FormInstance } from "element-plus";
 import VideoPlay from "@iconify-icons/ep/video-play";
 import { cron } from "@/components/crontab";
+import { isAllEmpty } from "@pureadmin/utils";
 
 defineOptions({
   name: "QuartzManager"
@@ -37,6 +38,32 @@ const {
   doRunJob,
   closeDialog
 } = useColumns(tableRef);
+
+const windowWidth = ref();
+const labelPosition = ref("right");
+
+onMounted(() => {
+  window.onresize = () => {
+    return (() => {
+      windowWidth.value = document.documentElement.clientWidth; // 宽
+    })();
+  };
+});
+watch(
+  () => windowWidth.value,
+  (newValue) => {
+    if (!isAllEmpty(newValue)) {
+      if (newValue <= 768) {
+        // 小屏设备
+        labelPosition.value = "top";
+        pagination.small = true;
+      } else {
+        labelPosition.value = "right";
+        pagination.small = false;
+      }
+    }
+  }
+);
 </script>
 
 <template>
@@ -79,7 +106,7 @@ const {
       </pure-table>
     </PureTableBar>
     <el-dialog :title="dialog.title" v-model="dialog.visible" fullscreen append-to-body @close="closeDialog">
-      <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw">
+      <el-form ref="formDialogRef" :model="dialogForm" :rules="dialogRules" label-width="15vw" :label-position="labelPosition">
         <el-row>
           <el-col :span="24">
             <el-form-item label="任务名称:" prop="jobName">

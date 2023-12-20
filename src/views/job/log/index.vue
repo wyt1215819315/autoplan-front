@@ -3,9 +3,8 @@ import { useColumns } from "./columns";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Delete from "@iconify-icons/ep/delete";
 import { PureTableBar } from "@/components/RePureTableBar";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { FormInstance } from "element-plus";
-import { onMounted } from "vue/dist/vue";
 import { isAllEmpty } from "@pureadmin/utils";
 
 defineOptions({
@@ -47,8 +46,10 @@ watch(
       if (newValue <= 768) {
         // 小屏设备
         labelPosition.value = "top";
+        pagination.small = true;
       } else {
         labelPosition.value = "right";
+        pagination.small = false;
       }
     }
   }
