@@ -57,7 +57,7 @@ export function useColumns() {
           inactive-text="停用"
           inline-prompt
           loading={scope.row.loading}
-          onChange={() => doChangeStatus(scope as any)}
+          onChange={() => doChangeStatus(scope.row)}
         />
       )
     },
