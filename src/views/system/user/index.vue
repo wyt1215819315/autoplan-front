@@ -49,9 +49,6 @@ const {
       <el-form-item label="用户名称：" prop="username">
         <el-input v-model="form.username" placeholder="请输入用户名称" clearable class="!w-[160px]" />
       </el-form-item>
-      <el-form-item label="手机号码：" prop="phone">
-        <el-input v-model="form.phone" placeholder="请输入手机号码" clearable class="!w-[160px]" />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="useRenderIcon(Search)" :loading="loading" @click="onSearch"> 搜索 </el-button>
         <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)"> 重置 </el-button>
@@ -100,7 +97,7 @@ const {
             <el-button class="reset-margin" link type="primary" :size="size" :icon="useRenderIcon(EditPen)" @click="openDialog('编辑', row)">
               修改
             </el-button>
-            <el-popconfirm :title="`是否确认删除用户编号为${row.id}的这条数据`" @confirm="handleDelete(row)">
+            <el-popconfirm :title="`是否确认删除用户${row.username}`" @confirm="handleDelete(row)">
               <template #reference>
                 <el-button class="reset-margin" link type="primary" :size="size" :icon="useRenderIcon(Delete)"> 删除 </el-button>
               </template>

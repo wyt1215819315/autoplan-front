@@ -7,15 +7,13 @@ import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { type PaginationProps } from "@pureadmin/table";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
-import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
-import { getRoleIds, getUserList, getAllRoleList } from "@/api/system/system";
+import { getKeyList, isAllEmpty, delay } from "@pureadmin/utils";
+import { getRoleIds, getUserList, getAllRoleList, deleteUser } from "@/api/system/system";
 import { ElForm, ElInput, ElFormItem, ElProgress } from "element-plus";
-import { type Ref, h, ref, toRaw, watch, computed, reactive, onMounted } from "vue";
+import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
 
 export function useUser(tableRef: Ref) {
   const form = reactive({
-    // 左侧部门树的id
-    deptId: "",
     username: "",
     phone: "",
     status: ""
@@ -39,9 +37,9 @@ export function useUser(tableRef: Ref) {
       reserveSelection: true // 数据刷新后保留选项
     },
     {
-      label: "用户编号",
-      prop: "id",
-      width: 90
+      label: "序号",
+      prop: "tableNo",
+      width: 60
     },
     {
       label: "用户名称",
@@ -49,30 +47,9 @@ export function useUser(tableRef: Ref) {
       minWidth: 130
     },
     {
-      label: "用户昵称",
-      prop: "nickname",
-      minWidth: 130
-    },
-    {
-      label: "性别",
-      prop: "sex",
+      label: "注册时间",
       minWidth: 90,
-      cellRenderer: ({ row, props }) => (
-        <el-tag size={props.size} type={row.sex === 1 ? "danger" : ""} effect="plain">
-          {row.sex === 1 ? "女" : "男"}
-        </el-tag>
-      )
-    },
-    {
-      label: "手机号码",
-      prop: "phone",
-      minWidth: 90,
-      formatter: ({ phone }) => hideTextAtIndex(phone, { start: 3, end: 6 })
-    },
-    {
-      label: "创建时间",
-      minWidth: 90,
-      prop: "createTime",
+      prop: "regdate",
       formatter: ({ createTime }) => dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
     },
     {
@@ -105,16 +82,25 @@ export function useUser(tableRef: Ref) {
   }
 
   function handleDelete(row) {
-    message(`您删除了用户编号为${row.id}的这条数据`, { type: "success" });
-    onSearch();
+    deleteUser(row.id).then((data) => {
+      if (data.success) {
+        message("删除成功！", { type: "success" });
+        onSearch();
+      }
+    });
   }
 
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    pagination.pageSize = val;
+    delay(100).then(() => {
+      onSearch();
+    });
   }
 
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
+    delay(100).then(() => {
+      onSearch();
+    });
   }
 
   /** 当CheckBox选择项发生变化时会触发该事件 */
@@ -136,29 +122,36 @@ export function useUser(tableRef: Ref) {
     // 返回当前选中的行
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
     // 接下来根据实际业务，通过选中行的某项数据，比如下面的id，调用接口进行批量删除
-    message(`已删除用户编号为 ${getKeyList(curSelected, "id")} 的数据`, {
-      type: "success"
-    });
+    for (const row of curSelected) {
+      handleDelete(row);
+    }
     tableRef.value.getTableRef().clearSelection();
   }
 
-  async function onSearch() {
+  function onSearch() {
     loading.value = true;
-    const { data } = await getUserList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
-
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    getUserList({
+      size: pagination.pageSize,
+      current: pagination.currentPage
+    })
+      .then((data) => {
+        pagination.total = data.data.total;
+        dataList.value = [];
+        for (let i = 0; i < data.data.records.length; i++) {
+          const record = data.data.records[i];
+          record.tableNo = (pagination.currentPage - 1) * pagination.pageSize + i + 1;
+          // 解析settings json字符串到列表中去
+          dataList.value.push(record);
+        }
+      })
+      .finally(() => {
+        loading.value = false;
+      });
   }
 
   const resetForm = (formEl) => {
     if (!formEl) return;
     formEl.resetFields();
-    form.deptId = "";
     onSearch();
   };
 
@@ -168,15 +161,8 @@ export function useUser(tableRef: Ref) {
       props: {
         formInline: {
           title,
-          parentId: row?.dept.id ?? 0,
-          nickname: row?.nickname ?? "",
           username: row?.username ?? "",
-          password: row?.password ?? "",
-          phone: row?.phone ?? "",
-          email: row?.email ?? "",
-          sex: row?.sex ?? "",
-          status: row?.status ?? 1,
-          remark: row?.remark ?? ""
+          password: row?.password ?? ""
         }
       },
       width: "46%",
