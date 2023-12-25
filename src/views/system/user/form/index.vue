@@ -3,6 +3,7 @@ import { ref } from "vue";
 import ReCol from "@/components/ReCol";
 import { formRules } from "../utils/rule";
 import { FormProps } from "../utils/types";
+import { loginRules } from "@/views/login/utils/rule";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -24,17 +25,19 @@ defineExpose({ getRef });
 
 <template>
   <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules" label-width="82px">
-    <el-row :gutter="30">
-      <re-col :value="12" :xs="24" :sm="24">
+    <el-row>
+      <el-col>
         <el-form-item label="用户名称" prop="username">
           <el-input v-model="newFormInline.username" clearable placeholder="请输入用户名称" />
         </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24" v-if="newFormInline.title === '新增'">
-        <el-form-item label="用户密码" prop="password">
-          <el-input v-model="newFormInline.password" clearable placeholder="请输入用户密码" />
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col>
+        <el-form-item label="用户密码" prop="password" :rules="loginRules.password">
+          <el-input v-model="newFormInline.password" clearable show-password placeholder="请输入用户密码" />
         </el-form-item>
-      </re-col>
+      </el-col>
     </el-row>
   </el-form>
 </template>

@@ -41,12 +41,16 @@ export const deleteUser = (id?: any) => {
 
 /** 用户管理-获取所有角色列表 */
 export const getAllRoleList = (data?: object) => {
-  return http.request<Result<any>>("get", baseUrlApi("/system/user/page"), { data });
+  return http.request<Result<any>>("get", baseUrlApi("/system/role/list"), { data });
 };
 
 /** 用户管理-根据userId，获取对应角色id列表（userId：用户id） */
-export const getRoleIds = (data?: object) => {
-  return http.request<Result<any>>("post", baseUrlApi("/system/user/page"), { data });
+export const getRoleIds = (userId: any) => {
+  return http.request<Result<any>>("get", baseUrlApi("/system/role/" + userId + "/getRole"));
+};
+
+export const editUserRole = (data?: object) => {
+  return http.request<Result<any>>("post", baseUrlApi("/system/role/editUserRole"), { data });
 };
 
 /** 获取角色管理列表 */

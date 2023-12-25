@@ -8,9 +8,10 @@ import { addDialog } from "@/components/ReDialog";
 import { type PaginationProps } from "@pureadmin/table";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
 import { getKeyList, isAllEmpty, delay } from "@pureadmin/utils";
-import { getRoleIds, getUserList, getAllRoleList, deleteUser } from "@/api/system/system";
+import { getRoleIds, getUserList, getAllRoleList, deleteUser, saveUser, updateUser, editUserRole } from "@/api/system/system";
 import { ElForm, ElInput, ElFormItem, ElProgress } from "element-plus";
 import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
+import { md5 } from "@/utils/crypto";
 
 export function useUser(tableRef: Ref) {
   const form = reactive({
@@ -77,10 +78,6 @@ export function useUser(tableRef: Ref) {
   const curScore = ref();
   const roleOptions = ref([]);
 
-  function handleUpdate(row) {
-    console.log(row);
-  }
-
   function handleDelete(row) {
     deleteUser(row.id).then((data) => {
       if (data.success) {
@@ -132,7 +129,8 @@ export function useUser(tableRef: Ref) {
     loading.value = true;
     getUserList({
       size: pagination.pageSize,
-      current: pagination.currentPage
+      current: pagination.currentPage,
+      username: form.username
     })
       .then((data) => {
         pagination.total = data.data.total;
@@ -173,23 +171,36 @@ export function useUser(tableRef: Ref) {
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了用户名称为${curData.username}的这条数据`, {
-            type: "success"
-          });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
+        function chores(data: any) {
+          if (data.success) {
+            message(title + "成功！", { type: "success" });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
+          }
         }
         FormRef.validate((valid) => {
           if (valid) {
-            console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              chores();
+              saveUser({
+                username: curData.username,
+                password: md5(curData.password)
+              }).then((data) => {
+                if (data.success) {
+                  chores(data);
+                }
+              });
             } else {
               // 实际开发先调用编辑接口，再进行下面操作
-              chores();
+              updateUser({
+                id: row.id,
+                username: curData.username,
+                password: md5(curData.password)
+              }).then((data) => {
+                if (data.success) {
+                  chores(data);
+                }
+              });
             }
           }
         });
@@ -247,13 +258,18 @@ export function useUser(tableRef: Ref) {
         ruleFormRef.value.validate((valid) => {
           if (valid) {
             // 表单规则校验通过
-            message(`已成功重置 ${row.username} 用户的密码`, {
-              type: "success"
+            updateUser({
+              id: row.id,
+              password: md5(pwdForm.newPwd)
+            }).then((data) => {
+              if (data.success) {
+                message(`已成功重置 ${row.username} 用户的密码`, {
+                  type: "success"
+                });
+                done(); // 关闭弹框
+                onSearch(); // 刷新表格数据
+              }
             });
-            console.log(pwdForm.newPwd);
-            // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
-            done(); // 关闭弹框
-            onSearch(); // 刷新表格数据
           }
         });
       }
@@ -263,7 +279,7 @@ export function useUser(tableRef: Ref) {
   /** 分配角色 */
   async function handleRole(row) {
     // 选中的角色列表
-    const ids = (await getRoleIds({ userId: row.id })).data ?? [];
+    const ids = getKeyList((await getRoleIds(row.id)).data ?? [], "id");
     addDialog({
       title: `分配 ${row.username} 用户的角色`,
       props: {
@@ -281,16 +297,21 @@ export function useUser(tableRef: Ref) {
       contentRenderer: () => h(roleForm),
       beforeSure: (done, { options }) => {
         const curData = options.props.formInline as RoleFormItemProps;
-        console.log("curIds", curData.ids);
-        // 根据实际业务使用curData.ids和row里的某些字段去调用修改角色接口即可
-        done(); // 关闭弹框
+        editUserRole({
+          userId: row.id,
+          roleIds: curData.ids
+        }).then((data) => {
+          if (data.success) {
+            message("分配角色成功！", { type: "success" });
+            done(); // 关闭弹框
+          }
+        });
       }
     });
   }
 
   onMounted(async () => {
     onSearch();
-
     // 角色列表
     roleOptions.value = (await getAllRoleList()).data;
   });
@@ -307,7 +328,6 @@ export function useUser(tableRef: Ref) {
     resetForm,
     onbatchDel,
     openDialog,
-    handleUpdate,
     handleDelete,
     handleReset,
     handleRole,

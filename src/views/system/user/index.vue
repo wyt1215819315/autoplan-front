@@ -103,7 +103,7 @@ const {
               </template>
             </el-popconfirm>
             <el-dropdown>
-              <el-button class="ml-3 mt-[2px]" link type="primary" :size="size" :icon="useRenderIcon(More)" @click="handleUpdate(row)" />
+              <el-button class="ml-3 mt-[2px]" link type="primary" :size="size" :icon="useRenderIcon(More)" />
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item>
