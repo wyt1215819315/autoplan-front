@@ -6,6 +6,10 @@ export class AutoIndex {
   name: string;
   code: string;
   icon: string;
+  enable: number;
+  delay: number;
+  timeout: number;
+  threadNum: number;
 }
 
 export class AutoTask {

@@ -86,7 +86,7 @@ const {
         <el-row>
           <el-col :span="24">
             <el-form-item label="值（Value）:" prop="value">
-              <el-input type="textarea" v-model="dialogForm.value" placeholder="请输入Value" />
+              <el-input type="textarea" size="large" v-model="dialogForm.value" placeholder="请输入Value" />
             </el-form-item>
           </el-col>
         </el-row>

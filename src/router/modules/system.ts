@@ -8,12 +8,12 @@ export default {
   },
   children: [
     {
-      path: "/system/config",
-      name: "SystemConfigPage",
-      component: () => import("@/views/system/config/index.vue"),
+      path: "/system/index",
+      name: "AutoIndexManager",
+      component: () => import("@/views/auto/index/index.vue"),
       meta: {
-        icon: "setting",
-        title: "配置管理"
+        icon: "user",
+        title: "任务管理"
       }
     },
     {
@@ -23,6 +23,15 @@ export default {
       meta: {
         icon: "user",
         title: "用户管理"
+      }
+    },
+    {
+      path: "/system/config",
+      name: "SystemConfigPage",
+      component: () => import("@/views/system/config/index.vue"),
+      meta: {
+        icon: "setting",
+        title: "配置管理"
       }
     },
     {
