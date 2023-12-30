@@ -12,7 +12,7 @@ export default {
       name: "AutoIndexManager",
       component: () => import("@/views/auto/index/index.vue"),
       meta: {
-        icon: "user",
+        icon: "task",
         title: "任务管理"
       }
     },

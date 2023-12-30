@@ -1,6 +1,10 @@
 import { http } from "@/utils/http";
 import { baseUrlApi, PageResult, Result } from "@/api/utils";
 
+export const restartBackGround = () => {
+  return http.request<Result<any>>("get", baseUrlApi("/system/api/restartProject"));
+};
+
 // ***********************系统配置管理***********************
 export const getSystemConfigPage = (data?: object) => {
   return http.request<PageResult<any>>("get", baseUrlApi("/system/config/page"), data);

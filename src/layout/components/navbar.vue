@@ -11,6 +11,8 @@ import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
 import Edit from "@iconify-icons/ep/edit";
+import Refresh from "@iconify-icons/ep/refresh";
+import { useUserStoreHook } from "@/store/modules/user";
 
 const {
   layout,
@@ -24,7 +26,8 @@ const {
   toggleSideBar,
   getDropdownItemStyle,
   getDropdownItemClass,
-  editPassword
+  editPassword,
+  doRestartBackGround
 } = useNav();
 
 const { t, locale, translationCh, translationEn } = useTranslationLang();
@@ -77,6 +80,10 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item @click="doRestartBackGround" v-if="useUserStoreHook().isAdmin()">
+              <IconifyIconOffline :icon="Refresh" style="margin: 5px" />
+              重启系统
+            </el-dropdown-item>
             <el-dropdown-item @click="editPassword">
               <IconifyIconOffline :icon="Edit" style="margin: 5px" />
               修改密码

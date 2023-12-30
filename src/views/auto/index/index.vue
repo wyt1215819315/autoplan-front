@@ -100,8 +100,8 @@ watch(
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="任务执行超时:" prop="timeout">
-              <el-input type="number" v-model="dialogForm.timeout" placeholder="请输入任务执行超时" />
+            <el-form-item label="任务线程数:" prop="threadNum">
+              <el-input type="number" v-model="dialogForm.threadNum" placeholder="请输入任务池的并发数量" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -118,12 +118,7 @@ watch(
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="线程数:" prop="threadNum">
-              <el-input type="number" v-model="dialogForm.threadNum" placeholder="请输入任务池的并发数量" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="任务状态:" prop="enable">
               <el-switch
                 size="default"
@@ -134,6 +129,14 @@ watch(
                 inactive-text="禁用"
                 inline-prompt
               />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="菜单栏图标:" prop="icon">
+              <el-input v-model="dialogForm.icon" placeholder="请输入菜单图标code" />
+              <!--              <IconSelect v-model="dialogForm.icon" />-->
             </el-form-item>
           </el-col>
         </el-row>

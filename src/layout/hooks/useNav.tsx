@@ -19,6 +19,8 @@ import Lock from "@iconify-icons/ri/lock-fill";
 import { editSelfPassword } from "@/api/system/user";
 import { message } from "@/utils/message";
 import { md5 } from "@/utils/crypto";
+import { ElMessageBox } from "element-plus";
+import { restartBackGround } from "@/api/system/system";
 
 const errorInfo = "当前路由配置不正确，请检查配置";
 
@@ -135,6 +137,23 @@ export function useNav() {
     return new URL("/logo.svg", import.meta.url).href;
   }
 
+  /** 重启系统 */
+  function doRestartBackGround() {
+    ElMessageBox.confirm(`确认要<strong>重启</strong>系统吗?`, "系统提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+      dangerouslyUseHTMLString: true,
+      draggable: true
+    }).then(() => {
+      restartBackGround().then((data) => {
+        if (data.success) {
+          message("重启指令已发送");
+        }
+      });
+    });
+  }
+
   /** 修改密码 */
   function editPassword() {
     const passwordForm = ref({
@@ -221,6 +240,7 @@ export function useNav() {
     tooltipEffect,
     getDropdownItemStyle,
     getDropdownItemClass,
-    editPassword
+    editPassword,
+    doRestartBackGround
   };
 }
