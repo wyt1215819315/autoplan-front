@@ -2,7 +2,8 @@ import { ref } from "vue";
 import { message } from "@/utils/message";
 import { addDialog, closeDialog, DialogOptions } from "@/components/ReDialog/index";
 import ReQrcode from "@/components/ReQrcode";
-import { getQrCode, getQrCodeResult } from "@/api/task/bili";
+import { getBiliQrCode, getBiliQrCodeResult } from "@/api/task/bili";
+import { getAliPanQrCode, getAliPanQrCodeResult } from "@/api/task/alipan";
 
 export function useCustomDialog(code: string) {
   class CustomDialogButton {
@@ -81,6 +82,15 @@ export function useCustomDialog(code: string) {
           )
         }
       ]
+    },
+    AliPanSign: {
+      headButton: [
+        {
+          type: "primary",
+          click: showAliPanQrcode,
+          text: "扫码登录"
+        }
+      ]
     }
   });
 
@@ -93,13 +103,13 @@ export function useCustomDialog(code: string) {
     const dialogIndex = ref<number>();
     function refreshQrCode() {
       disabled.value = false;
-      getQrCode().then((data) => {
+      getBiliQrCode().then((data) => {
         if (data.code === 0) {
           qrcodeUrl.value = data.data.url;
           // 启动一个定时器去监听二维码
           timer = setInterval(() => {
             setTimeout(() => {
-              getQrCodeResult(data.data.qrcode_key)
+              getBiliQrCodeResult(data.data.qrcode_key)
                 .then((data) => {
                   if (data.success) {
                     if (data.data.code === 0) {
@@ -135,6 +145,94 @@ export function useCustomDialog(code: string) {
           }, 1000 * 2);
         } else {
           message("获取二维码失败：" + data.message);
+          closeDialog(dialogOptions.value, dialogIndex.value);
+        }
+      });
+    }
+    // bilibili扫码登录
+    addDialog({
+      title: "扫码登录",
+      hideFooter: true,
+      width: 300,
+      open: ({ options, index }) => {
+        dialogOptions.value = options;
+        dialogIndex.value = index;
+      },
+      contentRenderer: () => (
+        <el-card shadow={"hover"} className={"mb-[10px] text-center"}>
+          <div class={"font-bold"}>{msg.value}</div>
+          <ReQrcode disabled={disabled.value} width={250} text={qrcodeUrl.value} onDisabled-click={() => refreshQrCode()} />
+        </el-card>
+      ),
+      close: () => {
+        if (timer !== undefined) {
+          clearInterval(timer);
+        }
+      }
+    });
+    refreshQrCode();
+  }
+
+  function showAliPanQrcode(dialogForm: any) {
+    let timer;
+    const qrcodeUrl = ref("");
+    const disabled = ref(false);
+    const msg = ref("");
+    const dialogOptions = ref<DialogOptions>();
+    const dialogIndex = ref<number>();
+    function refreshQrCode() {
+      msg.value = "请使用阿里云盘手机App扫描二维码";
+      disabled.value = false;
+      getAliPanQrCode().then((data) => {
+        if (data.success) {
+          qrcodeUrl.value = data.data.codeContent;
+          // 启动一个定时器去监听二维码
+          timer = setInterval(() => {
+            setTimeout(() => {
+              getAliPanQrCodeResult({
+                ck: data.data.ck,
+                t: data.data.t
+              })
+                .then((data) => {
+                  if (data.success) {
+                    if (data.data.qrCodeStatus === "CONFIRMED") {
+                      dialogForm.data.token = data.data.bizExt.pds_login_result.refreshToken;
+                      message("自动填充 Refresh Token 成功", { type: "success" });
+                      clearInterval(timer);
+                      closeDialog(dialogOptions.value, dialogIndex.value);
+                    } else if (data.data.qrCodeStatus === "NEW") {
+                      msg.value = "请使用阿里云盘手机App扫描二维码";
+                    } else if (data.data.qrCodeStatus === "SCANED") {
+                      msg.value = "已扫码，请在App上点击确认登录";
+                    } else if (data.data.qrCodeStatus === "CANCELED") {
+                      msg.value = "用户取消扫描";
+                      disabled.value = true;
+                      clearInterval(timer);
+                    } else if (data.data.qrCodeStatus === "EXPIRED") {
+                      msg.value = "二维码已失效";
+                      disabled.value = true;
+                      clearInterval(timer);
+                    } else {
+                      msg.value = "未知状态，请重新获取二维码";
+                      disabled.value = true;
+                      clearInterval(timer);
+                    }
+                  } else {
+                    msg.value = "二维码已失效";
+                    disabled.value = true;
+                    clearInterval(timer);
+                  }
+                })
+                .catch((e) => {
+                  console.error(e);
+                  message("扫码登录出现异常：" + e, { type: "error" });
+                  disabled.value = true;
+                  clearInterval(timer);
+                });
+            }, 0);
+          }, 1000 * 2);
+        } else {
+          message("获取二维码失败 " + data.msg);
           closeDialog(dialogOptions.value, dialogIndex.value);
         }
       });

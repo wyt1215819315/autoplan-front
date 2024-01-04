@@ -14,11 +14,11 @@ class BiliQrCodeGetData {
 }
 
 /** 获取二维码对象 */
-export const getQrCode = () => {
+export const getBiliQrCode = () => {
   return http.request<BiliResult<BiliQrCodeGetData>>("get", baseUrlApi("/task/bili/getQrCode"));
 };
 
 /** 获取二维码扫描结果对象 */
-export const getQrCodeResult = (qrCodeKey: string) => {
+export const getBiliQrCodeResult = (qrCodeKey: string) => {
   return http.request<Result<any>>("get", baseUrlApi("/task/bili/getQrCodeResult/" + qrCodeKey));
 };
