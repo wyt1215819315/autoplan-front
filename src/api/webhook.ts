@@ -43,3 +43,8 @@ export const changeWebhookStatus = (data: object) => {
 export const checkWebhook = (data: object) => {
   return http.request<Result<any>>("post", baseUrlApi("/system/webhook/check"), { data }, null, false, false);
 };
+
+/** 根据logId获取推送结果 */
+export const getTaskPushResult = (logId: any) => {
+  return http.request<Result<any>>("get", baseUrlApi("/system/webhook/" + logId + "/pushResult"));
+};
