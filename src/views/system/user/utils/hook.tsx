@@ -50,8 +50,7 @@ export function useUser(tableRef: Ref) {
     {
       label: "注册时间",
       minWidth: 90,
-      prop: "regdate",
-      formatter: ({ createTime }) => dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+      prop: "regdate"
     },
     {
       label: "操作",
